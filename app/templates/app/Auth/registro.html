@@ -1,0 +1,47 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title text-center">Registrar Usuario</h4>
+
+      <form method="POST" action="{% url 'registro' %}">
+        {% csrf_token %}
+
+        <div class="form-outline mb-4">
+          <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <div class="text-danger">
+              {{ form.username.errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="form-outline mb-4">
+          <label for="{{ form.email.id_for_label }}">Correo Electrónico</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="text-danger">
+              {{ form.email.errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="form-outline mb-4">
+          <label for="{{ form.password.id_for_label }}">Contraseña</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <div class="text-danger">
+              {{ form.password.errors }}
+            </div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Registrar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

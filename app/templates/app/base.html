@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Base</title>
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- MDB -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@8.0.0/css/mdb.min.css"
+      rel="stylesheet"
+    />
+    <!--CSS-->
+    <link
+      href="{% static 'css/style.css' %}"
+      rel="stylesheet"
+    />
+</head>
+<body class="Body-base" style="font-family: 'Roboto', monospace;">
+<div class="container-fluid">
+    <!--- TÍTULO -->
+    <header class="text-center my-4">
+        <h1>Monitoreo de Infraestructura</h1>
+    </header>
+
+    <!--- NAV -->
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary">
+        <div class="container-fluid">
+            <button
+                data-mdb-collapse-init
+                class="navbar-toggler"
+                type="button"
+                data-mdb-toggle="collapse"
+                data-mdb-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <i class="fas fa-bars"></i>
+            </button>
+    
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <a class="navbar-brand mt-2 mt-lg-0" href="#"></a>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/infraestructura/informe">Infraestructura</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Reporte</a>
+                    </li>
+                </ul>
+            </div>
+    
+            <div class="d-flex align-items-center">
+                <!-- NOTIFICACIONES -->
+                <div class="dropdown">
+                    <a
+                        class="text-reset me-3 dropdown-toggle hidden-arrow"
+                        href="#"
+                        id="navbarDropdownMenuLink"
+                        data-mdb-dropdown-init
+                        data-mdb-ripple-init
+                        role="button"
+                        data-mdb-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <i class="fas fa-bell"></i>
+                        <span class="badge rounded-pill badge-notification bg-danger">1</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                        <li><a class="dropdown-item" href="#">Action</a></li>
+                        <li><a class="dropdown-item" href="#">Another action</a></li>
+                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    </ul>
+                </div>
+                <!-- AVATAR -->
+                <div class="dropdown">
+                    <a
+                        class="dropdown-toggle d-flex align-items-center hidden-arrow"
+                        href="#"
+                        id="navbarDropdownMenuAvatar"
+                        data-mdb-dropdown-init
+                        data-mdb-ripple-init
+                        role="button"
+                        data-mdb-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <img
+                            src="https://bagochile.cl/wp-content/uploads/2023/05/cropped-SIMBOLO-LOGO-BAGO-OFF.jpg"
+                            class="rounded-circle"
+                            height="25"
+                            alt="Laboratorio Bago"
+                            loading="lazy"
+                        />
+                        <span class="ml-2">{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="container my-4">
+            {% block content %}{% endblock content %}
+        </div>
+    
+        <!--- FOOTER -->
+        <footer class="text-center mt-4">
+            <p>Contacto: <a href="mailto:contacto@laboratoriobago.com">contacto@laboratoriobago.com</a></p>
+            <p>&copy; 2024 Laboratorio Bagó. Todos los derechos reservados.</p>
+        </footer>
+    
+    
+        <!-- MDB -->
+        <script
+          type="text/javascript"
+          src="https://cdn.jsdelivr.net/npm/mdb-ui-kit@8.0.0/js/mdb.umd.min.js"
+        ></script>
+        <!--javascript -->
+        <script src="{% static 'js/JS.js' %}"></script>
+        <!--SWEETALERT-->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </div>
+</body>
+</html>
