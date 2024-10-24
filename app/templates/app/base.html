@@ -11,10 +11,7 @@
       rel="stylesheet"
     />
     <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
     <!-- MDB -->
     <link
       href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@8.0.0/css/mdb.min.css"
@@ -25,6 +22,8 @@
       href="{% static 'css/style.css' %}"
       rel="stylesheet"
     />
+     <!--CHART-->
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="Body-base" style="font-family: 'Roboto', monospace;">
 <div class="container-fluid">
@@ -37,6 +36,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary">
         <div class="container-fluid">
+            {% if user.is_authenticated %}
             <button
                 data-mdb-collapse-init
                 class="navbar-toggler"
@@ -57,7 +57,7 @@
                         <a class="nav-link" href="#">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/infraestructura/informe">Infraestructura</a>
+                        <a class="nav-link" href="/infraestructura/InformeCondiciones">Infraestructura</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Reporte</a>
@@ -77,14 +77,25 @@
                         role="button"
                         data-mdb-toggle="dropdown"
                         aria-expanded="false"
+                        aria-label="Notifications"
                     >
                         <i class="fas fa-bell"></i>
-                        <span class="badge rounded-pill badge-notification bg-danger">1</span>
+                        <span class="badge rounded-pill badge-notification bg-danger">{{ notificaciones|length }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        {% if notificaciones %}
+                            {% for notificacion in notificaciones %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'marcar_notificacion_como_leida' notificacion.id %}">
+                                        {{ notificacion.mensaje.objetivo }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li>
+                                <span class="dropdown-item text-muted">No hay notificaciones</span>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
                 <!-- AVATAR -->
@@ -106,12 +117,16 @@
                             alt="Laboratorio Bago"
                             loading="lazy"
                         />
+
                         <span class="ml-2">{{ user.username }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
-                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">cerrar sesion</a></li>
                     </ul>
                 </div>
+                {% else %}
+                <a href="{% url 'login' %}" type="button" class="btn btn-outline btn-rounded" data-mdb-ripple-init  data-mdb-ripple-color="dark">Conectarse</a>
+                {% endif %}
             </div>
         </div>
     </nav>

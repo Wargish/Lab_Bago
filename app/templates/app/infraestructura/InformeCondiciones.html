@@ -1,7 +1,7 @@
 {% extends '../base.html' %}
 
 {% block content %}
-<div class="container mt-5 text-white">
+<div class="container mt-9 text-white">
     <h2 class="mb-4">Crear Informe</h2>
     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
 {% csrf_token %}
@@ -17,6 +17,13 @@
             {{ form.lugar }}
             <div class="invalid-feedback">
                 {{ form.lugar.errors }}
+            </div>
+        </div>
+        <div class="md-form">
+            {{ form.tipo_Informe.label_tag }}
+            {{ form.tipo_Informe }}
+            <div class="invalid-feedback">
+                {{ form.tipo_Informe.errors }}
             </div>
         </div>
         <div class="md-form">
