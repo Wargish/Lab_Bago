@@ -18,7 +18,6 @@ def admin(request):
         rol = request.POST.get('rol')
         usuario = get_object_or_404(User, id=usuario_id)
         
-        # Asignar el rol
         grupo = Group.objects.get(name=rol)
         grupo.user_set.add(usuario)
     
@@ -74,23 +73,42 @@ def informe(request):
 
 @login_required
 def reporte(request):
-    return render(request, "app/infraestructura/reporte.html")
+    if request.method == 'POST':
+        form = ReporteForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+    else:
+        form = ReporteForm()
+    return render(request, "app/infraestructura/reporte.html", {'form': form})
 
-@login_required
-def graficos(request):
-    return render(request, "app/dashboard/graficos.html")
-
-@login_required
-def notificaciones(request):
-    notificaciones = Notificacion.objects.filter(user=request.user, leido=False)
-    context = {
-        'notificaciones': notificaciones,
-    }
-    return render(request, 'app/base.html', context)
 
 @login_required
 def marcar_notificacion_como_leida(request, notificacion_id):
     notificacion = Notificacion.objects.get(id=notificacion_id)
     if notificacion.user == request.user:
         notificacion.marcar_como_leido()
-    return redirect('nombre_de_la_vista_donde_redirigir')
+
+
+@login_required
+def graficos(request):
+    return render(request, "app/dashboard/graficos.html")
+
+@login_required
+def listar_tareas(request):
+    estado_selec = request.GET.get('estado', 'todos')
+    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Archivar']
+
+    if estado_selec == 'todos':
+        tareas = Tarea.objects.filter(tecnico=request.user)
+    elif estado_selec in estados_validos:
+        tareas = Tarea.objects.filter(tecnico=request.user ,estado=estado_selec)
+    else:
+        tareas = Tarea.objects.none()
+
+    return render(request, "app/dashboard/listar_tareas.html", {
+        'tareas': tareas,
+        'estado_selec': estado_selec
+    })

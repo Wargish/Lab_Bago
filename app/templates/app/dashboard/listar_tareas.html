@@ -1,0 +1,54 @@
+{% extends '../base.html' %}
+
+{% block content %}
+
+<div class="container mt-9 text-white">
+    <h2 class="mb-4">Lista de Tareas</h2>
+    
+    <form method="get" action="{% url 'listar_tareas' %}">
+        <div class="input-group mb-3">
+            <select name="estado" id="estadoSelect" class="form-select" onchange="this.form.submit()">
+                <option value="todos" {% if estado_selec == 'todos' %}selected{% endif %}>Todas</option>
+                <option value="Pendiente" {% if estado_selec == 'Pendiente' %}selected{% endif %}>Pendientes</option>
+                <option value="En Curso" {% if estado_selec == 'En Curso' %}selected{% endif %}>En Curso</option>
+                <option value="Completada" {% if estado_selec == 'Completada' %}selected{% endif %}>Finalizadas</option>
+                <option value="Archivar" {% if estado_selec == 'Archivar' %}selected{% endif %}>Archivada</option>
+            </select>
+        </div>
+    </form>
+
+    <table class="table table-bordered border-light">
+        <thead>
+            <tr>
+                <th>Objetivo</th>
+                <th>Estado</th>
+                <th>Técnico</th>
+                <th>Fecha de Creación</th>
+                {%%}
+            </tr>
+        </thead>
+        <tbody>
+            {% for tarea in tareas %}
+                <tr>
+                    <td>{{ tarea.objetivo }}</td>
+                    <td>{{ tarea.estado }}</td>
+                    <td>
+                        {% if tarea.tecnico %}
+                            {{ tarea.tecnico.username }}
+                        {% else %}
+                            No asignado
+                        {% endif %}
+                    </td>
+                    <td>{{ tarea.createdAt|date:"d-m-Y H:i" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No hay tareas disponibles.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}
