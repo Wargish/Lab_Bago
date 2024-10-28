@@ -70,7 +70,6 @@
                 <div class="dropdown">
                     <a
                         class="text-reset me-3 dropdown-toggle hidden-arrow"
-                        href="#"
                         id="navbarDropdownMenuLink"
                         data-mdb-dropdown-init
                         data-mdb-ripple-init
@@ -79,7 +78,7 @@
                         aria-expanded="false"
                         aria-label="Notifications"
                     >
-                        <i class="fas fa-bell"></i>
+                        <i class="fas fa-bell" aria-hidden="true"></i>
                         <span class="badge rounded-pill badge-notification bg-danger">{{ notificaciones|length }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
@@ -87,7 +86,7 @@
                             {% for notificacion in notificaciones %}
                                 <li>
                                     <a class="dropdown-item" href="{% url 'marcar_notificacion_como_leida' notificacion.id %}">
-                                        {{ notificacion.mensaje.objetivo }}
+                                        {{ notificacion.informe.objetivo }}
                                     </a>
                                 </li>
                             {% endfor %}
@@ -98,6 +97,8 @@
                         {% endif %}
                     </ul>
                 </div>
+            </div>
+            
                 <!-- AVATAR -->
                 <div class="dropdown">
                     <a
@@ -117,15 +118,18 @@
                             alt="Laboratorio Bago"
                             loading="lazy"
                         />
-
-                        <span class="ml-2">{{ user.username }}</span>
+                        {% if grupo %}
+                        <span class="ml-2">Bienvenido {{ grupo }} {{ user.username }}</span>
+                        {% else %}
+                        <span class="ml-2"></span>
+                        {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
                         <li><a class="dropdown-item" href="{% url 'logout' %}">cerrar sesion</a></li>
                     </ul>
                 </div>
                 {% else %}
-                <a href="{% url 'login' %}" type="button" class="btn btn-outline btn-rounded" data-mdb-ripple-init  data-mdb-ripple-color="dark">Conectarse</a>
+                <a href="{% url 'registro' %}" type="button" class="btn btn-outline btn-rounded" data-mdb-ripple-init  data-mdb-ripple-color="dark">Registrarse</a>
                 {% endif %}
             </div>
         </div>

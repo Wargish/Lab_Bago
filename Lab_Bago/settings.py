@@ -131,8 +131,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/images')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'app/static')]
 
-SESSION_COOKIE_SECURE = True  # Solo se envía a través de HTTPS
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Cierra la sesión al cerrar el navegador
+# SESSION_COOKIE_SECURE = True  # Solo se envía a través de HTTPS
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Cierra la sesión al cerrar el navegador
 
 
 # Default primary key field type

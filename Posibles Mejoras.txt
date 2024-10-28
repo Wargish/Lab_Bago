@@ -11,8 +11,3 @@
   y tener una interfaz y codigo mas limpio, ademas de tener mejor seguridad con los controles internos de la api
 
 - Pensar en otras posibles mejoras
-
-
-
-
-

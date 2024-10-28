@@ -9,7 +9,13 @@ def base(request):
     return render(request, "app/base.html")
 
 def home(request):
-    return render(request, "app/home.html")
+    grupo = None
+    if request.user.is_authenticated:
+        if request.user.groups.filter(name='Operarios').exists():
+            grupo = 'Operario'
+        elif request.user.groups.filter(name='Técnicos').exists():
+            grupo = 'Técnico'
+    return render(request, "app/home.html", {'grupo': grupo})
 
 @user_passes_test(lambda u: u.is_superuser)
 def admin(request):

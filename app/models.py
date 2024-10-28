@@ -44,7 +44,7 @@ class InformeCondiciones(models.Model):
     
 class Notificacion(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    Informe = models.ForeignKey(InformeCondiciones, on_delete=models.CASCADE)
+    informe = models.ForeignKey(InformeCondiciones, on_delete=models.CASCADE)
     leido = models.BooleanField(default=False)
     createdAt = models.DateTimeField(auto_now_add=True)
 
@@ -52,14 +52,14 @@ class Notificacion(models.Model):
     def crear_notificaciones(cls, informe):
         tecnicos = Group.objects.get(name='Técnicos').user_set.all()
         for tecnico in tecnicos:
-            cls.objects.create(user=tecnico, mensaje=informe)
+            cls.objects.create(user=tecnico, informe=informe)
 
     def marcar_como_leido(self):
         self.leido = True
         self.save()
 
     def __str__(self):
-        return f'Notificación para {self.user.username}: {self.mensaje.objetivo}'
+        return f'Notificación para {self.user.username}: {self.informe.objetivo}'
     
 
 class Tarea(models.Model):
@@ -106,6 +106,3 @@ class Reporte(models.Model):
 
     def __str__(self):
         return f'Reporte de Tarea: {self.tarea.objetivo} - Fecha: {self.createdAt.strftime("%Y-%m %H:%M")}'
-
-    
-
