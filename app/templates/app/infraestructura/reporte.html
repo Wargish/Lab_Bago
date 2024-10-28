@@ -1,0 +1,28 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="container mt-9 text-white">
+    <h2 class="mb-4">Crear Reporte</h2>
+    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="md-form">
+            {{ form.contenido.label_tag }}
+            {{ form.contenido }}
+            <div class="invalid-feedback">
+                {{ form.contenido.errors }}
+            </div>
+        </div>
+        <div class="md-form">
+            {{ form.imagen.label_tag }}
+            {{ form.imagen }}
+            <div class="invalid-feedback">
+                {{ form.imagen.errors }}
+            </div>
+            <div>
+                <img id="image-preview" src="#" alt="Vista previa de la imagen" style="display: none; max-width: 100%; height: auto; margin-top: 10px;">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+</div>
+{% endblock %}

@@ -3,5 +3,5 @@ from .models import *
 
 admin.site.register(InformeCondiciones)
 admin.site.register(Lugar)
-admin.site.register(Estado)
 admin.site.register(Notificacion)
+admin.site.register(Tarea)
