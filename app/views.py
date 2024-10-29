@@ -9,14 +9,17 @@ def base(request):
     return render(request, "app/base.html")
 
 def home(request):
-    grupo = None
-    if request.user.is_authenticated:
-        if request.user.groups.filter(name='Operarios').exists():
-            grupo = 'Operario'
-        elif request.user.groups.filter(name='Técnicos').exists():
-            grupo = 'Técnico'
-    return render(request, "app/home.html", {'grupo': grupo})
+    username = None
+    grupos = []
 
+    if request.user.is_authenticated:
+        username = request.user.username 
+        grupos = request.user.groups.values_list('name', flat=True)
+
+    return render(request, "app/home.html", {'username': username, 'grupos': grupos})
+
+
+@login_required
 @user_passes_test(lambda u: u.is_superuser)
 def admin(request):
     if request.method == 'POST':
@@ -118,3 +121,63 @@ def listar_tareas(request):
         'tareas': tareas,
         'estado_selec': estado_selec
     })
+
+def feedback(request, tarea_id):
+    tarea = Tarea.objects.get(id=tarea_id)
+    if request.method == 'POST':
+        conforme = request.POST.get('conforme') == 'True'
+        comentario = request.POST.get('comentario')
+        feedback = Feedback.objects.create(tarea=tarea, conforme=conforme, comentario=comentario)
+
+        if conforme:
+            tarea.archivar_si_conforme()
+        else:
+            tarea.rechazar_si_no_conforme(feedback)
+
+    return redirect('app/dashboard/listar_tareas.html')
+
+
+
+
+
+
+# Vistas personalizadas
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['Operarios', 'Supervisores']).exists())
+def lista_tareas_operarios_supervisores(request):
+    # Filtra las tareas que corresponden a los informes creados por el usuario actual
+    tareas = Tarea.objects.filter(informe__user=request.user)
+    return render(request, 'tareas/lista_tareas_operarios_supervisores.html', {'tareas': tareas})
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['Técnicos', 'Externos']).exists())
+def lista_tareas_tecnicos(request):
+    # Filtra las tareas que están asignadas al técnico actual
+    tareas = Tarea.objects.filter(tecnico=request.user)
+    return render(request, 'tareas/lista_tareas_tecnicos.html', {'tareas': tareas})
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['Administradores', 'Supervisores']).exists())
+def detalle_informe_reporte_feedback(request, tarea_id):
+    # Recupera la tarea específica y sus relaciones
+    tarea = Tarea.objects.select_related('informe').prefetch_related('feedback').get(id=tarea_id)
+    try:
+        reporte = tarea.reporte
+    except Tarea.reporte.RelatedObjectDoesNotExist:
+        reporte = None
+    try:
+        feedback = tarea.feedback
+    except Tarea.feedback.RelatedObjectDoesNotExist:
+        feedback = None
+    return render(request, 'tareas/detalle_informe_reporte_feedback.html', {
+        'tarea': tarea,
+        'informe': tarea.informe,
+        'reporte': reporte,
+        'feedback': feedback
+    })
+
+
+

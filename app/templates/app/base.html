@@ -118,12 +118,16 @@
                             alt="Laboratorio Bago"
                             loading="lazy"
                         />
-                        {% if grupo %}
-                        <span class="ml-2">Bienvenido {{ grupo }} {{ user.username }}</span>
-                        {% else %}
-                        <span class="ml-2"></span>
+
+                        {% if username %}
+                            <span class="ml-2">Bienvenido {{ username }}-</span>
+                            {% if grupos %}
+                            {% for grupo in grupos %}
+                            <span class="ml-2">{{ grupo }} </span>
+                            {% endfor%}
+                            {% endif %}
                         {% endif %}
-                    </a>
+
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
                         <li><a class="dropdown-item" href="{% url 'logout' %}">cerrar sesion</a></li>
                     </ul>

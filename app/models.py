@@ -1,13 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
 
-
-def create_groups():
-    Group.objects.get_or_create(name='Operarios')
-    Group.objects.get_or_create(name='Técnicos')
-
 class Lugar(models.Model):
     nombre = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.nombre
+    
+class Estado(models.Model):
+    nombre = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.nombre
@@ -60,43 +61,42 @@ class Notificacion(models.Model):
 
     def __str__(self):
         return f'Notificación para {self.user.username}: {self.informe.objetivo}'
-    
 
 class Tarea(models.Model):
     informe = models.ForeignKey(InformeCondiciones, on_delete=models.CASCADE)
     objetivo = models.TextField(null=True, blank=True)
-    estado = models.CharField(max_length=20,
-                              choices= [
-                                    ('Pendiente', 'Pendiente'),
-                                    ('En Curso', 'En Curso'),
-                                    ('Completada', 'Completada'),
-                                    ('Archivar', 'Archivar'),
-                                    ],
-                                    default='Pendiente'
-                            )
+    estado = models.ForeignKey(Estado, on_delete=models.SET_NULL, null=True, blank=True)
     tecnico = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        if not self.estado:
+            self.estado = Estado.objects.get(nombre='Pendiente')  # Estado inicial
         self.objetivo = self.informe.objetivo
         super().save(*args, **kwargs)
 
-    def aceptar(self, tecnico):
+    def asignar_tecnico(self, tecnico):
         self.tecnico = tecnico
-        self.estado = 'En Curso'
+        self.estado = Estado.objects.get(nombre='En Curso')
         self.save()
 
-    def marcar_como_completada(self):
-        self.estado = 'Completada'
+    def completar_por_tecnico(self):
+        self.estado = Estado.objects.get(nombre='Completada')
         self.save()
 
-    def archivada(self):
-        self.estado = 'Archivar'
+    def archivar_si_conforme(self):
+        self.estado = Estado.objects.get(nombre='Archivar')
         self.save()
+
+    def rechazar_si_no_conforme(self, feedback):
+        self.estado = Estado.objects.get(nombre='Rechazada')
+        self.save()
+        # Relaciona el feedback negativo a esta tarea
+        feedback.tarea = self
+        feedback.save()
 
     def __str__(self):
         return f'Tarea: {self.objetivo} - Estado: {self.estado}'
-    
 
 class Reporte(models.Model):
     tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
@@ -106,3 +106,14 @@ class Reporte(models.Model):
 
     def __str__(self):
         return f'Reporte de Tarea: {self.tarea.objetivo} - Fecha: {self.createdAt.strftime("%Y-%m %H:%M")}'
+
+
+class Feedback(models.Model):
+    tarea = models.OneToOneField(Tarea, on_delete=models.CASCADE)
+    conforme = models.BooleanField()
+    comentario = models.TextField(null=True, blank=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Feedback para Tarea: {self.tarea.objetivo} - Conforme: {"Sí" if self.conforme else "No"}'
+
