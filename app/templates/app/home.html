@@ -1,10 +1,147 @@
-{% extends "app/base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Base</title>
 
+    <!--FLATICON    -->
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <!--CSS-->
+    <link
+      href="{% static 'css/style.css' %}"
+      rel="stylesheet"
+    />
+     <!--CHART-->
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="Body-base" style="font-family: 'Roboto', monospace;">
+<div class="container-fluid">
+    <!--- TÍTULO -->
+    <header class="text-center my-4">
+        <h1>Monitoreo de Infraestructura</h1>
+    </header>
 
+    <!--- NAV -->
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary d-flex justify-content-center">
+        <div class="container-fluid">
+            {% if user.is_authenticated %}
+            <button
+                data-mdb-collapse-init
+                class="navbar-toggler"
+                type="button"
+                data-mdb-toggle="collapse"
+                data-mdb-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <i class="fas fa-bars"></i>
+            </button>
+    
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <a class="navbar-brand mt-2 mt-lg-0" href="#"></a>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/infraestructura/InformeCondiciones">Infraestructura</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard/listar_tareas">Tareas</a>
+                    </li>
+                </ul>
+            </div>
+    
+            <div class="d-flex align-items-center">
+                <!-- NOTIFICACIONES -->
+                <div class="dropdown">
+                    <a
+                        class="text-reset me-3 dropdown-toggle hidden-arrow"
+                        id="navbarDropdownMenuLink"
+                        data-mdb-dropdown-init
+                        data-mdb-ripple-init
+                        role="button"
+                        data-mdb-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="Notifications"
+                    >
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        <span class="badge rounded-pill badge-notification bg-danger">{{ notificaciones|length }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                        {% if notificaciones %}
+                            {% for notificacion in notificaciones %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'marcar_notificacion_como_leida' notificacion.id %}">
+                                        {{ notificacion.informe.objetivo }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li>
+                                <span class="dropdown-item text-muted">No hay notificaciones</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+                <!-- AVATAR -->
+                <div class="dropdown">
+                    <a
+                        class="dropdown-toggle d-flex align-items-center hidden-arrow"
+                        href="#"
+                        id="navbarDropdownMenuAvatar"
+                        data-mdb-dropdown-init
+                        data-mdb-ripple-init
+                        role="button"
+                        data-mdb-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <img
+                            src="https://bagochile.cl/wp-content/uploads/2023/05/cropped-SIMBOLO-LOGO-BAGO-OFF.jpg"
+                            class="rounded-circle"
+                            height="25"
+                            alt="Laboratorio Bago"
+                            loading="lazy"
+                        />
+                        {% if grupo %}
+                        <span class="ml-2">Bienvenido {{ grupo }} {{ user.username }}</span>
+                        {% else %}
+                        <span class="ml-2"></span>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">cerrar sesion</a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <a href="{% url 'registro' %}" type="button" class="btn btn-outline btn-rounded" data-mdb-ripple-init  data-mdb-ripple-color="dark">Registrarse</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="container my-4">
+            {% block content %}{% endblock content %}
+        </div>
+    
+        <!--- FOOTER -->
+        <footer class="text-center mt-4">
+            <p>Contacto: <a href="mailto:contacto@laboratoriobago.com">contacto@laboratoriobago.com</a></p>
+            <p>&copy; 2024 Laboratorio Bagó. Todos los derechos reservados.</p>
+        </footer>
+    
 
-{% block content %}
-
-
-
-
-{% endblock content %}
+        <!--javascript -->
+        <script src="{% static 'js/JS.js' %}"></script>
+        <!--SWEETALERT-->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </div>
+</body>
+</html>
