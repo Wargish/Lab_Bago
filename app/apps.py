@@ -6,4 +6,3 @@ class AppConfig(AppConfig):
 
     def ready(self):
         from . import signals
-        signals.ready(self)
