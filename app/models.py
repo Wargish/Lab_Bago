@@ -71,7 +71,7 @@ class Tarea(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.estado:
-            self.estado = Estado.objects.get(nombre='Pendiente')  # Estado inicial
+            self.estado = Estado.objects.get(nombre='Pendiente')
         self.objetivo = self.informe.objetivo
         super().save(*args, **kwargs)
 
@@ -91,7 +91,6 @@ class Tarea(models.Model):
     def rechazar_si_no_conforme(self, feedback):
         self.estado = Estado.objects.get(nombre='Rechazada')
         self.save()
-        # Relaciona el feedback negativo a esta tarea
         feedback.tarea = self
         feedback.save()
 

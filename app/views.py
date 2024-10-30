@@ -8,6 +8,9 @@ from .forms import *
 def base(request):
     return render(request, "app/base.html")
 
+def error404(request):
+    return render(request, "app/404.html")
+
 def home(request):
     username = None
     grupos = []
@@ -95,6 +98,16 @@ def reporte(request):
 
 
 @login_required
+def notificaciones(request):
+    notificaciones = Notificacion.objects.filter(user=request.user)
+    return render(request, "app/notificaciones.html", {'notificaciones': notificaciones})
+
+@login_required
+def notificaciones_id(request, notificaciones_id):
+    notificacion = Notificacion.objects.get(id=notificaciones_id)
+    return render(request, "app/notificaciones_id.html", {'notificacion': notificacion})
+
+@login_required
 def marcar_notificacion_como_leida(request, notificacion_id):
     notificacion = Notificacion.objects.get(id=notificacion_id)
     if notificacion.user == request.user:
@@ -104,6 +117,7 @@ def marcar_notificacion_como_leida(request, notificacion_id):
 @login_required
 def graficos(request):
     return render(request, "app/dashboard/graficos.html")
+
 
 @login_required
 def listar_tareas(request):

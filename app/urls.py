@@ -19,8 +19,14 @@ urlpatterns = [
     path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
     path('dashboard/feedback', feedback, name='feedback'),
 
+    path('notificaciones/', notificaciones, name='notificaciones'),
+    path('notificaciones/<int:notificaciones_id>/', notificaciones_id , name='notificaciones_id'),
+
 
     path('notificaciones/marcar/<int:notificacion_id>/', marcar_notificacion_como_leida, name='marcar_notificacion_como_leida'),
+
+
+    path('error404/', error404, name='error404'),
 
 ]
 
