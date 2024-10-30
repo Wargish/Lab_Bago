@@ -5,8 +5,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import *
 
+#FILTRO DE GRUPOS
+def group_required(*group_names):
+    def in_groups(u):
+        return u.is_authenticated and bool(u.groups.filter(name__in=group_names))
+    return user_passes_test(in_groups)
+
+
+# VISTAS BASICAS
+
 def base(request):
     return render(request, "app/base.html")
+
 
 def home(request):
     username = None
@@ -19,21 +29,17 @@ def home(request):
     return render(request, "app/home.html", {'username': username, 'grupos': grupos})
 
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin(request):
-    if request.method == 'POST':
-        usuario_id = request.POST.get('usuario_id')
-        rol = request.POST.get('rol')
-        usuario = get_object_or_404(User, id=usuario_id)
-        
-        grupo = Group.objects.get(name=rol)
-        grupo.user_set.add(usuario)
-    
-    usuarios = User.objects.all()
-    roles = Group.objects.all()
+#LOGIN, REGISTRO, LOGOUT, ADMIN
 
-    return render(request, "app/auth/admin.html",{'usuarios': usuarios, 'roles': roles})
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = RegistroForm()
+    return render(request, 'app/auth/registro.html', {'form': form})
 
 def iniciar_session(request):
     if request.method == 'POST':
@@ -57,16 +63,25 @@ def Cerrar_session(request):
     logout(request)
     return redirect('home')
 
-def registro(request):
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin(request):
     if request.method == 'POST':
-        form = RegistroForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = RegistroForm()
-    return render(request, 'app/auth/registro.html', {'form': form})
+        usuario_id = request.POST.get('usuario_id')
+        rol = request.POST.get('rol')
+        usuario = get_object_or_404(User, id=usuario_id)
+        
+        grupo = Group.objects.get(name=rol)
+        grupo.user_set.add(usuario)
+    
+    usuarios = User.objects.all()
+    roles = Group.objects.all()
 
+    return render(request, "app/auth/admin.html",{'usuarios': usuarios, 'roles': roles})
+
+
+
+#VISTAS RENDER, CRUD Y MOVIMIENTO DE INFORMACION
 @login_required
 def informe(request):
     if request.method == 'POST':
@@ -95,31 +110,42 @@ def reporte(request):
 
 
 @login_required
-def marcar_notificacion_como_leida(request, notificacion_id):
-    notificacion = Notificacion.objects.get(id=notificacion_id)
-    if notificacion.user == request.user:
-        notificacion.marcar_como_leido()
-
-
-@login_required
 def graficos(request):
     return render(request, "app/dashboard/graficos.html")
+
 
 @login_required
 def listar_tareas(request):
     estado_selec = request.GET.get('estado', 'todos')
     estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Archivar']
+    tareas = Tarea.objects.none()  # Inicializa con un QuerySet vacío
 
-    if estado_selec == 'todos':
-        tareas = Tarea.objects.filter(tecnico=request.user)
-    elif estado_selec in estados_validos:
-        tareas = Tarea.objects.filter(tecnico=request.user ,estado=estado_selec)
-    else:
-        tareas = Tarea.objects.none()
+    # Filtra las tareas según el grupo del usuario
+    if request.user.groups.filter(name='Técnico').exists() or request.user.groups.filter(name='Externo').exists():
+        if estado_selec == 'todos':
+            tareas = Tarea.objects.filter(tecnico=request.user)
+        elif estado_selec in estados_validos:
+            tareas = Tarea.objects.filter(tecnico=request.user, estado__nombre=estado_selec)
+    elif request.user.groups.filter(name='Supervisor').exists() or request.user.groups.filter(name='Operario').exists():
+        if estado_selec == 'todos':
+            tareas = Tarea.objects.filter(informe__user=request.user)
+        elif estado_selec in estados_validos:
+            tareas = Tarea.objects.filter(informe__user=request.user, estado__nombre=estado_selec)
+
+    es_superusuario = request.user.is_superuser
+    es_tecnico = request.user.groups.filter(name='Técnico').exists()
+    es_externo = request.user.groups.filter(name='Externo').exists()
+    es_supervisor = request.user.groups.filter(name='Supervisor').exists()
+    es_operario = request.user.groups.filter(name='Operario').exists()
 
     return render(request, "app/dashboard/listar_tareas.html", {
         'tareas': tareas,
-        'estado_selec': estado_selec
+        'estado_selec': estado_selec,
+        'es_superusuario': es_superusuario,
+        'es_tecnico': es_tecnico,
+        'es_externo': es_externo,
+        'es_supervisor': es_supervisor,
+        'es_operario': es_operario,
     })
 
 def feedback(request, tarea_id):
@@ -140,44 +166,25 @@ def feedback(request, tarea_id):
 
 
 
-
-# Vistas personalizadas
-
-@login_required
-@user_passes_test(lambda u: u.groups.filter(name__in=['Operarios', 'Supervisores']).exists())
-def lista_tareas_operarios_supervisores(request):
-    # Filtra las tareas que corresponden a los informes creados por el usuario actual
-    tareas = Tarea.objects.filter(informe__user=request.user)
-    return render(request, 'tareas/lista_tareas_operarios_supervisores.html', {'tareas': tareas})
-
+#METODOS PERSONALIZADAS
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name__in=['Técnicos', 'Externos']).exists())
-def lista_tareas_tecnicos(request):
-    # Filtra las tareas que están asignadas al técnico actual
-    tareas = Tarea.objects.filter(tecnico=request.user)
-    return render(request, 'tareas/lista_tareas_tecnicos.html', {'tareas': tareas})
-
+def marcar_notificacion_como_leida(request, notificacion_id):
+    notificacion = Notificacion.objects.get(id=notificacion_id)
+    if notificacion.user == request.user:
+        notificacion.marcar_como_leido()
 
 @login_required
-@user_passes_test(lambda u: u.groups.filter(name__in=['Administradores', 'Supervisores']).exists())
-def detalle_informe_reporte_feedback(request, tarea_id):
-    # Recupera la tarea específica y sus relaciones
-    tarea = Tarea.objects.select_related('informe').prefetch_related('feedback').get(id=tarea_id)
-    try:
-        reporte = tarea.reporte
-    except Tarea.reporte.RelatedObjectDoesNotExist:
-        reporte = None
-    try:
-        feedback = tarea.feedback
-    except Tarea.feedback.RelatedObjectDoesNotExist:
-        feedback = None
-    return render(request, 'tareas/detalle_informe_reporte_feedback.html', {
-        'tarea': tarea,
-        'informe': tarea.informe,
-        'reporte': reporte,
-        'feedback': feedback
-    })
+def detalle_informe(request, informe_id):
+    informe = get_object_or_404(InformeCondiciones, id=informe_id)
+    return render(request, 'app/detalle_informe.html', {'informe': informe})
 
+@login_required
+def detalle_reporte(request, reporte_id):
+    reporte = get_object_or_404(Reporte, id=reporte_id)
+    return render(request, 'app/detalle_reporte.html', {'reporte': reporte})
 
-
+@login_required
+def detalle_feedback(request, feedback_id):
+    feedback = get_object_or_404(Feedback, id=feedback_id)
+    return render(request, 'app/detalle_feedback.html', {'feedback': feedback})

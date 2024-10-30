@@ -17,36 +17,87 @@
         </div>
     </form>
 
-    <table class="table table-bordered border-light">
-        <thead>
-            <tr>
-                <th>Objetivo</th>
-                <th>Estado</th>
-                <th>Técnico</th>
-                <th>Fecha de Creación</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for tarea in tareas %}
+    <div class="table-responsive">
+        <table class="table table-bordered border-light">
+            <thead>
                 <tr>
-                    <td>{{ tarea.objetivo }}</td>
-                    <td>{{ tarea.estado }}</td>
-                    <td>
-                        {% if tarea.tecnico %}
-                            {{ tarea.tecnico.username }}
-                        {% else %}
-                            No asignado
-                        {% endif %}
-                    </td>
-                    <td>{{ tarea.createdAt|date:"d-m-Y H:i" }}</td>
+                    <th>Objetivo</th>
+                    <th>Estado</th>
+                    <th>Técnico</th>
+                    <th>Fecha de Creación</th>
+                    <th>Informe</th>
+                    <th>Reporte</th>
+                    <th>Feedback</th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center">No hay tareas disponibles.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for tarea in tareas %}
+                    <tr>
+                        <td>{{ tarea.objetivo }}</td>
+                        <td>{{ tarea.estado }}</td>
+                        <td>
+                            {% if tarea.tecnico %}
+                                {{ tarea.tecnico.username }}
+                            {% else %}
+                                No asignado
+                            {% endif %}
+                        </td>
+                        <td>{{ tarea.createdAt|date:"d-m-Y H:i" }}</td>
+                        <td>
+                            {% if tarea.informe %}
+                                <a href="{% url 'detalle_informe' tarea.informe.id %}" class="btn btn-info">Ver Informe</a>
+                            {% else %}
+                                Sin Informe
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if es_superusuario or es_operario or es_supervisor %}
+                                {% if tarea.reporte %}
+                                    <a href="{% url 'detalle_reporte' tarea.reporte.id %}" class="btn btn-info">Ver Reporte</a>
+                                {% else %}
+                                    Aun no se ha creado un reporte
+                                {% endif %}
+                            {% elif  es_tecnico or es_externo %}
+                                {% if tarea.reporte %}
+                                    <a href="{% url 'detalle_reporte' tarea.reporte.id %}" class="btn btn-info">Ver Reporte</a>
+                                {% else %}
+                                    <a href="{% url 'home' %}" class="btn btn-info">Crear Reporte</a>
+                                {% endif %}
+
+                            {% else %}
+                                Sin Reporte
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if es_superusuario %}
+                                {% if tarea.feedback %}
+                                    <a href="{% url 'detalle_feedback' tarea.feedback.id %}" class="btn btn-info">Ver Feedback</a>
+                                {% else %}
+                                    Sin Feedback
+                                {% endif %}
+                            {% elif es_tecnico or es_externo %}
+                                {% if tarea.feedback %}
+                                    <a href="{% url 'detalle_feedback' tarea.feedback.id %}" class="btn btn-info">Ver Feedback</a>
+                                {% else %}
+                                    En revisión
+                                {% endif %}
+                            {% elif es_operario or es_supervisor %}
+                                {% if tarea.feedback %}
+                                    <a href="{% url 'home' %}" class="btn btn-info">Crear Feedback</a>
+                                {% else %}
+                                    No hay reporte creado
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay tareas disponibles.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 </div>
 
