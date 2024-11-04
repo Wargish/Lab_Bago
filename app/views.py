@@ -36,17 +36,37 @@ def home(request):
 @user_passes_test(lambda u: u.is_superuser)
 def roles(request):
     if request.method == 'POST':
+        action = request.POST.get('action')
         usuario_id = request.POST.get('usuario_id')
-        rol = request.POST.get('rol')
         usuario = get_object_or_404(User, id=usuario_id)
-        
-        grupo = Group.objects.get(name=rol)
-        grupo.user_set.add(usuario)
-    
+
+        if action == 'change_role':
+            rol = request.POST.get('rol')
+            grupo = Group.objects.get(name=rol)
+            usuario.groups.clear()
+            grupo.user_set.add(usuario)
+            
+        elif action == 'delete_user':
+            usuario.delete()
+        elif action == 'modify_user':
+            pass
+
     usuarios = User.objects.all()
     roles = Group.objects.all()
 
-    return render(request, "app/auth/roles.html",{'usuarios': usuarios, 'roles': roles})
+    return render(request, "app/auth/roles.html", {'usuarios': usuarios, 'roles': roles})
+
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+    else:
+        form = RegistroForm()
+    return render(request, "app/auth/registro.html", {'form': form})
 
 def iniciar_session(request):
     if request.method == 'POST':
@@ -70,21 +90,6 @@ def Cerrar_session(request):
     logout(request)
     return redirect('home')
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin(request):
-    if request.method == 'POST':
-        usuario_id = request.POST.get('usuario_id')
-        rol = request.POST.get('rol')
-        usuario = get_object_or_404(User, id=usuario_id)
-        
-        grupo = Group.objects.get(name=rol)
-        grupo.user_set.add(usuario)
-    
-    usuarios = User.objects.all()
-    roles = Group.objects.all()
-
-    return render(request, "app/auth/admin.html",{'usuarios': usuarios, 'roles': roles})
 
 
 
@@ -172,11 +177,15 @@ def listar_tareas(request):
         'es_operario': es_operario,
     })
 
-def feedback(request, tarea_id):
-    tarea = Tarea.objects.get(id=tarea_id)
+
+
+@login_required
+def feedback(request):
     if request.method == 'POST':
+        tarea_id = request.POST.get('tarea_id')
         conforme = request.POST.get('conforme') == 'True'
         comentario = request.POST.get('comentario')
+        tarea = get_object_or_404(Tarea, id=tarea_id)
         feedback = Feedback.objects.create(tarea=tarea, conforme=conforme, comentario=comentario)
 
         if conforme:
@@ -184,7 +193,8 @@ def feedback(request, tarea_id):
         else:
             tarea.rechazar_si_no_conforme(feedback)
 
-    return redirect('app/dashboard/listar_tareas.html')
+        return redirect(reverse('listar_tareas'))
+    return redirect('listar_tareas')
 
 
 

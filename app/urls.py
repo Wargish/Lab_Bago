@@ -17,6 +17,8 @@ urlpatterns = [
 
     path('dashboard/graficos', graficos, name='graficos'),
     path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
+    path('dashboard/feedback/<int:tarea_id>/', feedback, name='feedback'),
+
     path('dashboard/feedback', feedback, name='feedback'),
 
     path('notificaciones/', notificaciones, name='notificaciones'),
