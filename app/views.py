@@ -70,23 +70,17 @@ def Cerrar_session(request):
     logout(request)
     return redirect('home')
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def admin(request):
+def registro(request):
     if request.method == 'POST':
-        usuario_id = request.POST.get('usuario_id')
-        rol = request.POST.get('rol')
-        usuario = get_object_or_404(User, id=usuario_id)
-        
-        grupo = Group.objects.get(name=rol)
-        grupo.user_set.add(usuario)
-    
-    usuarios = User.objects.all()
-    roles = Group.objects.all()
-
-    return render(request, "app/auth/admin.html",{'usuarios': usuarios, 'roles': roles})
-
-
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+    else:
+        form = RegistroForm()
+    return render(request, "app/auth/registro.html", {'form': form})
 
 #VISTAS RENDER, CRUD Y MOVIMIENTO DE INFORMACION
 @login_required
