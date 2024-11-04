@@ -45,7 +45,7 @@ def roles(request):
             grupo = Group.objects.get(name=rol)
             usuario.groups.clear()
             grupo.user_set.add(usuario)
-            
+
         elif action == 'delete_user':
             usuario.delete()
         elif action == 'modify_user':
@@ -90,8 +90,17 @@ def Cerrar_session(request):
     logout(request)
     return redirect('home')
 
-
-
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+    else:
+        form = RegistroForm()
+    return render(request, "app/auth/registro.html", {'form': form})
 
 #VISTAS RENDER, CRUD Y MOVIMIENTO DE INFORMACION
 @login_required
