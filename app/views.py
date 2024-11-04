@@ -24,7 +24,7 @@ def home(request):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def admin(request):
+def roles(request):
     if request.method == 'POST':
         usuario_id = request.POST.get('usuario_id')
         rol = request.POST.get('rol')
@@ -36,7 +36,7 @@ def admin(request):
     usuarios = User.objects.all()
     roles = Group.objects.all()
 
-    return render(request, "app/auth/admin.html",{'usuarios': usuarios, 'roles': roles})
+    return render(request, "app/auth/roles.html",{'usuarios': usuarios, 'roles': roles})
 
 def iniciar_session(request):
     if request.method == 'POST':

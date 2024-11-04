@@ -10,7 +10,7 @@ urlpatterns = [
 
     path('auth/login/', iniciar_session, name="login"),
     path('auth/registro/', registro, name="registro"),
-    path('auth/admin', admin, name='admin'),
+    path('auth/roles', roles, name='roles'),
 
     path('infraestructura/InformeCondiciones', informe, name='InformeCondiciones'),
     path('infraestructura/reporte', reporte, name='reporte'),

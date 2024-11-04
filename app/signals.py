@@ -6,7 +6,6 @@ from .models import Estado
 @receiver(post_migrate)
 def create_groups(sender, **kwargs):
     if sender.name == 'app':  # Cambia 'app' por el nombre correcto de tu módulo
-        Group.objects.get_or_create(name='Administrador')
         Group.objects.get_or_create(name='Operario')
         Group.objects.get_or_create(name='Técnico')
         Group.objects.get_or_create(name='Externo')
