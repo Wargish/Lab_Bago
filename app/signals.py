@@ -4,11 +4,12 @@ from django.dispatch import receiver
 from .models import Estado
 
 @receiver(post_migrate)
-def setup_initial_data(sender, **kwargs):
-    if sender.name == 'app':
-        # Crear grupos
-        for group_name in ['Administrador', 'Operario', 'Técnico', 'Externo', 'Supervisor']:
-            Group.objects.get_or_create(name=group_name)
+def create_groups(sender, **kwargs):
+    if sender.name == 'app':  # Cambia 'app' por el nombre correcto de tu módulo
+        Group.objects.get_or_create(name='Operario')
+        Group.objects.get_or_create(name='Técnico')
+        Group.objects.get_or_create(name='Externo')
+        Group.objects.get_or_create(name='Supervisor')
 
         # Crear estados
         estados = ['Pendiente', 'En Curso', 'Completada', 'Archivar', 'Rechazada']

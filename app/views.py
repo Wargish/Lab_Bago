@@ -17,6 +17,9 @@ def group_required(*group_names):
 def base(request):
     return render(request, "app/base.html")
 
+def error404(request):
+    return render(request, "app/404.html")
+
 
 def home(request):
     username = None
@@ -29,17 +32,21 @@ def home(request):
     return render(request, "app/home.html", {'username': username, 'grupos': grupos})
 
 
-#LOGIN, REGISTRO, LOGOUT, ADMIN
-
-def registro(request):
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def roles(request):
     if request.method == 'POST':
-        form = RegistroForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = RegistroForm()
-    return render(request, 'app/auth/registro.html', {'form': form})
+        usuario_id = request.POST.get('usuario_id')
+        rol = request.POST.get('rol')
+        usuario = get_object_or_404(User, id=usuario_id)
+        
+        grupo = Group.objects.get(name=rol)
+        grupo.user_set.add(usuario)
+    
+    usuarios = User.objects.all()
+    roles = Group.objects.all()
+
+    return render(request, "app/auth/roles.html",{'usuarios': usuarios, 'roles': roles})
 
 def iniciar_session(request):
     if request.method == 'POST':
@@ -107,6 +114,23 @@ def reporte(request):
     else:
         form = ReporteForm()
     return render(request, "app/infraestructura/reporte.html", {'form': form})
+
+
+@login_required
+def notificaciones(request):
+    notificaciones = Notificacion.objects.filter(user=request.user)
+    return render(request, "app/notificaciones.html", {'notificaciones': notificaciones})
+
+@login_required
+def notificaciones_id(request, notificaciones_id):
+    notificacion = Notificacion.objects.get(id=notificaciones_id)
+    return render(request, "app/notificaciones_id.html", {'notificacion': notificacion})
+
+@login_required
+def marcar_notificacion_como_leida(request, notificacion_id):
+    notificacion = Notificacion.objects.get(id=notificacion_id)
+    if notificacion.user == request.user:
+        notificacion.marcar_como_leido()
 
 
 @login_required

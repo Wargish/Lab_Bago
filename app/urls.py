@@ -10,7 +10,7 @@ urlpatterns = [
 
     path('auth/login/', iniciar_session, name="login"),
     path('auth/registro/', registro, name="registro"),
-    path('auth/admin', admin, name='admin'),
+    path('auth/roles', roles, name='roles'),
 
     path('infraestructura/InformeCondiciones', informe, name='InformeCondiciones'),
     path('infraestructura/reporte', reporte, name='reporte'),
@@ -19,11 +19,17 @@ urlpatterns = [
     path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
     path('dashboard/feedback', feedback, name='feedback'),
 
+    path('notificaciones/', notificaciones, name='notificaciones'),
+    path('notificaciones/<int:notificaciones_id>/', notificaciones_id , name='notificaciones_id'),
+
 
     path('detalle/informe/<int:informe_id>/', detalle_informe, name='detalle_informe'),
     path('detalle/reporte/<int:reporte_id>/', detalle_reporte, name='detalle_reporte'),
     path('detalle/feedback/<int:feedback_id>/', detalle_feedback, name='detalle_feedback'),
     path('notificaciones/marcar/<int:notificacion_id>/', marcar_notificacion_como_leida, name='marcar_notificacion_como_leida'),
+
+
+    path('error404/', error404, name='error404'),
 
 ]
 

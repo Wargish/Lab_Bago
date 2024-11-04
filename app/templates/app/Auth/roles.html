@@ -1,0 +1,50 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-header text-center bg-primary text-white">
+            <h2>Asignación de Rol</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="usuarioSelect" class="form-label">Seleccionar Usuario</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <select name="usuario_id" id="usuarioSelect" class="form-select" required>
+                                <option value="" disabled selected>Seleccione un usuario</option>
+                                {% for usuario in usuarios %}
+                                    <option value="{{ usuario.id }}">{{ usuario.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="rolSelect" class="form-label">Seleccionar Rol</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                            <select name="rol" id="rolSelect" class="form-select" required>
+                                <option value="" disabled selected>Seleccione un rol</option>
+                                {% for rol in roles %}
+                                    <option value="{{ rol.name }}">{{ rol.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Asignar Rol</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

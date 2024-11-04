@@ -71,7 +71,7 @@ class Tarea(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.estado:
-            self.estado = Estado.objects.get(nombre='Pendiente')  # Estado inicial
+            self.estado = Estado.objects.get(nombre='Pendiente')
         self.objetivo = self.informe.objetivo
         super().save(*args, **kwargs)
 
