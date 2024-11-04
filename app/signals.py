@@ -11,9 +11,7 @@ def create_groups(sender, **kwargs):
         Group.objects.get_or_create(name='Externo')
         Group.objects.get_or_create(name='Supervisor')
 
-@receiver(post_migrate)
-def crear_estados(sender, **kwargs):
-    if sender.name == 'app':  # Cambia 'app' por el nombre correcto de tu módulo
+        # Crear estados
         estados = ['Pendiente', 'En Curso', 'Completada', 'Archivar', 'Rechazada']
         for nombre in estados:
             Estado.objects.get_or_create(nombre=nombre)

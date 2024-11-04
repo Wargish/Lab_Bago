@@ -22,21 +22,21 @@ class InformeCondiciones(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    _id = models.AutoField(primary_key=True, editable=False)  
     createdAt = models.DateTimeField(auto_now_add=True)
     lugar = models.ForeignKey(Lugar, on_delete=models.SET_NULL, null=True)
     objetivo = models.TextField(null=True, blank=True)
     mensaje = models.TextField(null=True, blank=True)
-    image = models.ImageField(upload_to='app/static/images/', blank=False)
+    image = models.ImageField(upload_to='images/informes/', blank=False)
     tipo_Informe = models.CharField(max_length=3, choices=TIPO_REPORTE_CHOICES, default=INFRASTRUCTURA)
 
-    class meta():
+    class Meta():
         ordering = ['-createdAt']
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        if not Tarea.objects.filter(informe=self).exists():
+            Tarea.objects.create(informe=self, objetivo=self.objetivo)
         Notificacion.crear_notificaciones(self)
-        Tarea.objects.create(informe=self, objetivo=self.objetivo)
 
 
     def __str__(self):
@@ -51,7 +51,7 @@ class Notificacion(models.Model):
 
     @classmethod
     def crear_notificaciones(cls, informe):
-        tecnicos = Group.objects.get(name='Técnicos').user_set.all()
+        tecnicos = Group.objects.get(name='Técnico').user_set.all()
         for tecnico in tecnicos:
             cls.objects.create(user=tecnico, informe=informe)
 
