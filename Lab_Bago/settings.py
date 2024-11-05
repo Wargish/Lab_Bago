@@ -125,7 +125,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Configuración de archivos multimedia (imágenes subidas por el usuario)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'app/static/images')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # Configuración de archivos estáticos (CSS, JavaScript, Imágenes)
 STATIC_URL = '/static/'

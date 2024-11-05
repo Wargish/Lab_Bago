@@ -88,8 +88,9 @@ class TareaForm(forms.ModelForm):
 class ReporteForm(forms.ModelForm):
     class Meta:
         model = Reporte
-        fields = ['contenido', 'imagen']
+        fields = ['tarea', 'contenido', 'imagen']
         widgets = {
+            'tarea': forms.HiddenInput(),
             'contenido': forms.Textarea(attrs={'class': 'form-control'}),
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }

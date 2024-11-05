@@ -2,51 +2,64 @@
 
 {% block content %}
 <div class="container mt-5 text-white">
-    <h2 class="mb-4">Lista de Usuarios</h2>
-    <table class="table table-striped">
+    <h2 class="mb-4">Control de Usuarios</h2>
+    <div class="table-responsive">
+      <table class="table table-striped bg-white">
         <thead>
-            <tr>
-                <th>Username</th>
-                <th>Correo</th>
-                <th>Rol/Grupo</th>
-                <th>Acciones</th>
-            </tr>
+          <tr>
+            <th>Username</th>
+            <th>Correo</th>
+            <th>Rol/Grupo</th>
+            <th>Acciones</th>
+          </tr>
         </thead>
         <tbody>
-            {% for user in usuarios %}
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.groups.all.0.name }}</td>
-                <td>
-                    <div class="dropdown">
-                      <button
-                      class="btn btn-warning dropdown-toggle"
-                      type="button"
-                      id="dropdownMenu2"
-                      data-mdb-dropdown-init
-                      data-mdb-ripple-init aria-expanded="false">
-                        Accion
-                      </button>
-                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                        <li><button class="dropdown-item" type="button">Cambiar Rol</button></li>
-                        <li><button class="dropdown-item" type="button">Modificar</button></li>
-                        <li><button class="dropdown-item" type="button">Eliminar</button></li>
-                      </ul>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
+          {% for user in usuarios %}
+          <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.groups.all.0.name }}</td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-warning dropdown-toggle"
+                            type="button"
+                            id="dropdownMenuButton"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        Acción
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><button class="dropdown-item" type="button" data-action="assign_task" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Asignar Tarea</button></li>
+                        <li><button class="dropdown-item" type="button" data-action="change_role" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Cambiar Rol</button></li>
+                        <li><button class="dropdown-item" type="button" data-action="modify" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Modificar</button></li>
+                        <li><button class="dropdown-item" type="button" data-action="delete" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Eliminar</button></li>
+                    </ul>
+                </div>
+            </td>
+          </tr>
+          {% endfor %}
         </tbody>
-    </table>
+      </table>
+    </div>
 </div>
 
-
-
-
-
-
-
-
+<!-- Modal -->
+<div class="modal" tabindex="-1" id="actionModal">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="modalTitle">Modal title</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="modalBody">
+              <!-- El contenido del modal se actualizará dinámicamente -->
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="modalActionButton">Guardar Cambios</button>
+          </div>
+      </div>
+  </div>
+</div>
 
 {% endblock %}

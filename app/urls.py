@@ -6,20 +6,18 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', home, name="home"),
     path('base/', base, name="base"),
-    path('logout/', Cerrar_session, name="logout"),
+    path('logout/', cerrar_session, name="logout"),
 
     path('auth/login/', iniciar_session, name="login"),
     path('auth/registro/', registro, name="registro"),
-    path('auth/roles', roles, name='roles'),
+    path('auth/roles/', roles, name='roles'),
+
 
     path('infraestructura/InformeCondiciones', informe, name='InformeCondiciones'),
     path('infraestructura/reporte', reporte, name='reporte'),
 
     path('dashboard/graficos', graficos, name='graficos'),
     path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
-    path('dashboard/feedback/<int:tarea_id>/', feedback, name='feedback'),
-
-    path('dashboard/feedback', feedback, name='feedback'),
 
     path('notificaciones/', notificaciones, name='notificaciones'),
     path('notificaciones/<int:notificaciones_id>/', notificaciones_id , name='notificaciones_id'),
@@ -36,4 +34,4 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

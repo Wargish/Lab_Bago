@@ -1,131 +1,112 @@
-
-
-// Image Load
-
-document.getElementById('id_image').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.getElementById('image-preview');
-            img.src = e.target.result;
-            img.style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-    }
-});
-
-
-// Sweet alert Generar Informe
-document.querySelector('form').addEventListener('submit', function(event) {
-    let form = event.target;
-    let valid = true;
-
-    form.querySelectorAll('.md-form').forEach(function(div) {
-        let input = div.querySelector('input, textarea, select');
-        if (!input.value) {
-            valid = false;
-            div.querySelector('.invalid-feedback').style.display = 'block';
-        } else {
-            div.querySelector('.invalid-feedback').style.display = 'none';
-        }
-    });
-
-    event.preventDefault();
-
-    if (valid) {
-        Swal.fire({
-            icon: "success",
-            title: "Se Cargo exitosamente el informe",
-            text: "Un tecnico respondera a la brevedad posible.",
-        }).then(() => {
-            form.submit();
-        });
-    } else {
-        Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Por favor rellena todos los campos.",
+document.addEventListener('DOMContentLoaded', function () {
+    // SweetAlert function
+    function showSweetAlert(icon, title, text, confirmButtonText = 'Aceptar') {
+        return Swal.fire({
+            icon: icon,
+            title: title,
+            text: text,
+            confirmButtonText: confirmButtonText
         });
     }
-});
 
-// Sweet alert Generar Reporte
-
-
-
-
-
-
-
-
-
-
-// Sweet alert Generar Feedback
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Modal Feedback
-document.addEventListener('DOMContentLoaded', function() {
-    $('#feedbackModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var tareaId = button.data('tarea-id');
-        var modal = $(this);
-        modal.find('#tareaIdInput').val(tareaId);
-    });
-
-    $('#conforme').on('change', function() {
-        if ($(this).val() === 'False') {
-            $('#comentarioGroup').show();
-        } else {
-            $('#comentarioGroup').hide();
-            $('#comentario').val('Felicitaciones por completar la tarea.');
-        }
-    });
-
-    // Handle form submission with SweetAlert2
-    document.getElementById('feedbackForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
-
-        const conforme = document.getElementById('conforme').value;
-        const comentario = document.getElementById('comentario').value;
-
-        if (conforme === 'False' && comentario.trim() === '') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Por favor, proporciona un comentario si rechazas el trabajo.',
-            });
-        } else {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "No podrás revertir esta acción.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, enviar feedback'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Submit the form
-                    event.target.submit();
+    // Image Preview Logic
+    const imageInput = document.getElementById('id_image');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileType = file.type.split('/')[0];
+                if (fileType === 'image') {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.getElementById('image-preview');
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    showSweetAlert('error', 'Tipo de archivo no válido', 'Por favor selecciona una imagen.', 'Aceptar');
+                    imageInput.value = ''; // Limpiar el campo
+                    imagePreview.style.display = 'none'; // Ocultar imagen previa
                 }
-            });
-        }
+            }
+        });
+    }
+
+    // Modal Roles Logic
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function () {
+            const action = this.getAttribute('data-action');
+            const username = this.getAttribute('data-username');
+            const userId = this.getAttribute('data-user-id');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            const modalActionButton = document.getElementById('modalActionButton');
+    
+            switch (action) {
+                case 'change_role':
+                    modalTitle.textContent = `Cambiar rol de ${username}`;
+                    modalBody.innerHTML = `
+                        <form id="changeRoleForm">
+                            <div class="mb-3">
+                                <label for="roleSelect" class="form-label">Selecciona un nuevo rol</label>
+                                <select class="form-select" id="roleSelect" name="role">
+                                    <option value="Operario">Operario</option>
+                                    <option value="Técnico">Técnico</option>
+                                    <option value="Externo">Externo</option>
+                                    <option value="Supervisor">Supervisor</option>
+                                </select>
+                            </div>
+                            <input type="hidden" name="user_id" value="${userId}">
+                            <input type="hidden" name="action" value="change_role">
+                        </form>
+                    `;
+                    modalActionButton.textContent = 'Guardar Cambios';
+                    modalActionButton.onclick = function () {
+                        const form = document.getElementById('changeRoleForm');
+                        const formData = new FormData(form);
+                        fetch('/auth/roles/', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRFToken': getCookie('csrftoken')
+                            }
+                        }).then(response => {
+                            if (response.ok) {
+                                location.reload();
+                            } else {
+                                console.error('Error al cambiar el rol');
+                            }
+                        });
+                    };
+                    break;
+                case 'delete':
+                    modalTitle.textContent = `Eliminar usuario ${username}`;
+                    modalBody.innerHTML = `<p>¿Estás seguro de que deseas eliminar a ${username}?</p>`;
+                    modalActionButton.textContent = 'Eliminar';
+                    modalActionButton.onclick = function () {
+                        console.log('Usuario eliminado', username);
+                    };
+                    break;
+            }
+    
+            const myModal = new bootstrap.Modal(document.getElementById('actionModal'));
+            myModal.show();
+        });
     });
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 });

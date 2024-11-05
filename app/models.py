@@ -64,15 +64,15 @@ class Notificacion(models.Model):
 
 class Tarea(models.Model):
     informe = models.ForeignKey(InformeCondiciones, on_delete=models.CASCADE)
-    objetivo = models.TextField(null=True, blank=True)
+    objetivo = models.TextField(null=True, blank=True)  # El objetivo de la tarea, heredado del informe
     estado = models.ForeignKey(Estado, on_delete=models.SET_NULL, null=True, blank=True)
-    tecnico = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    tecnico = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # El técnico o externo asignado
     createdAt = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.estado:
-            self.estado = Estado.objects.get(nombre='Pendiente')
-        self.objetivo = self.informe.objetivo
+            self.estado = Estado.objects.get(nombre='Pendiente')  # Asignar estado "Pendiente" por defecto
+        self.objetivo = self.informe.objetivo  # Establecer el objetivo de la tarea desde el informe
         super().save(*args, **kwargs)
 
     def asignar_tecnico(self, tecnico):
@@ -88,23 +88,23 @@ class Tarea(models.Model):
         self.estado = Estado.objects.get(nombre='Archivar')
         self.save()
 
-    def rechazar_si_no_conforme(self, feedback):
-        self.estado = Estado.objects.get(nombre='Rechazada')
-        self.save()
-        feedback.tarea = self
-        feedback.save()
-
     def __str__(self):
         return f'Tarea: {self.objetivo} - Estado: {self.estado}'
 
 class Reporte(models.Model):
-    tarea = models.ForeignKey(Tarea, on_delete=models.CASCADE)
+    tarea = models.OneToOneField(Tarea, on_delete=models.CASCADE, related_name='reporte')
     contenido = models.TextField(null=True, blank=True)
     imagen = models.ImageField(upload_to='app/static/images/', blank=False)
     createdAt = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Usuario que creó el reporte (técnico o externo)
+
+    def save(self, *args, **kwargs):
+        self.tarea.estado = Estado.objects.get(nombre='Completada')
+        self.tarea.save()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Reporte de Tarea: {self.tarea.objetivo} - Fecha: {self.createdAt.strftime("%Y-%m %H:%M")}'
+        return f'Reporte de Tarea: {self.tarea.objetivo} - Fecha: {self.createdAt.strftime("%Y-%m-%d %H:%M")}'
 
 
 class Feedback(models.Model):
@@ -112,6 +112,7 @@ class Feedback(models.Model):
     conforme = models.BooleanField()
     comentario = models.TextField(null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Usuario que crea el feedback (operario o supervisor)
 
     def __str__(self):
         return f'Feedback para Tarea: {self.tarea.objetivo} - Conforme: {"Sí" if self.conforme else "No"}'
