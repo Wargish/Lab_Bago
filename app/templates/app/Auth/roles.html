@@ -43,6 +43,15 @@
     </div>
 </div>
 
+
+<!-- Añadir esto dentro del bloque content, por ejemplo, justo antes del modal -->
+<div id="tareasSinTecnico" style="display: none;">
+  {% for tarea in tareas_sin_tecnico %}
+  <div data-id="{{ tarea.id }}" data-objetivo="{{ tarea.objetivo }}"></div>
+  {% endfor %}
+</div>
+
+
 <!-- Modal -->
 <div class="modal" tabindex="-1" id="actionModal">
   <div class="modal-dialog">

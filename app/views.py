@@ -79,11 +79,16 @@ def roles(request):
             usuario.delete()
         elif action == 'modify_user':
             pass
+        elif action == 'assign_task':
+            tarea_id = request.POST.get('task_id')
+            tarea = get_object_or_404(Tarea, id=tarea_id)
+            tarea.asignar_tecnico(usuario)
 
     usuarios = User.objects.all()
     roles = Group.objects.all()
+    tareas_sin_tecnico = Tarea.objects.filter(tecnico__isnull=True)
 
-    return render(request, "app/auth/roles.html", {'usuarios': usuarios, 'roles': roles})
+    return render(request, "app/auth/roles.html", {'usuarios': usuarios, 'roles': roles, 'tareas_sin_tecnico': tareas_sin_tecnico})
 
 
 # Vistas de CRUD y movimiento de información
