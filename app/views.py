@@ -119,6 +119,7 @@ def reporte(request):
         if form.is_valid():
             reporte = form.save(commit=False)  # Guardar el formulario sin commit
             reporte.tarea = tarea  # Asignar la tarea
+            reporte.usuario = request.user  # Asignar el usuario actual
             reporte.save()  # Guardar el objeto con la tarea asignada
 
             return redirect('home')
@@ -129,6 +130,34 @@ def reporte(request):
         form = ReporteForm(initial={'tarea': tarea})
 
     return render(request, "app/infraestructura/reporte.html", {
+        'form': form,
+        'tarea': tarea,
+        'tarea_id': tarea.id
+    })
+
+
+@login_required
+def feedback(request):
+    tarea_id = request.GET.get('tarea_id')
+    if not tarea_id:
+        return redirect('listar_tareas')
+    
+    tarea = get_object_or_404(Tarea, id=tarea_id)
+
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save(commit=False)
+            feedback.tarea = tarea
+            feedback.usuario = request.user
+            feedback.save()
+            return redirect('home')
+        else:
+            print("Errores en el formulario:", form.errors)
+    else:
+        form = FeedbackForm(initial={'tarea': tarea})
+
+    return render(request, "app/infraestructura/feedback.html", {
         'form': form,
         'tarea': tarea,
         'tarea_id': tarea.id
@@ -157,7 +186,7 @@ def marcar_notificacion_como_leida(request, notificacion_id):
 @login_required
 def listar_tareas(request):
     estado_selec = request.GET.get('estado', 'todos')
-    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Archivar']
+    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada' ,'Archivar']
     tareas = Tarea.objects.none()  # Inicializa con un QuerySet vacío
 
     is_superuser = request.user.is_superuser
@@ -205,14 +234,18 @@ def graficos(request):
 @login_required
 def detalle_informe(request, informe_id):
     informe = get_object_or_404(InformeCondiciones, id=informe_id)
-    return render(request, 'app/detalle_informe.html', {'informe': informe})
+    return render(request, 'app/detalle/informe.html', {'informe': informe})
 
 @login_required
 def detalle_reporte(request, reporte_id):
     reporte = get_object_or_404(Reporte, id=reporte_id)
-    return render(request, 'app/detalle_reporte.html', {'reporte': reporte})
+    return render(request, 'app/detalle/reporte.html', {'reporte': reporte})
 
 @login_required
 def detalle_feedback(request, feedback_id):
     feedback = get_object_or_404(Feedback, id=feedback_id)
-    return render(request, 'app/detalle_feedback.html', {'feedback': feedback})
+    return render(request, 'app/detalle/feedback.html', {'feedback': feedback})
+
+
+
+

@@ -1,0 +1,21 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header">
+        <a href="{% url 'listar_tareas' %}" class="btn btn-secondary">
+            &#8592; Volver a Listar Tareas
+        </a>
+        <h1>Detalles Reporte</h1>
+    </div>
+    <div class="card-body">
+        <p><strong>Creado por:</strong> {{ reporte.usuario.username }}</p>
+        <p><strong>Objetivo:</strong> {{ reporte.tarea.objetivo }}</p>
+        <p><strong>Fecha de Creación:</strong> {{ reporte.createdAt }}</p>
+        <p><strong>Contenido:</strong> {{ reporte.contenido }}</p>
+        <div class="text-center">
+            <img src="{{ reporte.imagen.url }}" alt="Imagen del Reporte" class="img-fluid" style="max-width: 100%; height: auto;">
+        </div>
+    </div>
+</div>
+{% endblock %}

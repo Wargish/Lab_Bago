@@ -1,7 +1,36 @@
-{% extends 'app/base.html' %}
-
+{% extends "../base.html" %}
 
 {% block content %}
-
-
+<div class="container mt-9 text-white">
+    <h2>Feedback de la Tarea: {{ tarea.objetivo }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Enviar Feedback</button>
+    </form>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const conformeRadios = document.querySelectorAll('input[name="conforme"]');
+            const comentarioField = document.querySelector('textarea[name="comentario"]').parentElement;
+            
+            function toggleComentarioField() {
+                const conformeValue = document.querySelector('input[name="conforme"]:checked').value;
+                if (conformeValue === 'True') {
+                    comentarioField.style.display = 'none';
+                } else {
+                    comentarioField.style.display = 'block';
+                }
+            }
+            
+            conformeRadios.forEach(radio => {
+                radio.addEventListener('change', toggleComentarioField);
+            });
+            toggleComentarioField();  // Inicializar el estado del campo comentario
+        });
+    </script>
+</div>
 {% endblock %}
+
+
+

@@ -1,0 +1,18 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header">
+        <a href="{% url 'listar_tareas' %}" class="btn btn-secondary">
+            &#8592; Volver a Listar Tareas
+        </a>
+        <h1>Detalles Feedback</h1>
+    </div>
+    <div class="card-body">
+        <p><strong>Usuario:</strong> {{ feedback.usuario.username }}</p>
+        <p><strong>Conforme:</strong> {% if feedback.conforme %}Sí{% else %}No{% endif %}</p>
+        <p><strong>Razon:</strong> {{ feedback.comentario }}</p>
+        <p><strong>Fecha de Creación:</strong> {{ feedback.createdAt }}</p>
+    </div>
+</div>
+{% endblock %}

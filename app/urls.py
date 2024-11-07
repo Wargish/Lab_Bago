@@ -15,6 +15,7 @@ urlpatterns = [
 
     path('infraestructura/InformeCondiciones', informe, name='InformeCondiciones'),
     path('infraestructura/reporte', reporte, name='reporte'),
+    path('infraestructura/feedback', feedback, name='feedback'),
 
     path('dashboard/graficos', graficos, name='graficos'),
     path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
@@ -34,8 +35,7 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 

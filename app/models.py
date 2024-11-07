@@ -75,19 +75,6 @@ class Tarea(models.Model):
         self.objetivo = self.informe.objetivo  # Establecer el objetivo de la tarea desde el informe
         super().save(*args, **kwargs)
 
-    def asignar_tecnico(self, tecnico):
-        self.tecnico = tecnico
-        self.estado = Estado.objects.get(nombre='En Curso')
-        self.save()
-
-    def completar_por_tecnico(self):
-        self.estado = Estado.objects.get(nombre='Completada')
-        self.save()
-
-    def archivar_si_conforme(self):
-        self.estado = Estado.objects.get(nombre='Archivar')
-        self.save()
-
     def __str__(self):
         return f'Tarea: {self.objetivo} - Estado: {self.estado}'
 
@@ -113,6 +100,14 @@ class Feedback(models.Model):
     comentario = models.TextField(null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Usuario que crea el feedback (operario o supervisor)
+
+    def save(self, *args, **kwargs):
+        if not self.conforme:
+            self.tarea.estado = Estado.objects.get(nombre='Rechazada')
+        else:
+            self.tarea.estado = Estado.objects.get(nombre='Archivada')
+        self.tarea.save()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'Feedback para Tarea: {self.tarea.objetivo} - Conforme: {"Sí" if self.conforme else "No"}'

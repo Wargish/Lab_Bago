@@ -80,7 +80,7 @@
                         aria-label="Notifications"
                     >
                         <i class="fas fa-bell" aria-hidden="true"></i>
-                        <span class="badge rounded-pill bg-danger">{{ notificaciones|length }}</span>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ notificaciones|length }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
                         {% if notificaciones %}

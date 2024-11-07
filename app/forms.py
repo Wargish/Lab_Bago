@@ -94,3 +94,23 @@ class ReporteForm(forms.ModelForm):
             'contenido': forms.Textarea(attrs={'class': 'form-control'}),
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['tarea', 'conforme', 'comentario']
+        widgets = {
+            'tarea': forms.HiddenInput(),
+            'conforme': forms.RadioSelect(choices=[(True, 'Sí'), (False, 'No')]),
+            'comentario': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        conforme = cleaned_data.get('conforme')
+        comentario = cleaned_data.get('comentario')
+
+        if conforme is False and not comentario:
+            self.add_error('comentario', 'Este campo es obligatorio si no está conforme.')
+
+        return cleaned_data
