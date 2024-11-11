@@ -1,3 +1,4 @@
+// Definir la función fuera de 'DOMContentLoaded'
 document.addEventListener('DOMContentLoaded', function () {
     // SweetAlert function
     function showSweetAlert(icon, title, text, confirmButtonText = 'Aceptar') {
@@ -32,6 +33,33 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+        // Mostrar popup de notificación
+        window.showNotificationPopup = function(title, description) {
+            const notificationPopup = document.getElementById('notificationPopup');
+            const notificationTitle = document.getElementById('notificationTitle');
+            const notificationDescription = document.getElementById('notificationDescription');
+
+            notificationTitle.textContent = title;
+            notificationDescription.textContent = description;
+            notificationPopup.style.display = 'block';
+        }
+
+        // Ocultar popup de notificación
+        function hideNotificationPopup() {
+            const notificationPopup = document.getElementById('notificationPopup');
+            notificationPopup.style.display = 'none';
+        }
+
+        // Manejar clic en botón "Ir a Tareas"
+        document.getElementById('goToTasksButton').addEventListener('click', function () {
+            window.location.href = '/listar_tareas/';
+        });
+
+        // Manejar clic en botón "Regresar"
+        document.getElementById('closePopupButton').addEventListener('click', function () {
+            hideNotificationPopup();
+        });
 
     // Modal Roles Logic
     document.querySelectorAll('.dropdown-item').forEach(item => {

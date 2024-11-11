@@ -1,5 +1,5 @@
 # Importaciones estándar de Django
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404,HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -177,9 +177,10 @@ def notificaciones_id(request, notificaciones_id):
 
 @login_required
 def marcar_notificacion_como_leida(request, notificacion_id):
-    notificacion = Notificacion.objects.get(id=notificacion_id)
+    notificacion = get_object_or_404(Notificacion, id=notificacion_id)
     if notificacion.user == request.user:
         notificacion.marcar_como_leido()
+    return HttpResponseRedirect(reverse('notificaciones'))
 
 
 # Vistas de tareas y roles especiales
@@ -245,7 +246,5 @@ def detalle_reporte(request, reporte_id):
 def detalle_feedback(request, feedback_id):
     feedback = get_object_or_404(Feedback, id=feedback_id)
     return render(request, 'app/detalle/feedback.html', {'feedback': feedback})
-
-
 
 

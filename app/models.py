@@ -36,7 +36,6 @@ class InformeCondiciones(models.Model):
         super().save(*args, **kwargs)
         if not Tarea.objects.filter(informe=self).exists():
             Tarea.objects.create(informe=self, objetivo=self.objetivo)
-        Notificacion.crear_notificaciones(self)
 
 
     def __str__(self):
@@ -48,12 +47,7 @@ class Notificacion(models.Model):
     informe = models.ForeignKey(InformeCondiciones, on_delete=models.CASCADE)
     leido = models.BooleanField(default=False)
     createdAt = models.DateTimeField(auto_now_add=True)
-
-    @classmethod
-    def crear_notificaciones(cls, informe):
-        tecnicos = Group.objects.get(name='Técnico').user_set.all()
-        for tecnico in tecnicos:
-            cls.objects.create(user=tecnico, informe=informe)
+    mensaje = models.TextField(null=True, blank=True)
 
     def marcar_como_leido(self):
         self.leido = True
@@ -64,16 +58,21 @@ class Notificacion(models.Model):
 
 class Tarea(models.Model):
     informe = models.ForeignKey(InformeCondiciones, on_delete=models.CASCADE)
-    objetivo = models.TextField(null=True, blank=True)  # El objetivo de la tarea, heredado del informe
+    objetivo = models.TextField(null=True, blank=True)
     estado = models.ForeignKey(Estado, on_delete=models.SET_NULL, null=True, blank=True)
-    tecnico = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # El técnico o externo asignado
+    tecnico = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.estado:
-            self.estado = Estado.objects.get(nombre='Pendiente')  # Asignar estado "Pendiente" por defecto
-        self.objetivo = self.informe.objetivo  # Establecer el objetivo de la tarea desde el informe
+            self.estado = Estado.objects.get(nombre='Pendiente')
+        self.objetivo = self.informe.objetivo
         super().save(*args, **kwargs)
+
+    def asignar_tecnico(self, tecnico):
+        self.tecnico = tecnico
+        self.save()
+        Notificacion.objects.create(user=tecnico, informe=self.informe, mensaje=f'Tarea asignada: {self.objetivo}')
 
     def __str__(self):
         return f'Tarea: {self.objetivo} - Estado: {self.estado}'

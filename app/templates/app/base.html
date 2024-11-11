@@ -72,7 +72,7 @@
                 <!-- NOTIFICACIONES -->
                 <div class="dropdown">
                     <a
-                        class="text-reset me-3 dropdown-toggle"
+                        class="text-reset me-3 position-relative"
                         id="navbarDropdownMenuLink"
                         role="button"
                         data-bs-toggle="dropdown"
@@ -80,13 +80,15 @@
                         aria-label="Notifications"
                     >
                         <i class="fas fa-bell" aria-hidden="true"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ notificaciones|length }}</span>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ notificaciones|length }}
+                        </span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
                         {% if notificaciones %}
                             {% for notificacion in notificaciones %}
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'marcar_notificacion_como_leida' notificacion.id %}">
+                                    <a class="dropdown-item" href="#" onclick="showNotificationPopup('{{ notificacion.informe.objetivo }}', '{{ notificacion.informe.descripcion }}')">
                                         {{ notificacion.informe.objetivo }}
                                     </a>
                                 </li>
@@ -155,6 +157,24 @@
         <p>Contacto: <a href="mailto:contacto@laboratoriobago.com">contacto@laboratoriobago.com</a></p>
         <p>&copy; 2024 Laboratorio Bagó. Todos los derechos reservados.</p>
     </footer>
+
+
+
+    <!--- PopUp Notificacion -->
+    <div class="card" id="notificationPopup" style="display: none;">
+        <p class="cookieHeading" id="notificationTitle">Notification Title</p>
+        <p class="cookieDescription" id="notificationDescription">Notification Description</p>
+        <div class="buttonContainer">
+            <button class="acceptButton" id="goToTasksButton">Ir a Tareas</button>
+            <button class="declineButton" id="closePopupButton">Regresar</button>
+        </div>
+    </div>
+
+
+
+
+
+
 
 </div>
 {% block extra_js %}
