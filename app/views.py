@@ -173,15 +173,9 @@ def notificaciones(request):
 @login_required
 def notificaciones_id(request, notificaciones_id):
     notificacion = Notificacion.objects.get(id=notificaciones_id)
-    return render(request, "app/notificaciones_id.html", {'notificacion': notificacion})
-
-@login_required
-def marcar_notificacion_como_leida(request, notificacion_id):
-    notificacion = get_object_or_404(Notificacion, id=notificacion_id)
     if notificacion.user == request.user:
         notificacion.marcar_como_leido()
-    return HttpResponseRedirect(reverse('notificaciones'))
-
+    return HttpResponseRedirect(reverse('listar_tareas') + '?estado=Pendiente')
 
 # Vistas de tareas y roles especiales
 @login_required

@@ -88,7 +88,6 @@
                         {% if notificaciones %}
                             {% for notificacion in notificaciones %}
                                 <li>
-                                    <a class="dropdown-item" href="#" onclick="showNotificationPopup('{{ notificacion.informe.objetivo }}', '{{ notificacion.informe.descripcion }}')">
                                         {{ notificacion.informe.objetivo }}
                                     </a>
                                 </li>
@@ -157,23 +156,6 @@
         <p>Contacto: <a href="mailto:contacto@laboratoriobago.com">contacto@laboratoriobago.com</a></p>
         <p>&copy; 2024 Laboratorio Bagó. Todos los derechos reservados.</p>
     </footer>
-
-
-
-    <!--- PopUp Notificacion -->
-    <div class="card" id="notificationPopup" style="display: none;">
-        <p class="cookieHeading" id="notificationTitle">Notification Title</p>
-        <p class="cookieDescription" id="notificationDescription">Notification Description</p>
-        <div class="buttonContainer">
-            <button class="acceptButton" id="goToTasksButton">Ir a Tareas</button>
-            <button class="declineButton" id="closePopupButton">Regresar</button>
-        </div>
-    </div>
-
-
-
-
-
 
 
 </div>

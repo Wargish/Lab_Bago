@@ -27,8 +27,6 @@ urlpatterns = [
     path('detalle/informe/<int:informe_id>/', detalle_informe, name='detalle_informe'),
     path('detalle/reporte/<int:reporte_id>/', detalle_reporte, name='detalle_reporte'),
     path('detalle/feedback/<int:feedback_id>/', detalle_feedback, name='detalle_feedback'),
-    path('notificaciones/marcar/<int:notificacion_id>/', marcar_notificacion_como_leida, name='marcar_notificacion_como_leida'),
-
 
     path('error404/', error404, name='error404'),
 

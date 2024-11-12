@@ -2,10 +2,34 @@
 
 {% block content %}
 
-<canvas id="chart"></canvas>
-    
-<script>
-    // JavaScript code to update the chart in real-time
-</script>
+
+
+<div>
+    <h1 class="text-center">Graficos</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Grafico de Barras</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="myChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Grafico de Lineas</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="myChart2" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 {% endblock %}
