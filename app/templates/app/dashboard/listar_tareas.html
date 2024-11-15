@@ -24,7 +24,7 @@
                 <tr>
                     <th>Objetivo</th>
                     <th>Estado</th>
-                    <th>Técnico</th>
+                    <th class="d-none d-sm-table-cell">Técnico</th>
                     <th>Fecha de Creación</th>
                     <th>Informe</th>
                     <th>Reporte</th>
@@ -36,7 +36,7 @@
                     <tr>
                         <td>{{ tarea.objetivo }}</td>
                         <td>{{ tarea.estado }}</td>
-                        <td>
+                        <td class="d-none d-sm-table-cell">
                             {% if tarea.tecnico %}
                                 {{ tarea.tecnico.username }}
                             {% else %}
@@ -105,5 +105,17 @@
 
 </div>
 
-{% endblock %}
+<style>
+    @media (max-width: 576px) {
+        .table th, .table td {
+            font-size: 12px;
+            padding: 0.25rem;
+        }
+        .btn-sm {
+            font-size: 10px;
+            padding: 0.25rem 0.5rem;
+        }
+    }
+</style>
 
+{% endblock %}

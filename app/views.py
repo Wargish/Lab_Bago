@@ -241,4 +241,3 @@ def detalle_feedback(request, feedback_id):
     feedback = get_object_or_404(Feedback, id=feedback_id)
     return render(request, 'app/detalle/feedback.html', {'feedback': feedback})
 
-
