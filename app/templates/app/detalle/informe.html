@@ -9,13 +9,13 @@
         <h1>Detalles Informe</h1>
     </div>
     <div class="card-body">
-        <p><strong>Creado:</strong> {{ informe.user.username }}</p>
-        <p><strong>Lugar:</strong> {{ informe.lugar.nombre }}</p>
+        <p><strong>Creado:</strong> {{ informe.usuario.username }}</p>
+        <p><strong>Lugar:</strong> {{ informe.ubicacion.nombre }}</p>
         <p><strong>Objetivo:</strong> {{ informe.objetivo }}</p>
         <p><strong>Mensaje:</strong> {{ informe.mensaje }}</p>
-        <p><strong>Tipo de Informe:</strong> {{ informe.get_tipo_Informe_display }}</p>
+        <p><strong>Tipo de Informe:</strong> {{ informe.get_tipo_informe_display }}</p>
         <div class="text-center">
-            <img src="{{ informe.image.url }}" alt="Imagen del Informe" class="img-fluid" style="width: 600px; height: 500px;">
+            <img src="{{ informe.imagen.url }}" alt="Imagen del Informe" class="img-fluid" style="width: 600px; height: 500px;">
         </div>
     </div>
 </div>

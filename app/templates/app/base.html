@@ -51,7 +51,7 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_superuser %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Dashboard</a>
+                        <a class="nav-link" href="dashboard/graficos">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/auth/roles">Usuarios</a>
@@ -59,7 +59,7 @@
                     {% endif %}
                     <li class="nav-item">
                     {% if not user.is_superuser %}
-                        <a class="nav-link" href="/infraestructura/InformeCondiciones">Infraestructura</a>
+                        <a class="nav-link" href="/infraestructura/Informe">Infraestructura</a>
                     </li>
                     {% endif %}
                     <li class="nav-item">
@@ -120,15 +120,20 @@
                         />
 
                         {% if username %}
-                                <span class="ms-2">Bienvenido {{ username }}</span>
+                        <span class="ms-2">Bienvenido {{ username }}</span>
+                    
+                        {% if user.is_superuser %}
+                            <span class="ms-2">Admin</span>
+                        {% else %}
                             {% if grupos %}
                                 {% for grupo in grupos %}
-                                    <span class="ms-2">{{ grupo }} </span>
+                                    <span class="ms-2">{{ grupo }}</span>
                                 {% endfor %}
                             {% else %}
-                                <span class="ms-2">Admin</span>
+                                <span class="ms-2">Sin grupo</span>
                             {% endif %}
                         {% endif %}
+                    {% endif %}
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuAvatar">
@@ -159,13 +164,15 @@
 
 
 </div>
-{% block extra_js %}
+<!-- JavaScript -->
+<script src="{% static 'js/JS.js' %}"defer></script>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-<!-- JavaScript -->
-<script src="{% static 'js/JS.js' %}"></script>
 <!-- SweetAlert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-{% endblock %}
+<!-- plotly -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% load sweetify %}
+{% sweetify %}
 </body>
 </html>

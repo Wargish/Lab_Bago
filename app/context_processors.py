@@ -15,7 +15,7 @@ def user_groups(request):
 
 def notificaciones(request):
     if request.user.is_authenticated:
-        notificaciones = Notificacion.objects.filter(user=request.user, leido=False).order_by('-createdAt')[:3]
+        notificaciones = Notificacion.objects.filter(usuario=request.user, leido=False).order_by('-creado_en')[:3]
     else:
         notificaciones = []
     return {'notificaciones': notificaciones}

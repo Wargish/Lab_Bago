@@ -13,7 +13,7 @@ urlpatterns = [
     path('auth/roles/', roles, name='roles'),
 
 
-    path('infraestructura/InformeCondiciones', informe, name='InformeCondiciones'),
+    path('infraestructura/Informe', informe, name='Informe'),
     path('infraestructura/reporte', reporte, name='reporte'),
     path('infraestructura/feedback', feedback, name='feedback'),
 
@@ -30,10 +30,7 @@ urlpatterns = [
 
     path('error404/', error404, name='error404'),
 
-]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 

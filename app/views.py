@@ -4,6 +4,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
+import sweetify
+
+# Importaciones para graficos
+import plotly.express as px
+import pandas as pd
+from datetime import timedelta
 
 # Importaciones locales (formularios y modelos)
 from .forms import *
@@ -54,7 +60,10 @@ def iniciar_session(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                sweetify.sweetalert(request, icon='success', persistent='Ok', title='Bienvenido', text='Inicio de sesión exitoso')
                 return redirect('home')
+        else:
+            sweetify.error(request, 'Error', text='Usuario o contraseña incorrectos.', persistent='Ok')
     else:
         form = LoginForm()
     return render(request, "app/auth/login.html", {'form': form})
@@ -63,6 +72,8 @@ def cerrar_session(request):
     logout(request)
     return redirect('home')
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def roles(request):
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -86,13 +97,14 @@ def roles(request):
 
     usuarios = User.objects.all()
     roles = Group.objects.all()
-    tareas_sin_tecnico = Tarea.objects.filter(tecnico__isnull=True)
+    tareas_sin_tecnico = Tarea.objects.filter(asignado_a__isnull=True)
 
     return render(request, "app/auth/roles.html", {'usuarios': usuarios, 'roles': roles, 'tareas_sin_tecnico': tareas_sin_tecnico})
 
 
 # Vistas de CRUD y movimiento de información
 @login_required
+@group_required('Operario', 'Técnico', 'Externo', 'Supervisor')
 def informe(request):
     if request.method == 'POST':
         form = InformeForm(request.POST, request.FILES)
@@ -101,9 +113,10 @@ def informe(request):
             return redirect('listar_tareas')
     else:
         form = InformeForm()
-    return render(request, "app/infraestructura/InformeCondiciones.html", {'form': form})
+    return render(request, "app/infraestructura/Informe.html", {'form': form})
 
 @login_required
+@group_required('Operario', 'Técnico', 'Externo', 'Supervisor')
 def reporte(request):
     tarea_id = request.GET.get('tarea_id')
     if not tarea_id:
@@ -137,6 +150,7 @@ def reporte(request):
 
 
 @login_required
+@group_required('Operario', 'Técnico', 'Externo', 'Supervisor')
 def feedback(request):
     tarea_id = request.GET.get('tarea_id')
     if not tarea_id:
@@ -181,7 +195,7 @@ def notificaciones_id(request, notificaciones_id):
 @login_required
 def listar_tareas(request):
     estado_selec = request.GET.get('estado', 'todos')
-    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada' ,'Archivar']
+    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada', 'Archivar']
     tareas = Tarea.objects.none()  # Inicializa con un QuerySet vacío
 
     is_superuser = request.user.is_superuser
@@ -198,14 +212,14 @@ def listar_tareas(request):
             tareas = Tarea.objects.filter(estado__nombre=estado_selec)
     elif is_tecnico or is_externo:
         if estado_selec == 'todos':
-            tareas = Tarea.objects.filter(tecnico=request.user)
+            tareas = Tarea.objects.filter(asignado_a=request.user)
         elif estado_selec in estados_validos:
-            tareas = Tarea.objects.filter(tecnico=request.user, estado__nombre=estado_selec)
+            tareas = Tarea.objects.filter(asignado_a=request.user, estado__nombre=estado_selec)
     elif is_supervisor or is_operario:
         if estado_selec == 'todos':
-            tareas = Tarea.objects.filter(informe__user=request.user)
+            tareas = Tarea.objects.filter(informe__usuario=request.user)
         elif estado_selec in estados_validos:
-            tareas = Tarea.objects.filter(informe__user=request.user, estado__nombre=estado_selec)
+            tareas = Tarea.objects.filter(informe__usuario=request.user, estado__nombre=estado_selec)
 
     return render(request, "app/dashboard/listar_tareas.html", {
         'tareas': tareas,
@@ -220,24 +234,65 @@ def listar_tareas(request):
 
 # Vistas de Dashboard y Análisis
 @login_required
+@user_passes_test(lambda u: u.is_superuser or u.groups.filter(name='Supervisor').exists())
 def graficos(request):
-    return render(request, "app/dashboard/graficos.html")
+    # **1. Tareas Completadas vs. Rechazadas**
+    tareas = Tarea.objects.all()
+    df_tareas = pd.DataFrame(list(tareas.values('estado__nombre')))
+    task_counts = df_tareas['estado__nombre'].value_counts().reset_index()
+    task_counts.columns = ['Estado', 'Cantidad']
+    graph_tareas_completadas_rechazadas = px.bar(task_counts, x='Estado', y='Cantidad', title='Tareas Completadas vs. Rechazadas')
+    graph_tareas_completadas_rechazadas.update_layout(template='plotly_white')
+    graph_tareas_completadas_rechazadas_html = graph_tareas_completadas_rechazadas.to_html(full_html=False)
 
+    # **2. Volumen de Tareas por Tiempo**
+    df_tareas_time = pd.DataFrame(list(tareas.values('creado_en')))
+    df_tareas_time['creado_en'] = pd.to_datetime(df_tareas_time['creado_en'])
+    df_grouped_time = df_tareas_time.groupby(df_tareas_time['creado_en'].dt.date).size().reset_index(name='Cantidad')
+    graph_volumen_tareas_tiempo = px.line(df_grouped_time, x='creado_en', y='Cantidad', title='Volumen de Tareas por Tiempo')
+    graph_volumen_tareas_tiempo.update_layout(template='plotly_white')
+    graph_volumen_tareas_tiempo_html = graph_volumen_tareas_tiempo.to_html(full_html=False)
+
+    # **3. Distribución de Tareas por Técnico**
+    df_tecnico = pd.DataFrame(list(tareas.values('asignado_a__username')))
+    task_counts_tecnico = df_tecnico['asignado_a__username'].value_counts().reset_index()
+    task_counts_tecnico.columns = ['asignado_a', 'Cantidad']
+    graph_distribucion_tecnico = px.pie(task_counts_tecnico, names='asignado_a', values='Cantidad', title='Distribución de Tareas por Técnico')
+    graph_distribucion_tecnico.update_layout(template='plotly_white')
+    graph_distribucion_tecnico_html = graph_distribucion_tecnico.to_html(full_html=False)
+
+    # **4. Cantidad Histórica de Informes por Lugar**
+    informes = informe.objects.all()
+    df_informes = pd.DataFrame(list(informes.values('lugar__nombre', 'createdAt')))
+    df_informes_grouped = df_informes.groupby('lugar__nombre').size().reset_index(name='Cantidad')
+    graph_informes_por_lugar = px.bar(df_informes_grouped, x='lugar__nombre', y='Cantidad', title='Cantidad Histórica de Informes por Lugar')
+    graph_informes_por_lugar.update_layout(template='plotly_white')
+    graph_informes_por_lugar_html = graph_informes_por_lugar.to_html(full_html=False)
+
+    # Pasamos todos los gráficos a la plantilla
+    context = {
+        'graph_tareas_completadas_rechazadas': graph_tareas_completadas_rechazadas_html,
+        'graph_volumen_tareas_tiempo': graph_volumen_tareas_tiempo_html,
+        'graph_distribucion_tecnico': graph_distribucion_tecnico_html,
+        'graph_informes_por_lugar': graph_informes_por_lugar_html
+    }
+
+    return render(request, "app/dashboard/graficos.html", context)
 
 
 # Vistas de detalles (informes, reportes, feedbacks)
 @login_required
 def detalle_informe(request, informe_id):
-    informe = get_object_or_404(InformeCondiciones, id=informe_id)
+    informe = get_object_or_404(Informe, id=informe_id)
     return render(request, 'app/detalle/informe.html', {'informe': informe})
 
 @login_required
 def detalle_reporte(request, reporte_id):
-    reporte = get_object_or_404(Reporte, id=reporte_id)
+    reporte = get_object_or_404(ReporteTarea, id=reporte_id)
     return render(request, 'app/detalle/reporte.html', {'reporte': reporte})
 
 @login_required
 def detalle_feedback(request, feedback_id):
-    feedback = get_object_or_404(Feedback, id=feedback_id)
+    feedback = get_object_or_404(FeedbackTarea, id=feedback_id)
     return render(request, 'app/detalle/feedback.html', {'feedback': feedback})
 

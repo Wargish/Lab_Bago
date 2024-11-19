@@ -2,31 +2,66 @@
 
 {% block content %}
 <div class="container mt-9 text-white">
-    <h2 class="mb-4">Crear Reporte</h2>
+    <h2 class="mb-4">Crear Informe</h2>
     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
-    
-        <!-- Campo Tarea (Oculto) -->
-        {{ form.tarea }}
         
-        <!-- Mostrar Tarea -->
+        <!-- Campo de usuario -->
         <div class="md-form">
-            <label for="tarea">Tarea:</label>
-            <input type="text" id="tarea" class="form-control" value="{{ tarea }}" readonly>
-        </div>
-    
-        <!-- Contenido -->
-        <div class="md-form">
-            {{ form.contenido.label_tag }}
-            {{ form.contenido }}
+            {{ form.usuario.label_tag }}
+            {{ form.usuario }}
             <div class="invalid-feedback">
-                {% for error in form.contenido.errors %}
+                {% for error in form.usuario.errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
             </div>
         </div>
-    
-        <!-- Imagen -->
+
+        <!-- Campo de ubicación -->
+        <div class="md-form">
+            {{ form.ubicacion.label_tag }}
+            {{ form.ubicacion }}
+            <div class="invalid-feedback">
+                {% for error in form.ubicacion.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Campo de tipo de informe -->
+        <div class="md-form">
+            {{ form.tipo_informe.label_tag }}
+            {{ form.tipo_informe }}
+            <div class="invalid-feedback">
+                {% for error in form.tipo_informe.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Campo de objetivo -->
+        <div class="md-form">
+            {{ form.objetivo.label_tag }}
+            {{ form.objetivo }}
+            <div class="invalid-feedback">
+                {% for error in form.objetivo.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Campo de mensaje -->
+        <div class="md-form">
+            {{ form.mensaje.label_tag }}
+            {{ form.mensaje }}
+            <div class="invalid-feedback">
+                {% for error in form.mensaje.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Campo de imagen -->
         <div class="md-form">
             {{ form.imagen.label_tag }}
             {{ form.imagen }}
@@ -35,15 +70,15 @@
                     <p>{{ error }}</p>
                 {% endfor %}
             </div>
+            <!-- Vista previa de la imagen -->
             <div>
-                <img id="image-preview" src="#" alt="Vista previa de la imagen" style="display: none; max-width: 100%; height: auto; margin-top: 10px;">
+                <img id="imagen-preview" src="#" alt="Vista previa de la imagen" style="display: none; max-width: 100%; height: auto; margin-top: 10px;">
             </div>
         </div>
-    
+        
         <button type="submit" class="btn btn-primary">Enviar</button>
     </form>
 </div>
-
 
 
 <script>
@@ -74,4 +109,3 @@
     }
 </script>
 {% endblock %}
-

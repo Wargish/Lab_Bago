@@ -1,13 +1,15 @@
+/* styles.css */
 .Body-base {
     background-color: #9f187e;
 }
-header{
-    color:white
-}
-footer{
-    color:white
+
+header {
+    color: white !important;
 }
 
+footer {
+    color: white !important;
+}
 
 .form-outline-login input {
     border: 1px solid black !important;
@@ -15,9 +17,10 @@ footer{
 
 .form-outline-login input:focus {
     border-color: black !important;
-    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
 }
 
 .form-outline-login label {
-    color: black;
+    color: black !important;
 }
+

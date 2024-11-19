@@ -62,32 +62,32 @@ class LoginForm(AuthenticationForm):
 
 class InformeForm(forms.ModelForm):
     class Meta:
-        model = InformeCondiciones
-        fields = ['user', 'lugar', 'tipo_Informe', 'objetivo', 'mensaje', 'image']
+        model = Informe
+        fields = ['usuario', 'ubicacion', 'tipo_informe', 'objetivo', 'mensaje', 'imagen']
         widgets = {
-            'user': forms.Select(attrs={'class': 'form-control'}),
-            'lugar': forms.Select(attrs={'class': 'form-control'}),
-            'tipo_Informe': forms.Select(attrs={'class': 'form-control'}),
+            'usuario': forms.Select(attrs={'class': 'form-control'}),
+            'ubicacion': forms.Select(attrs={'class': 'form-control'}),
+            'tipo_informe': forms.Select(attrs={'class': 'form-control'}),
             'objetivo': forms.TextInput(attrs={'class': 'form-control'}),
             'mensaje': forms.Textarea(attrs={'class': 'form-control'}),
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
 
 class TareaForm(forms.ModelForm):
     class Meta:
         model = Tarea
-        fields = ['informe', 'objetivo', 'estado', 'tecnico']
+        fields = ['informe', 'objetivo', 'estado', 'asignado_a']
         widgets = {
             'informe': forms.Select(attrs={'class': 'form-control'}),
             'objetivo': forms.TextInput(attrs={'class': 'form-control'}),
             'estado': forms.Select(attrs={'class': 'form-control'}),
-            'tecnico': forms.Select(attrs={'class': 'form-control'}),
+            'asignado_a': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class ReporteForm(forms.ModelForm):
     class Meta:
-        model = Reporte
+        model = ReporteTarea
         fields = ['tarea', 'contenido', 'imagen']
         widgets = {
             'tarea': forms.HiddenInput(),
@@ -97,12 +97,12 @@ class ReporteForm(forms.ModelForm):
 
 class FeedbackForm(forms.ModelForm):
     class Meta:
-        model = Feedback
-        fields = ['tarea', 'conforme', 'comentario']
+        model = FeedbackTarea
+        fields = ['tarea', 'aprobado', 'comentarios']
         widgets = {
             'tarea': forms.HiddenInput(),
-            'conforme': forms.RadioSelect(choices=[(True, 'Sí'), (False, 'No')]),
-            'comentario': forms.Textarea(attrs={'class': 'form-control'}),
+            'aprobado': forms.RadioSelect(choices=[(True, 'Sí'), (False, 'No')]),
+            'comentarios': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
     def clean(self):

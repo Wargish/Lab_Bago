@@ -37,13 +37,13 @@
                         <td>{{ tarea.objetivo }}</td>
                         <td>{{ tarea.estado }}</td>
                         <td class="d-none d-sm-table-cell">
-                            {% if tarea.tecnico %}
-                                {{ tarea.tecnico.username }}
+                            {% if tarea.asignado_a %}
+                                {{ tarea.asignado_a.username }}
                             {% else %}
                                 No asignado
                             {% endif %}
                         </td>
-                        <td>{{ tarea.createdAt|date:"d-m-Y H:i" }}</td>
+                        <td>{{ tarea.creado_en|date:"d-m-Y H:i" }}</td>
                         <td>
                             {% if tarea.informe %}
                                 <a href="{% url 'detalle_informe' tarea.informe.id %}" class="btn btn-info btn-sm">Ver Informe</a>

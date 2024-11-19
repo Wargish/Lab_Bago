@@ -11,7 +11,7 @@
     <div class="card-body">
         <p><strong>Creado por:</strong> {{ reporte.usuario.username }}</p>
         <p><strong>Objetivo:</strong> {{ reporte.tarea.objetivo }}</p>
-        <p><strong>Fecha de Creación:</strong> {{ reporte.createdAt }}</p>
+        <p><strong>Fecha de Creación:</strong> {{ reporte.creado_en }}</p>
         <p><strong>Contenido:</strong> {{ reporte.contenido }}</p>
         <div class="text-center">
             <img src="{{ reporte.imagen.url }}" alt="Imagen del Reporte" class="img-fluid" style="width: 600px; height: 500px;">

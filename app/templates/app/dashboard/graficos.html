@@ -2,15 +2,50 @@
 
 {% block content %}
 
+<div class="container mt-5">
+    <h1 class="text-center">Dashboard</h1>
 
-<div>
-    <div>
-        <div>
-            
-        </div>
+    <!-- Gráfico: Tareas Completadas vs. Rechazadas -->
+    <div class="graph-container mb-5">
+        <h3 class="graph-title">Tareas Completadas vs. Rechazadas</h3>
+        <div>{{ graph_tareas_completadas_rechazadas|safe }}</div>
     </div>
+
+    <!-- Gráfico: Volumen de Tareas por Tiempo -->
+    <div class="graph-container mb-5">
+        <h3 class="graph-title">Volumen de Tareas por Tiempo</h3>
+        <div>{{ graph_volumen_tareas_tiempo|safe }}</div>
+    </div>
+
+    <!-- Gráfico: Distribución de Tareas por Técnico -->
+    <div class="graph-container mb-5">
+        <h3 class="graph-title">Distribución de Tareas por Técnico</h3>
+        <div>{{ graph_distribucion_tecnico|safe }}</div>
+    </div>
+
+    <!-- Gráfico: Cantidad Histórica de Informes por Lugar -->
+    <div class="graph-container mb-5">
+        <h3 class="graph-title">Cantidad Histórica de Informes por Lugar</h3>
+        <div>{{ graph_informes_por_lugar|safe }}</div>
+    </div>
+
 </div>
 
 
 
+
+<style>
+.graph-container {
+    background-color: #f8f9fa ;
+    padding: 20px ;
+    border-radius: 10px ;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) ;
+}
+
+.graph-title {
+    text-align: center ;
+    margin-bottom: 20px ;
+    color: #343a40 ;
+}
+</style>
 {% endblock %}
