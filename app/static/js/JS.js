@@ -1,7 +1,11 @@
 // Modal Roles Logic
 document.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', function () {
+    item.addEventListener('click', function (event) {
         const action = this.getAttribute('data-action');
+        if (!action) return; // Si no hay acción, no hacer nada
+
+        event.preventDefault(); // Evita el comportamiento predeterminado del botón
+
         const username = this.getAttribute('data-username');
         const userId = this.getAttribute('data-user-id');
         const modalTitle = document.getElementById('modalTitle');
@@ -68,46 +72,46 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
                     });
                 };
                 break;
-                case 'assign_task':
-                    modalTitle.textContent = `Asignar tarea a ${username}`;
-                    const tareasSinTecnico = document.getElementById('tareasSinTecnico').children;
-                    let options = '';
-                    for (let tarea of tareasSinTecnico) {
-                        const id = tarea.getAttribute('data-id');
-                        const objetivo = tarea.getAttribute('data-objetivo');
-                        options += `<option value="${id}">${objetivo}</option>`;
-                    }
-                    modalBody.innerHTML = `
-                        <form id="assignTaskForm">
-                            <div class="mb-3">
-                                <label for="taskSelect" class="form-label">Selecciona una tarea</label>
-                                <select class="form-select" id="taskSelect" name="task_id">
-                                    ${options}
-                                </select>
-                            </div>
-                            <input type="hidden" name="user_id" value="${userId}">
-                            <input type="hidden" name="action" value="assign_task">
-                        </form>
-                    `;
-                    modalActionButton.textContent = 'Asignar Tarea';
-                    modalActionButton.onclick = function () {
-                        const form = document.getElementById('assignTaskForm');
-                        const formData = new FormData(form);
-                        fetch('/auth/roles/', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRFToken': getCookie('csrftoken')
-                            }
-                        }).then(response => {
-                            if (response.ok) {
-                                location.reload();
-                            } else {
-                                console.error('Error al asignar la tarea');
-                            }
-                        });
-                    };
-                    break;
+            case 'assign_task':
+                modalTitle.textContent = `Asignar tarea a ${username}`;
+                const tareasSinTecnico = document.getElementById('tareasSinTecnico').children;
+                let options = '';
+                for (let tarea of tareasSinTecnico) {
+                    const id = tarea.getAttribute('data-id');
+                    const objetivo = tarea.getAttribute('data-objetivo');
+                    options += `<option value="${id}">${objetivo}</option>`;
+                }
+                modalBody.innerHTML = `
+                    <form id="assignTaskForm">
+                        <div class="mb-3">
+                            <label for="taskSelect" class="form-label">Selecciona una tarea</label>
+                            <select class="form-select" id="taskSelect" name="task_id">
+                                ${options}
+                            </select>
+                        </div>
+                        <input type="hidden" name="user_id" value="${userId}">
+                        <input type="hidden" name="action" value="assign_task">
+                    </form>
+                `;
+                modalActionButton.textContent = 'Asignar Tarea';
+                modalActionButton.onclick = function () {
+                    const form = document.getElementById('assignTaskForm');
+                    const formData = new FormData(form);
+                    fetch('/auth/roles/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            console.error('Error al asignar la tarea');
+                        }
+                    });
+                };
+                break;
         }
 
         const myModal = new bootstrap.Modal(document.getElementById('actionModal'));
@@ -128,4 +132,4 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-};
+}

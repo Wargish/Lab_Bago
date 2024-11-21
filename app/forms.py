@@ -15,6 +15,16 @@ class RegistroForm(forms.ModelForm):
             'required': 'Este campo es obligatorio.',
         }
     )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingresa tu correo electrónico',
+            'required': 'required'
+        }),
+        error_messages={
+            'required': 'Este campo es obligatorio.',
+        }
+    )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
@@ -27,7 +37,7 @@ class RegistroForm(forms.ModelForm):
     )
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['username', 'email' , 'password']
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -63,9 +73,8 @@ class LoginForm(AuthenticationForm):
 class InformeForm(forms.ModelForm):
     class Meta:
         model = Informe
-        fields = ['usuario', 'ubicacion', 'tipo_informe', 'objetivo', 'mensaje', 'imagen']
+        fields = ['ubicacion', 'tipo_informe', 'objetivo', 'mensaje', 'imagen']
         widgets = {
-            'usuario': forms.Select(attrs={'class': 'form-control'}),
             'ubicacion': forms.Select(attrs={'class': 'form-control'}),
             'tipo_informe': forms.Select(attrs={'class': 'form-control'}),
             'objetivo': forms.TextInput(attrs={'class': 'form-control'}),

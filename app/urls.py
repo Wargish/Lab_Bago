@@ -22,11 +22,16 @@ urlpatterns = [
 
     path('notificaciones/', notificaciones, name='notificaciones'),
     path('notificaciones/<int:notificaciones_id>/', notificaciones_id , name='notificaciones_id'),
+    path('notificacion/marcar_leida/<int:notificacion_id>/', marcar_notificacion_leida, name='marcar_notificacion_leida'),
+
 
 
     path('detalle/informe/<int:informe_id>/', detalle_informe, name='detalle_informe'),
     path('detalle/reporte/<int:reporte_id>/', detalle_reporte, name='detalle_reporte'),
     path('detalle/feedback/<int:feedback_id>/', detalle_feedback, name='detalle_feedback'),
+
+    path('enviar-correo/', enviar_correo, name='enviar_correo'),
+
 
     path('error404/', error404, name='error404'),
 

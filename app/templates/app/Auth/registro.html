@@ -21,6 +21,15 @@
         </div>
 
         <div class="form-outline-login mb-4">
+          <i class="fas fa-envelope prefix" aria-hidden="true"></i>
+          <label for="id_email">Correo electrónico</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="text-danger">{{ form.email.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-outline-login mb-4">
           <i class="fas fa-lock prefix" aria-hidden="true"></i>
           <label for="id_password">Contraseña</label>
           {{ form.password }}
@@ -28,6 +37,7 @@
             <div class="text-danger">{{ form.password.errors }}</div>
           {% endif %}
         </div>
+        
         <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
 
         <div class="mt-3 text-center">

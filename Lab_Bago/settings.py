@@ -147,3 +147,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # possible options: 'sweetalert', 'sweetalert2' - default is 'sweetalert2'
 SWEETIFY_SWEETALERT_LIBRARY = 'sweetalert2'
 # possible options: 'error', 'warning', 'info', 'question', 'success' - default is 'error'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Usamos el backend SMTP
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'  # El servidor SMTP de Mailtrap
+EMAIL_PORT = 2525  # Puerto SMTP recomendado por Mailtrap
+EMAIL_HOST_USER = '41f84546e254a7'  # Usuario de Mailtrap (lo encuentras en el dashboard de Mailtrap)
+EMAIL_HOST_PASSWORD = 'e8d0eedb235f6e'  # Contraseña de Mailtrap (también en el dashboard)
+EMAIL_USE_TLS = True  # Usamos TLS para seguri
+DEFAULT_FROM_EMAIL = 'Sistem.Bago@gmail.com'  # Correo electrónico que enviará los mensajes

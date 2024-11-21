@@ -19,8 +19,6 @@
       href="{% static 'css/style.css' %}"
       rel="stylesheet"
     />
-    <!--CHART-->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="Body-base" style="font-family: 'Roboto', monospace;">
 <div class="container-fluid">
@@ -51,7 +49,7 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_superuser %}
                     <li class="nav-item">
-                        <a class="nav-link" href="dashboard/graficos">Dashboard</a>
+                        <a class="nav-link" href="/dashboard/graficos">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/auth/roles">Usuarios</a>
@@ -88,6 +86,7 @@
                         {% if notificaciones %}
                             {% for notificacion in notificaciones %}
                                 <li>
+                                    <a class="dropdown-item" href="{% url 'marcar_notificacion_leida' notificacion.id %}">
                                         {{ notificacion.informe.objetivo }}
                                     </a>
                                 </li>

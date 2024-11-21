@@ -53,14 +53,14 @@
                         </td>
                         <td>
                             {% if es_superusuario or es_operario or es_supervisor %}
-                                {% if tarea.reporte %}
-                                    <a href="{% url 'detalle_reporte' tarea.reporte.id %}" class="btn btn-info btn-sm">Ver Reporte</a>
+                                {% if tarea.reporte_tarea %}
+                                    <a href="{% url 'detalle_reporte' tarea.reporte_tarea.id %}" class="btn btn-info btn-sm">Ver Reporte</a>
                                 {% else %}
                                     Aun no se ha creado un reporte
                                 {% endif %}
                             {% elif es_tecnico or es_externo %}
-                                {% if tarea.reporte %}
-                                    <a href="{% url 'detalle_reporte' tarea.reporte.id %}" class="btn btn-info btn-sm">Ver Reporte</a>
+                                {% if tarea.reporte_tarea %}
+                                    <a href="{% url 'detalle_reporte' tarea.reporte_tarea.id %}" class="btn btn-info btn-sm">Ver Reporte</a>
                                 {% else %}
                                     <a href="{% url 'reporte' %}?tarea_id={{ tarea.id }}" class="btn btn-info btn-sm">Crear Reporte</a>
                                 {% endif %}
@@ -69,29 +69,29 @@
                             {% endif %}
                         </td>
                         <td>
-                        {% if es_superusuario %}
-                            {% if tarea.feedback %}
-                                <a href="{% url 'detalle_feedback' tarea.feedback.id %}" class="btn btn-info btn-sm">Ver Feedback</a>
-                            {% else %}
-                                No hay Feedback creado
-                            {% endif %}
-                        {% elif es_tecnico or es_externo %}
-                            {% if tarea.feedback %}
-                                <a href="{% url 'detalle_feedback' tarea.feedback.id %}" class="btn btn-info btn-sm">Ver Feedback</a>
-                            {% else %}
-                                En revisión
-                            {% endif %}
-                        {% elif es_operario or es_supervisor %}
-                            {% if tarea.reporte %}
-                                {% if tarea.feedback %}
-                                   <a href="{% url 'detalle_feedback' tarea.feedback.id %}" class="btn btn-info btn-sm">Ver Feedback</a>
+                            {% if es_superusuario %}
+                                {% if tarea.feedbacktarea %}
+                                    <a href="{% url 'detalle_feedback' tarea.feedbacktarea.id %}" class="btn btn-info btn-sm">Ver Feedback</a>
                                 {% else %}
-                                    <a href="{% url 'feedback' %}?tarea_id={{ tarea.id }}" class="btn btn-info">Crear Feedback</a>
+                                    No hay Feedback creado
                                 {% endif %}
-                            {% else %}
-                                En revisión
+                            {% elif es_tecnico or es_externo %}
+                                {% if tarea.feedbacktarea %}
+                                    <a href="{% url 'detalle_feedback' tarea.feedbacktarea.id %}" class="btn btn-info btn-sm">Ver Feedback</a>
+                                {% else %}
+                                    En revisión
+                                {% endif %}
+                            {% elif es_operario or es_supervisor %}
+                                {% if tarea.reporte_tarea %}
+                                    {% if tarea.feedbacktarea %}
+                                        <a href="{% url 'detalle_feedback' tarea.feedbacktarea.id %}" class="btn btn-info btn-sm">Ver Feedback</a>
+                                    {% else %}
+                                        <a href="{% url 'feedback' %}?tarea_id={{ tarea.id }}" class="btn btn-info">Crear Feedback</a>
+                                    {% endif %}
+                                {% else %}
+                                    En revisión
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
                         </td>
                     </tr>
                 {% empty %}

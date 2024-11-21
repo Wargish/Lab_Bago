@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
+from django.core.cache import cache
 import sweetify
 
 # Importaciones para graficos
@@ -46,9 +47,11 @@ def registro(request):
         form = RegistroForm(request.POST)
         if form.is_valid():
             form.save()
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Registro exitoso', text='Usuario creado correctamente')
             return redirect('home')
     else:
         form = RegistroForm()
+        sweetify.error(request, 'Error', text='Error en el formulario.', persistent='Ok')
     return render(request, "app/auth/registro.html", {'form': form})
 
 def iniciar_session(request):
@@ -60,10 +63,10 @@ def iniciar_session(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                sweetify.sweetalert(request, icon='success', persistent='Ok', title='Bienvenido', text='Inicio de sesión exitoso')
+                sweetify.sweetalert(request, icon='success', title='Bienvenido', text='Inicio de sesión exitoso')
                 return redirect('home')
         else:
-            sweetify.error(request, 'Error', text='Usuario o contraseña incorrectos.', persistent='Ok')
+            sweetify.error(request, 'Error', text='Usuario o contraseña incorrectos.')
     else:
         form = LoginForm()
     return render(request, "app/auth/login.html", {'form': form})
@@ -109,8 +112,13 @@ def informe(request):
     if request.method == 'POST':
         form = InformeForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            informe = form.save(commit=False)
+            informe.usuario = request.user  # Asignar el usuario que crea el informe
+            informe.save()
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Informe creado', text='Informe creado correctamente')
             return redirect('listar_tareas')
+        else:
+            sweetify.error(request, 'Error', text='Rellene los campos solicitados.')
     else:
         form = InformeForm()
     return render(request, "app/infraestructura/Informe.html", {'form': form})
@@ -120,6 +128,7 @@ def informe(request):
 def reporte(request):
     tarea_id = request.GET.get('tarea_id')
     if not tarea_id:
+        sweetify.error(request, 'Error', text='No se ha especificado una tarea.', persistent='Ok')
         return redirect('listar_tareas')  # Si no hay tarea_id, redirigir a la lista
 
     tarea = get_object_or_404(Tarea, id=tarea_id)
@@ -134,11 +143,11 @@ def reporte(request):
             reporte.tarea = tarea  # Asignar la tarea
             reporte.usuario = request.user  # Asignar el usuario actual
             reporte.save()  # Guardar el objeto con la tarea asignada
-
-            return redirect('home')
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Reporte creado', text='Reporte creado correctamente')
+            return redirect('listar_tareas')
         else:
             # Si el formulario no es válido, muestra los errores
-            print("Errores en el formulario:", form.errors)
+            sweetify.error(request, 'Error', text='Error en el formulario.', persistent='Ok')
     else:
         form = ReporteForm(initial={'tarea': tarea})
 
@@ -165,9 +174,10 @@ def feedback(request):
             feedback.tarea = tarea
             feedback.usuario = request.user
             feedback.save()
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Feedback creado', text='Feedback creado correctamente')
             return redirect('home')
         else:
-            print("Errores en el formulario:", form.errors)
+            sweetify.error(request, 'Error', text='Error en el formulario.', persistent='Ok')
     else:
         form = FeedbackForm(initial={'tarea': tarea})
 
@@ -190,6 +200,15 @@ def notificaciones_id(request, notificaciones_id):
     if notificacion.user == request.user:
         notificacion.marcar_como_leido()
     return HttpResponseRedirect(reverse('listar_tareas') + '?estado=Pendiente')
+
+@login_required
+def marcar_notificacion_leida(request, notificacion_id):
+    notificacion = get_object_or_404(Notificacion, id=notificacion_id)
+    if notificacion.usuario == request.user:
+        notificacion.marcar_como_leido()
+        return redirect('detalle_informe', informe_id=notificacion.informe.id)
+    else:
+        return redirect('home')
 
 # Vistas de tareas y roles especiales
 @login_required
@@ -232,44 +251,115 @@ def listar_tareas(request):
     })
 
 
-# Vistas de Dashboard y Análisis
 @login_required
 @user_passes_test(lambda u: u.is_superuser or u.groups.filter(name='Supervisor').exists())
 def graficos(request):
+    # Cache the graphs for 1 hour to avoid recalculating them on every request
+    cached_graphs = cache.get('dashboard_graphs')
+    if cached_graphs:
+        return render(request, "app/dashboard/graficos.html", cached_graphs)
+
     # **1. Tareas Completadas vs. Rechazadas**
     tareas = Tarea.objects.all()
     df_tareas = pd.DataFrame(list(tareas.values('estado__nombre')))
     task_counts = df_tareas['estado__nombre'].value_counts().reset_index()
     task_counts.columns = ['Estado', 'Cantidad']
-    graph_tareas_completadas_rechazadas = px.bar(task_counts, x='Estado', y='Cantidad', title='Tareas Completadas vs. Rechazadas')
-    graph_tareas_completadas_rechazadas.update_layout(template='plotly_white')
+    graph_tareas_completadas_rechazadas = px.bar(
+        task_counts, 
+        x='Estado', 
+        y='Cantidad', 
+        title='Tareas Completadas vs. Rechazadas',
+        color='Estado',  # Colorear según el estado
+        color_discrete_map={'Completada': '#800080', 'Rechazada': '#000000'}  # Morado para completada, negro para rechazada
+    )
+    graph_tareas_completadas_rechazadas.update_layout(
+        template='plotly_white',  # Fondo blanco
+        plot_bgcolor='white',  # Fondo blanco para el gráfico
+        paper_bgcolor='white',  # Fondo blanco para el área fuera del gráfico
+        font=dict(family="Arial, sans-serif", color="black", size=14),  # Fuente y color negro
+        xaxis_title="Estado de la Tarea",
+        yaxis_title="Cantidad de Tareas",
+        title_font=dict(size=20, color='black', family='Arial, sans-serif'),  # Título en negro
+        legend_title="Estado",
+        legend=dict(title=dict(font=dict(color='black')), font=dict(color='black'))  # Color negro para leyenda
+    )
     graph_tareas_completadas_rechazadas_html = graph_tareas_completadas_rechazadas.to_html(full_html=False)
 
     # **2. Volumen de Tareas por Tiempo**
     df_tareas_time = pd.DataFrame(list(tareas.values('creado_en')))
     df_tareas_time['creado_en'] = pd.to_datetime(df_tareas_time['creado_en'])
     df_grouped_time = df_tareas_time.groupby(df_tareas_time['creado_en'].dt.date).size().reset_index(name='Cantidad')
-    graph_volumen_tareas_tiempo = px.line(df_grouped_time, x='creado_en', y='Cantidad', title='Volumen de Tareas por Tiempo')
-    graph_volumen_tareas_tiempo.update_layout(template='plotly_white')
+    graph_volumen_tareas_tiempo = px.line(
+        df_grouped_time, 
+        x='creado_en', 
+        y='Cantidad', 
+        title='Volumen de Tareas por Tiempo',
+        markers=True,  # Agregar marcadores en los puntos de datos
+        line_shape='linear',  # Asegurarse de que la línea sea recta
+        color_discrete_sequence=['#800080'],  # Morado para la línea
+    )
+    graph_volumen_tareas_tiempo.update_layout(
+        template='plotly_white',  # Fondo blanco
+        plot_bgcolor='white',  # Fondo blanco para el gráfico
+        paper_bgcolor='white',  # Fondo blanco para el área fuera del gráfico
+        font=dict(family="Arial, sans-serif", color="black", size=14),  # Fuente y color negro
+        xaxis_title="Fecha de Creación",
+        yaxis_title="Cantidad de Tareas",
+        title_font=dict(size=20, color='black', family='Arial, sans-serif'),  # Título en negro
+        xaxis_tickangle=-45,  # Rotar las fechas para mayor legibilidad
+        showlegend=False  # Desactivar leyenda
+    )
     graph_volumen_tareas_tiempo_html = graph_volumen_tareas_tiempo.to_html(full_html=False)
 
     # **3. Distribución de Tareas por Técnico**
     df_tecnico = pd.DataFrame(list(tareas.values('asignado_a__username')))
     task_counts_tecnico = df_tecnico['asignado_a__username'].value_counts().reset_index()
     task_counts_tecnico.columns = ['asignado_a', 'Cantidad']
-    graph_distribucion_tecnico = px.pie(task_counts_tecnico, names='asignado_a', values='Cantidad', title='Distribución de Tareas por Técnico')
-    graph_distribucion_tecnico.update_layout(template='plotly_white')
+    graph_distribucion_tecnico = px.pie(
+        task_counts_tecnico, 
+        names='asignado_a', 
+        values='Cantidad', 
+        title='Distribución de Tareas por Técnico',
+        hole=0.3,  # Hacer un gráfico de dona
+        color='asignado_a',  # Colorear por técnico
+        color_discrete_sequence=px.colors.sequential.Purp  # Usar paleta de colores morados
+    )
+    graph_distribucion_tecnico.update_layout(
+        template='plotly_white',  # Fondo blanco
+        plot_bgcolor='white',  # Fondo blanco para el gráfico
+        paper_bgcolor='white',  # Fondo blanco para el área fuera del gráfico
+        font=dict(family="Arial, sans-serif", color="black", size=14),  # Fuente y color negro
+        title_font=dict(size=20, color='black', family='Arial, sans-serif'),  # Título en negro
+        showlegend=True  # Mostrar leyenda
+    )
     graph_distribucion_tecnico_html = graph_distribucion_tecnico.to_html(full_html=False)
 
     # **4. Cantidad Histórica de Informes por Lugar**
-    informes = informe.objects.all()
-    df_informes = pd.DataFrame(list(informes.values('lugar__nombre', 'createdAt')))
-    df_informes_grouped = df_informes.groupby('lugar__nombre').size().reset_index(name='Cantidad')
-    graph_informes_por_lugar = px.bar(df_informes_grouped, x='lugar__nombre', y='Cantidad', title='Cantidad Histórica de Informes por Lugar')
-    graph_informes_por_lugar.update_layout(template='plotly_white')
+    informes = Informe.objects.all()
+    df_informes = pd.DataFrame(list(informes.values('ubicacion__nombre', 'creado_en')))
+    df_informes_grouped = df_informes.groupby('ubicacion__nombre').size().reset_index(name='Cantidad')
+    graph_informes_por_lugar = px.bar(
+        df_informes_grouped, 
+        x='ubicacion__nombre', 
+        y='Cantidad', 
+        title='Cantidad Histórica de Informes por Lugar',
+        color='ubicacion__nombre',  # Colorear por ubicación
+        color_discrete_map={ubicacion: '#800080' for ubicacion in df_informes_grouped['ubicacion__nombre']}  # Usar morado para cada ubicación
+    )
+    graph_informes_por_lugar.update_layout(
+        template='plotly_white',  # Fondo blanco
+        plot_bgcolor='white',  # Fondo blanco para el gráfico
+        paper_bgcolor='white',  # Fondo blanco para el área fuera del gráfico
+        font=dict(family="Arial, sans-serif", color="black", size=14),  # Fuente y color negro
+        xaxis_title="Ubicación",
+        yaxis_title="Cantidad de Informes",
+        title_font=dict(size=20, color='black', family='Arial, sans-serif'),  # Título en negro
+        xaxis_tickangle=-45,  # Rotar las etiquetas para mejorar la visibilidad
+        showlegend=False  # Desactivar leyenda
+    )
     graph_informes_por_lugar_html = graph_informes_por_lugar.to_html(full_html=False)
 
-    # Pasamos todos los gráficos a la plantilla
+    # Prepare context with all graphs
     context = {
         'graph_tareas_completadas_rechazadas': graph_tareas_completadas_rechazadas_html,
         'graph_volumen_tareas_tiempo': graph_volumen_tareas_tiempo_html,
@@ -277,7 +367,11 @@ def graficos(request):
         'graph_informes_por_lugar': graph_informes_por_lugar_html
     }
 
+    # Cache the graphs for 1 hour
+    cache.set('dashboard_graphs', context, timeout=3600)
+
     return render(request, "app/dashboard/graficos.html", context)
+
 
 
 # Vistas de detalles (informes, reportes, feedbacks)
@@ -296,3 +390,25 @@ def detalle_feedback(request, feedback_id):
     feedback = get_object_or_404(FeedbackTarea, id=feedback_id)
     return render(request, 'app/detalle/feedback.html', {'feedback': feedback})
 
+
+
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.conf import settings  # Necesario para acceder a las configuraciones
+
+def enviar_correo(request):
+    # Definir los datos del correo
+    asunto = "Correo de prueba"
+    mensaje = "Este es un correo de prueba enviado desde Django a través de Mailtrap."
+    destinatarios = ['lihori5924@gitated.com']  # Lista de destinatarios
+
+    # Enviar el correo usando la configuración de Django
+    send_mail(
+        asunto,  # Asunto del correo
+        mensaje,  # Cuerpo del mensaje
+        settings.DEFAULT_FROM_EMAIL,  # Usar el valor de DEFAULT_FROM_EMAIL desde settings.py
+        destinatarios,  # Destinatarios
+        fail_silently=False,  # Si se produce un error, no se ignora
+    )
+
+    return HttpResponse("Correo enviado exitosamente a través de Mailtrap.")
