@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'sweetify',
+
 ]
 
 MIDDLEWARE = [
@@ -147,6 +148,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # possible options: 'sweetalert', 'sweetalert2' - default is 'sweetalert2'
 SWEETIFY_SWEETALERT_LIBRARY = 'sweetalert2'
 # possible options: 'error', 'warning', 'info', 'question', 'success' - default is 'error'
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Usamos el backend SMTP
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'  # El servidor SMTP de Mailtrap

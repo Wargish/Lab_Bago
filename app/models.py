@@ -1,6 +1,4 @@
 from django.db import models
-from django.core.mail import send_mail
-from django.conf import settings
 from django.contrib.auth.models import User
 
 class Ubicacion(models.Model):
@@ -58,46 +56,6 @@ class Notificacion(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        
-        # Personalizando el mensaje del correo
-        asunto = f"Notificación de Informe: {self.informe.objetivo}"
-        
-        # Crear el cuerpo del mensaje de correo con información más detallada
-        mensaje = f"""
-        Hola { self.usuario.username},
-
-        Se te ah asignado una nueva tarea. A continuación, te presentamos los detalles del informe:
-
-        **Objetivo del Informe**: {self.informe.objetivo}
-        **Tipo de Informe**: {'Infraestructura' if self.informe.tipo_informe == 'INF' else 'Maquinaria'}
-        **Ubicación**: {self.informe.ubicacion.nombre if self.informe.ubicacion else 'No especificada'}
-        **Fecha de Creación del Informe**: {self.informe.creado_en.strftime('%d/%m/%Y %H:%M:%S')}
-        
-        Mensaje adicional: {self.mensaje if self.mensaje else 'No hay mensaje adicional.'}
-
-        Puedes acceder al informe y ver más detalles a través de tu panel de Tareas.
-
-        ¡Saludos!
-        """
-
-        destinatarios = [self.usuario.email]
-        
-        # Enviar el correo con la personalización
-        try:
-            send_mail(
-                asunto,
-                mensaje,
-                settings.DEFAULT_FROM_EMAIL,
-                destinatarios,
-                fail_silently=False,
-            )
-        except Exception as e:
-            # Manejo de errores si ocurre algún fallo al enviar el correo
-            print(f"Error al enviar correo: {e}")
-
-    def __str__(self):
-        return f'Notificación para {self.usuario.username}: {self.informe.objetivo}'
-
 
 class Tarea(models.Model):
     informe = models.ForeignKey(Informe, on_delete=models.CASCADE)

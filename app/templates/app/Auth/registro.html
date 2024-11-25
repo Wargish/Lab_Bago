@@ -1,6 +1,4 @@
-{% extends '../base.html' %}
-
-{% block content %}
+{% extends '../base.html' %} {% block content %}
 <div class="container mt-5">
   <div class="card">
     <div class="card-body">
@@ -12,33 +10,30 @@
         <div class="form-outline-login mb-4">
           <i class="fas fa-user prefix" aria-hidden="true"></i>
           <label for="id_username">Nombre de usuario</label>
-          {{ form.username }}
-          {% if form.username.errors %}
-            <div class="text-danger">
-              {{ form.username.errors }}
-            </div>
+          {{ form.username }} {% if form.username.errors %}
+          <div class="text-danger">{{ form.username.errors }}</div>
           {% endif %}
         </div>
 
         <div class="form-outline-login mb-4">
           <i class="fas fa-envelope prefix" aria-hidden="true"></i>
           <label for="id_email">Correo electrónico</label>
-          {{ form.email }}
-          {% if form.email.errors %}
-            <div class="text-danger">{{ form.email.errors }}</div>
+          {{ form.email }} {% if form.email.errors %}
+          <div class="text-danger">{{ form.email.errors }}</div>
           {% endif %}
         </div>
 
         <div class="form-outline-login mb-4">
           <i class="fas fa-lock prefix" aria-hidden="true"></i>
           <label for="id_password">Contraseña</label>
-          {{ form.password }}
-          {% if form.password.errors %}
-            <div class="text-danger">{{ form.password.errors }}</div>
+          {{ form.password }} {% if form.password.errors %}
+          <div class="text-danger">{{ form.password.errors }}</div>
           {% endif %}
         </div>
-        
-        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          Registrarse
+        </button>
 
         <div class="mt-3 text-center">
           <a href="{% url 'login' %}">¿Ya tienes una cuenta? Inicia sesión</a>

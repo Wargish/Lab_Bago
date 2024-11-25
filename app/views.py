@@ -155,8 +155,7 @@ def reporte(request):
         'form': form,
         'tarea': tarea,
         'tarea_id': tarea.id
-    })
-
+    })  
 
 @login_required
 @group_required('Operario', 'Técnico', 'Externo', 'Supervisor')
@@ -412,3 +411,4 @@ def enviar_correo(request):
     )
 
     return HttpResponse("Correo enviado exitosamente a través de Mailtrap.")
+
