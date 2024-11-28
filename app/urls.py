@@ -16,6 +16,8 @@ urlpatterns = [
     path('infraestructura/Informe', informe, name='Informe'),
     path('infraestructura/reporte', reporte, name='reporte'),
     path('infraestructura/feedback', feedback, name='feedback'),
+    path('infraestructura/crear_solicitud/', crear_solicitud_externo, name='crear_solicitud'),
+
 
     path('dashboard/graficos', graficos, name='graficos'),
     path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
@@ -29,9 +31,6 @@ urlpatterns = [
     path('detalle/informe/<int:informe_id>/', detalle_informe, name='detalle_informe'),
     path('detalle/reporte/<int:reporte_id>/', detalle_reporte, name='detalle_reporte'),
     path('detalle/feedback/<int:feedback_id>/', detalle_feedback, name='detalle_feedback'),
-
-    path('enviar-correo/', enviar_correo, name='enviar_correo'),
-
 
     path('error404/', error404, name='error404'),
 

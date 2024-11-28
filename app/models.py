@@ -16,7 +16,7 @@ class Estado(models.Model):
 class Informe(models.Model):
     INFRAESTRUCTURA = 'INF'
     MAQUINARIA = 'MAQ'
-    TIPO_INFORME_CHOICES = [
+    CATEGORIA_CHOICES = [
         (INFRAESTRUCTURA, 'Infraestructura'),
         (MAQUINARIA, 'Maquinaria'),
     ]
@@ -27,7 +27,7 @@ class Informe(models.Model):
     objetivo = models.TextField(null=True, blank=True)
     mensaje = models.TextField(null=True, blank=True)
     imagen = models.ImageField(upload_to='informes/')
-    tipo_informe = models.CharField(max_length=3, choices=TIPO_INFORME_CHOICES, default=INFRAESTRUCTURA)
+    categoría = models.CharField(max_length=3, choices=CATEGORIA_CHOICES, default=INFRAESTRUCTURA)
 
     class Meta:
         ordering = ['-creado_en']
@@ -114,3 +114,18 @@ class FeedbackTarea(models.Model):
 
     def __str__(self):
         return f'Feedback para Tarea: {self.tarea.objetivo} - Aprobado: {"Sí" if self.aprobado else "No"}'
+    
+
+
+
+class SolicitudExterno(models.Model):
+    nombre_externo = models.CharField(max_length=255)
+    correo_externo = models.EmailField()
+    fecha = models.DateField()
+    descripcion = models.TextField()
+    imagen_opcional = models.ImageField(upload_to='peticiones_imagenes/', blank=True, null=True)
+    pdf_peticion = models.FileField(upload_to='peticiones/', blank=True, null=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Solicitud a {self.nombre_externo} - {self.fecha}"

@@ -2,13 +2,13 @@
 
 {% block content %}
 
-<div class="container mt-5">
+<div class="container mt-5" style="background-color: darkgray;">
     <h1 class="text-center">Dashboard</h1>
 
     <!-- Gráfico: Tareas Completadas vs. Rechazadas -->
     <div class="graph-container mb-5">
-        <h3 class="graph-title">Tareas Completadas vs. Rechazadas</h3>
-        <div>{{ graph_tareas_completadas_rechazadas|safe }}</div>
+        <h3 class="graph-title">Cantidad de Tareas por Ubicación (Aceptada vs Rechazada)</h3>
+        <div>{{ graph_tareas_por_lugar|safe }}</div>
     </div>
 
     <!-- Gráfico: Volumen de Tareas por Tiempo -->
@@ -34,22 +34,31 @@
 
 
 <style>
-    .graph-container {
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        background-color: #fff;
-    }
+.graph-container {
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    background-color: #fff;
+    margin-bottom: 30px;
+    transition: transform 0.3s ease-in-out;
+}
 
-    .graph-title {
-        font-size: 20px;
-        color: #333;
-        margin-bottom: 10px;
-    }
+.graph-container:hover {
+    transform: translateY(-5px);
+}
 
-    .container {
-        max-width: 1200px;
-        margin: auto;
-    }
+.graph-title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 15px;
+}
+
 </style>
 {% endblock %}

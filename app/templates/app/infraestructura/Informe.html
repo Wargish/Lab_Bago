@@ -19,10 +19,10 @@
 
         <!-- Campo de tipo de informe -->
         <div class="md-form">
-            {{ form.tipo_informe.label_tag }}
-            {{ form.tipo_informe }}
+            {{ form.categoría.label_tag }}
+            {{ form.categoría }}
             <div class="invalid-feedback">
-                {% for error in form.tipo_informe.errors %}
+                {% for error in form.categoría.errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
             </div>

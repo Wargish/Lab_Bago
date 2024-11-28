@@ -9,7 +9,7 @@
         <h1>Detalles Feedback</h1>
     </div>
     <div class="card-body">
-        <p><strong>Usuario:</strong> {{ feedback.creado_por }}</p>
+        <p><strong>Creador:</strong> {{ feedback.creado_por }}</p>
         <p><strong>Conforme:</strong> {% if feedback.aprobado %}Sí{% else %}No{% endif %}</p>
         <p><strong>Razon:</strong> {{ feedback.comentarios }}</p>
         <p><strong>Fecha de Creación:</strong> {{ feedback.creado_en }}</p>

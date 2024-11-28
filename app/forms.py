@@ -73,10 +73,10 @@ class LoginForm(AuthenticationForm):
 class InformeForm(forms.ModelForm):
     class Meta:
         model = Informe
-        fields = ['ubicacion', 'tipo_informe', 'objetivo', 'mensaje', 'imagen']
+        fields = ['ubicacion', 'categoría', 'objetivo', 'mensaje', 'imagen']
         widgets = {
             'ubicacion': forms.Select(attrs={'class': 'form-control'}),
-            'tipo_informe': forms.Select(attrs={'class': 'form-control'}),
+            'categoría': forms.Select(attrs={'class': 'form-control'}),
             'objetivo': forms.TextInput(attrs={'class': 'form-control'}),
             'mensaje': forms.Textarea(attrs={'class': 'form-control'}),
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -123,3 +123,18 @@ class FeedbackForm(forms.ModelForm):
             self.add_error('comentario', 'Este campo es obligatorio si no está conforme.')
 
         return cleaned_data
+    
+
+
+class SolicitudExternoForm(forms.ModelForm):
+    class Meta:
+        model = SolicitudExterno
+        fields = ['nombre_externo', 'correo_externo', 'fecha', 'descripcion', 'imagen_opcional']
+        widgets = {
+            'nombre_externo': forms.TextInput(attrs={'class': 'form-control'}),
+            'correo_externo': forms.EmailInput(attrs={'class': 'form-control'}),
+            'fecha': forms.DateInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
+            'imagen_opcional': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+

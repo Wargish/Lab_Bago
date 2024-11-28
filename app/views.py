@@ -12,6 +12,10 @@ import plotly.express as px
 import pandas as pd
 from datetime import timedelta
 
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from django.core.files.base import ContentFile
+
 # Importaciones locales (formularios y modelos)
 from .forms import *
 from .models import *
@@ -49,9 +53,10 @@ def registro(request):
             form.save()
             sweetify.sweetalert(request, icon='success', persistent='Ok', title='Registro exitoso', text='Usuario creado correctamente')
             return redirect('home')
+        else:
+            sweetify.error(request, 'Error', text='Error en el formulario.', persistent='Ok')
     else:
         form = RegistroForm()
-        sweetify.error(request, 'Error', text='Error en el formulario.', persistent='Ok')
     return render(request, "app/auth/registro.html", {'form': form})
 
 def iniciar_session(request):
@@ -171,7 +176,7 @@ def feedback(request):
         if form.is_valid():
             feedback = form.save(commit=False)
             feedback.tarea = tarea
-            feedback.usuario = request.user
+            feedback.creado_por = request.user
             feedback.save()
             sweetify.sweetalert(request, icon='success', persistent='Ok', title='Feedback creado', text='Feedback creado correctamente')
             return redirect('home')
@@ -213,40 +218,33 @@ def marcar_notificacion_leida(request, notificacion_id):
 @login_required
 def listar_tareas(request):
     estado_selec = request.GET.get('estado', 'todos')
-    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada', 'Archivar']
-    tareas = Tarea.objects.none()  # Inicializa con un QuerySet vacío
+    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada', 'Archivada']
 
+    # Verificar tipo de usuario
+    user_roles = request.user.groups.values_list('name', flat=True)
     is_superuser = request.user.is_superuser
-    is_tecnico = request.user.groups.filter(name='Técnico').exists()
-    is_externo = request.user.groups.filter(name='Externo').exists()
-    is_supervisor = request.user.groups.filter(name='Supervisor').exists()
-    is_operario = request.user.groups.filter(name='Operario').exists()
 
-    # Filtrar tareas según el estado seleccionado y el tipo de usuario
-    if is_superuser:
-        if estado_selec == 'todos':
-            tareas = Tarea.objects.all()
-        elif estado_selec in estados_validos:
-            tareas = Tarea.objects.filter(estado__nombre=estado_selec)
-    elif is_tecnico or is_externo:
-        if estado_selec == 'todos':
-            tareas = Tarea.objects.filter(asignado_a=request.user)
-        elif estado_selec in estados_validos:
-            tareas = Tarea.objects.filter(asignado_a=request.user, estado__nombre=estado_selec)
-    elif is_supervisor or is_operario:
-        if estado_selec == 'todos':
-            tareas = Tarea.objects.filter(informe__usuario=request.user)
-        elif estado_selec in estados_validos:
-            tareas = Tarea.objects.filter(informe__usuario=request.user, estado__nombre=estado_selec)
+    # Base queryset
+    tareas = Tarea.objects.all()
+
+    if not is_superuser:
+        if 'Técnico' in user_roles or 'Externo' in user_roles:
+            tareas = tareas.filter(asignado_a=request.user)
+        elif 'Supervisor' in user_roles or 'Operario' in user_roles:
+            tareas = tareas.filter(informe__usuario=request.user)
+
+    # Filtrar por estado si aplica
+    if estado_selec != 'todos' and estado_selec in estados_validos:
+        tareas = tareas.filter(estado__nombre=estado_selec)
 
     return render(request, "app/dashboard/listar_tareas.html", {
         'tareas': tareas,
         'estado_selec': estado_selec,
         'es_superusuario': is_superuser,
-        'es_tecnico': is_tecnico,
-        'es_externo': is_externo,
-        'es_supervisor': is_supervisor,
-        'es_operario': is_operario,
+        'es_tecnico': 'Técnico' in user_roles,
+        'es_externo': 'Externo' in user_roles,
+        'es_supervisor': 'Supervisor' in user_roles,
+        'es_operario': 'Operario' in user_roles,
     })
 
 
@@ -259,30 +257,60 @@ def graficos(request):
         return render(request, "app/dashboard/graficos.html", cached_graphs)
 
     # **1. Tareas Completadas vs. Rechazadas**
-    tareas = Tarea.objects.all()
-    df_tareas = pd.DataFrame(list(tareas.values('estado__nombre')))
-    task_counts = df_tareas['estado__nombre'].value_counts().reset_index()
-    task_counts.columns = ['Estado', 'Cantidad']
-    graph_tareas_completadas_rechazadas = px.bar(
-        task_counts, 
-        x='Estado', 
-        y='Cantidad', 
-        title='Tareas Completadas vs. Rechazadas',
-        color='Estado',  # Colorear según el estado
-        color_discrete_map={'Completada': '#800080', 'Rechazada': '#000000'}  # Morado para completada, negro para rechazada
+    
+        # Obtener las tareas con sus estados y ubicaciones
+    tareas = Tarea.objects.all().select_related('estado', 'informe__ubicacion')
+
+    # Filtrar y agrupar las tareas en los dos estados: Aceptada y Rechazada
+    accepted_states = ['Completada', 'Archivada']
+    rejected_state = 'Rechazada'
+
+    # Agrupar las tareas por ubicación y estado
+    tareas_agrupadas = []
+    ubicaciones = Ubicacion.objects.all()
+
+    for ubicacion in ubicaciones:
+        # Contar tareas aceptadas (Completada + Archivada)
+        accepted_count = tareas.filter(informe__ubicacion=ubicacion, estado__nombre__in=accepted_states).count()
+        # Contar tareas rechazadas
+        rejected_count = tareas.filter(informe__ubicacion=ubicacion, estado__nombre=rejected_state).count()
+
+        tareas_agrupadas.append({
+            'ubicacion': ubicacion.nombre,
+            'Aceptada': accepted_count,
+            'Rechazada': rejected_count
+        })
+
+    # Convertir en DataFrame
+    df_tareas_agrupadas = pd.DataFrame(tareas_agrupadas)
+
+    # Crear gráfico de barras con Plotly
+    graph_tareas_por_lugar = px.bar(
+        df_tareas_agrupadas, 
+        x='ubicacion', 
+        y=['Aceptada', 'Rechazada'], 
+        title='Cantidad de Tareas por Ubicación (Aceptada vs Rechazada)',
+        labels={'Aceptada': 'Tareas Aceptadas', 'Rechazada': 'Tareas Rechazadas'},
+        color_discrete_map={'Aceptada': '#4CAF50', 'Rechazada': '#F44336'},  # Verde para aceptadas, rojo para rechazadas
     )
-    graph_tareas_completadas_rechazadas.update_layout(
-        template='plotly_white',  # Fondo blanco
-        plot_bgcolor='white',  # Fondo blanco para el gráfico
-        paper_bgcolor='white',  # Fondo blanco para el área fuera del gráfico
-        font=dict(family="Arial, sans-serif", color="black", size=14),  # Fuente y color negro
-        xaxis_title="Estado de la Tarea",
+
+    # Personalizar el gráfico
+    graph_tareas_por_lugar.update_layout(
+        template='plotly_white',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(family="Arial, sans-serif", color="black", size=14),
+        title_font=dict(size=20, color='black', family='Arial, sans-serif'),
+        xaxis_title="Ubicación",
         yaxis_title="Cantidad de Tareas",
-        title_font=dict(size=20, color='black', family='Arial, sans-serif'),  # Título en negro
-        legend_title="Estado",
-        legend=dict(title=dict(font=dict(color='black')), font=dict(color='black'))  # Color negro para leyenda
+        xaxis_tickangle=-45,
+        showlegend=True,  # Mostrar leyenda
+        barmode='group',  # Colocar las barras en grupos (uno al lado del otro)
+        legend_title_text='Estado de la Tarea'  # Título de la leyenda
     )
-    graph_tareas_completadas_rechazadas_html = graph_tareas_completadas_rechazadas.to_html(full_html=False)
+
+    # Convertir el gráfico a HTML
+    graph_tareas_por_lugar_html = graph_tareas_por_lugar.to_html(full_html=False)
 
     # **2. Volumen de Tareas por Tiempo**
     df_tareas_time = pd.DataFrame(list(tareas.values('creado_en')))
@@ -360,7 +388,7 @@ def graficos(request):
 
     # Prepare context with all graphs
     context = {
-        'graph_tareas_completadas_rechazadas': graph_tareas_completadas_rechazadas_html,
+        'graph_tareas_por_lugar': graph_tareas_por_lugar_html,
         'graph_volumen_tareas_tiempo': graph_volumen_tareas_tiempo_html,
         'graph_distribucion_tecnico': graph_distribucion_tecnico_html,
         'graph_informes_por_lugar': graph_informes_por_lugar_html
@@ -391,24 +419,38 @@ def detalle_feedback(request, feedback_id):
 
 
 
-from django.core.mail import send_mail
-from django.http import HttpResponse
-from django.conf import settings  # Necesario para acceder a las configuraciones
+def generar_pdf_peticion(solicitud):
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
 
-def enviar_correo(request):
-    # Definir los datos del correo
-    asunto = "Correo de prueba"
-    mensaje = "Este es un correo de prueba enviado desde Django a través de Mailtrap."
-    destinatarios = ['lihori5924@gitated.com']  # Lista de destinatarios
+    # Información de la solicitud
+    p.drawString(100, 800, f"Nombre del Externo: {solicitud.nombre_externo}")
+    p.drawString(100, 780, f"Correo del Externo: {solicitud.correo_externo}")
+    p.drawString(100, 760, f"Fecha: {solicitud.fecha.strftime('%d/%m/%Y')}")
+    p.drawString(100, 740, f"Descripción: {solicitud.descripcion}")
 
-    # Enviar el correo usando la configuración de Django
-    send_mail(
-        asunto,  # Asunto del correo
-        mensaje,  # Cuerpo del mensaje
-        settings.DEFAULT_FROM_EMAIL,  # Usar el valor de DEFAULT_FROM_EMAIL desde settings.py
-        destinatarios,  # Destinatarios
-        fail_silently=False,  # Si se produce un error, no se ignora
-    )
+    # Finalizar PDF
+    p.showPage()
+    p.save()
 
-    return HttpResponse("Correo enviado exitosamente a través de Mailtrap.")
+    buffer.seek(0)
+    pdf_file = ContentFile(buffer.getvalue(), name=f"peticion_{solicitud.id}.pdf")
+    return pdf_file
+
+def crear_solicitud_externo(request):
+    if request.method == 'POST':
+        form = SolicitudExternoForm(request.POST, request.FILES)
+        if form.is_valid():
+            solicitud = form.save()  # Guarda la solicitud en la base de datos
+
+            # Generar y guardar el PDF
+            pdf_file = generar_pdf_peticion(solicitud)
+            solicitud.pdf_peticion.save(pdf_file.name, pdf_file)
+
+            return redirect('lista_solicitudes')  # Redirigir a una página de lista
+    else:
+        form = SolicitudExternoForm()
+    return render(request, 'app/infraestructura/crear_solicitud.html', {'form': form})
+
+
 
