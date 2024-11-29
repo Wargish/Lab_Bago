@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Cargar Presupuesto</h2>
+<p><strong>Solicitud para:</strong> {{ solicitud.nombre_externo }}</p>
+<p><strong>Descripción:</strong> {{ solicitud.descripcion }}</p>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+<a href="{% url 'detalle_solicitud' solicitud.id %}" class="btn btn-secondary">Volver</a>
+{% endblock %}

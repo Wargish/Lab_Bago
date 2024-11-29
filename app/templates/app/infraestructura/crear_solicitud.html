@@ -1,15 +1,32 @@
 {% extends "../base.html" %}
 {% block content %}
 
-<h1>Crear Solicitud a Externo</h1>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Enviar Solicitud</button>
-</form>
-
-
-
-
-
+<div class="container mt-9 text-white">
+    <h2 class="mb-4">Crear Solicitud a Externo</h2>
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.non_field_errors }}
+            {{ form.nombre_externo.label_tag }}
+            {{ form.nombre_externo }}
+            {{ form.nombre_externo.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.correo_externo.label_tag }}
+            {{ form.correo_externo }}
+            {{ form.correo_externo.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.descripcion.label_tag }}
+            {{ form.descripcion }}
+            {{ form.descripcion.errors }}
+        </div>
+        <div class="form-group">
+            {{ form.imagen.label_tag }}
+            {{ form.imagen }}
+            {{ form.imagen.errors }}
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+    </form>
+</div>
 {% endblock %}

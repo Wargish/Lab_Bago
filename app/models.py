@@ -121,11 +121,24 @@ class FeedbackTarea(models.Model):
 class SolicitudExterno(models.Model):
     nombre_externo = models.CharField(max_length=255)
     correo_externo = models.EmailField()
-    fecha = models.DateField()
     descripcion = models.TextField()
-    imagen_opcional = models.ImageField(upload_to='peticiones_imagenes/', blank=True, null=True)
+    imagen = models.ImageField(upload_to='peticiones_imagenes/', blank=True, null=True)
     pdf_peticion = models.FileField(upload_to='peticiones/', blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Solicitud a {self.nombre_externo} - {self.fecha}"
+        return f"Solicitud a {self.nombre_externo} - {self.fecha_creacion}"
+    
+
+class PresupuestoExterno(models.Model):
+    solicitud = models.ForeignKey('SolicitudExterno', on_delete=models.CASCADE)  # Relaciona con la solicitud inicial
+    archivo_pdf = models.FileField(upload_to='presupuestos/')
+    aprobado = models.BooleanField(default=False)
+    fecha_asistencia = models.DateField(null=True, blank=True)
+
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Presupuesto de {self.solicitud.externo.nombre} - {'Aprobado' if self.aprobado else 'Pendiente'}"
+

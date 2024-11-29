@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.dispatch import receiver
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
-from .models import Estado, Notificacion, SolicitudExterno
+from .models import Estado, Notificacion, SolicitudExterno, PresupuestoExterno
 import threading
 
 
@@ -85,7 +85,7 @@ def send_correo_solicitud(solicitud):
 
     Se ha generado una nueva solicitud de trabajo para usted. A continuación, los detalles:
 
-    - Fecha del trabajo: {solicitud.fecha.strftime('%d/%m/%Y')}
+    - Fecha del trabajo: {solicitud.fecha_creacion.strftime('%d/%m/%Y')}
     - Descripción: {solicitud.descripcion}
 
     Por favor, revise el archivo adjunto para más información.
@@ -97,7 +97,7 @@ def send_correo_solicitud(solicitud):
     <p>Estimado <strong>{solicitud.nombre_externo}</strong>,</p>
     <p>Se ha generado una nueva solicitud de trabajo para usted. A continuación, los detalles:</p>
     <ul>
-        <li><strong>Fecha del trabajo:</strong> {solicitud.fecha.strftime('%d/%m/%Y')}</li>
+        <li><strong>Fecha de Solicitud:</strong> {solicitud.fecha_creacion.strftime('%d/%m/%Y')}</li>
         <li><strong>Descripción:</strong> {solicitud.descripcion}</li>
     </ul>
     <p>Por favor, revise el archivo adjunto para más información.</p>
@@ -109,7 +109,6 @@ def send_correo_solicitud(solicitud):
 
     try:
         mensaje = EmailMultiAlternatives(asunto, texto_plano, settings.DEFAULT_FROM_EMAIL, destinatarios)
-
         # Adjuntar el PDF si está presente
         if solicitud.pdf_peticion:
             mensaje.attach(solicitud.pdf_peticion.name, solicitud.pdf_peticion.read(), 'application/pdf')
@@ -121,3 +120,38 @@ def send_correo_solicitud(solicitud):
         print(f"Error al enviar correo: {e}")
 
 
+
+
+@receiver(post_save, sender=PresupuestoExterno)
+def enviar_correo_asincrono_presupuesto(sender, instance, created, **kwargs):
+    if instance.aprobado and instance.fecha_asistencia:
+        threading.Thread(target=enviar_correo_externo, args=(instance,)).start()
+
+def enviar_correo_externo(presupuesto):
+    asunto = f"Trabajo Aprobado - Fecha de Asistencia Asignada"
+    texto_plano = f"""
+    Hola {presupuesto.solicitud.nombre_externo},
+
+    Tu presupuesto ha sido aprobado. Por favor, revisa la fecha de asistencia asignada:
+
+    Fecha de Asistencia: {presupuesto.fecha_asistencia.strftime('%d/%m/%Y')}
+
+    ¡Gracias por tu colaboración!
+    """
+    html_contenido = f"""
+    <p>Hola <strong>{presupuesto.solicitud.nombre_externo}</strong>,</p>
+    <p>Tu presupuesto ha sido aprobado. Por favor, revisa la fecha de asistencia asignada:</p>
+    <ul>
+        <li><strong>Fecha de Asistencia:</strong> {presupuesto.fecha_asistencia.strftime('%d/%m/%Y')}</li>
+    </ul>
+    <p>¡Gracias por tu colaboración!</p>
+    """
+
+    destinatarios = [presupuesto.solicitud.correo_externo]
+    try:
+        mensaje = EmailMultiAlternatives(asunto, texto_plano, settings.DEFAULT_FROM_EMAIL, destinatarios)
+        mensaje.attach_alternative(html_contenido, "text/html")
+        mensaje.send()
+        print(f"Correo enviado a {destinatarios}")
+    except Exception as e:
+        print(f"Error al enviar correo: {e}")

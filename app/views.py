@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 from django.core.cache import cache
+from .signals import *
 import sweetify
 
 # Importaciones para graficos
@@ -426,7 +427,7 @@ def generar_pdf_peticion(solicitud):
     # Información de la solicitud
     p.drawString(100, 800, f"Nombre del Externo: {solicitud.nombre_externo}")
     p.drawString(100, 780, f"Correo del Externo: {solicitud.correo_externo}")
-    p.drawString(100, 760, f"Fecha: {solicitud.fecha.strftime('%d/%m/%Y')}")
+    p.drawString(100, 760, f"Fecha: {solicitud.fecha_creacion.strftime('%d/%m/%Y')}")
     p.drawString(100, 740, f"Descripción: {solicitud.descripcion}")
 
     # Finalizar PDF
@@ -446,11 +447,30 @@ def crear_solicitud_externo(request):
             # Generar y guardar el PDF
             pdf_file = generar_pdf_peticion(solicitud)
             solicitud.pdf_peticion.save(pdf_file.name, pdf_file)
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Solicitud creada', text='Solicitud creada correctamente')
 
-            return redirect('lista_solicitudes')  # Redirigir a una página de lista
+            return redirect('home')  # Redirigir a una página de lista
     else:
         form = SolicitudExternoForm()
     return render(request, 'app/infraestructura/crear_solicitud.html', {'form': form})
 
+
+def cargar_presupuesto(request, solicitud_id):
+    solicitud = get_object_or_404(SolicitudExterno, id=solicitud_id)
+    
+    if request.method == 'POST':
+        form = PresupuestoExternoForm(request.POST, request.FILES)
+        if form.is_valid():
+            presupuesto = form.save(commit=False)
+            presupuesto.solicitud = solicitud
+            presupuesto.save()
+
+            # Mensaje de éxito
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Presupuesto cargado', text='Presupuesto cargado correctamente')
+            return redirect('home') #solicitud_id=solicitud.id
+    else:
+        form = PresupuestoExternoForm()
+
+    return render(request, 'cargar_presupuesto.html', {'form': form, 'solicitud': solicitud})
 
 

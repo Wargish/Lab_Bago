@@ -129,12 +129,21 @@ class FeedbackForm(forms.ModelForm):
 class SolicitudExternoForm(forms.ModelForm):
     class Meta:
         model = SolicitudExterno
-        fields = ['nombre_externo', 'correo_externo', 'fecha', 'descripcion', 'imagen_opcional']
+        fields = ['nombre_externo', 'correo_externo', 'descripcion', 'imagen']
         widgets = {
-            'nombre_externo': forms.TextInput(attrs={'class': 'form-control'}),
-            'correo_externo': forms.EmailInput(attrs={'class': 'form-control'}),
-            'fecha': forms.DateInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
-            'imagen_opcional': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'nombre_externo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Externo'}),
+            'correo_externo': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Correo Electrónico'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripción'}),
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+
+class PresupuestoExternoForm(forms.ModelForm):
+    class Meta:
+        model = PresupuestoExterno
+        fields = ['archivo_pdf', 'aprobado', 'fecha_asistencia']
+        widgets = {
+            'fecha_asistencia': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
 

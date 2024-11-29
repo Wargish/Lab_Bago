@@ -17,6 +17,8 @@ urlpatterns = [
     path('infraestructura/reporte', reporte, name='reporte'),
     path('infraestructura/feedback', feedback, name='feedback'),
     path('infraestructura/crear_solicitud/', crear_solicitud_externo, name='crear_solicitud'),
+    path('cargar_presupuesto/<int:solicitud_id>/', cargar_presupuesto, name='cargar_presupuesto'),
+
 
 
     path('dashboard/graficos', graficos, name='graficos'),
