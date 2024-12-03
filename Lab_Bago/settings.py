@@ -41,6 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'auth',
+    'emails',
+    'feedback',
+    'pdf',
+    'reports',
+    'request',
+    'task',
     'sweetify',
 
 ]
