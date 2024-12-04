@@ -1,15 +1,34 @@
-{% extends 'base.html' %}
+{% extends '../base.html' %}
 
 {% block content %}
-<h2>Cargar Presupuesto</h2>
-<p><strong>Solicitud para:</strong> {{ solicitud.nombre_externo }}</p>
-<p><strong>Descripción:</strong> {{ solicitud.descripcion }}</p>
+<div class="container mt-9 text-white">
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-
+    <h2>Cargar Presupuesto:  {{ solicitud.objetivo }}</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_pdf_presupuesto">Cargar Presupuesto (PDF):</label>
+            {{ form.archivo }}
+        </div>
+        <div class="form-group">
+            <label for="id_estado">Estado:</label>
+            {{ form.estado }}
+        </div>
+        
+        <!-- Campo Razón de Rechazo -->
+        <div class="form-group">
+            <label for="id_mensaje">Mensaje:</label>
+            {{ form.mensaje }}
+        </div>
+        
+        <!-- Campo Fecha de Asistencia -->
+        <div class="form-group">
+            <label for="id_fecha_asistencia">Fecha de Asistencia:</label>
+            {{ form.fecha_asistencia }}
+    </div>
+    
     <button type="submit" class="btn btn-primary">Guardar</button>
 </form>
-<a href="{% url 'detalle_solicitud' solicitud.id %}" class="btn btn-secondary">Volver</a>
+</div>
 {% endblock %}

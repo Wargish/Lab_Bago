@@ -4,4 +4,5 @@ pytz==2024.2
 plotly
 pandas
 sweetify
-reportlab
+xhtml2pdf
+jinja2

@@ -1,0 +1,69 @@
+{% extends '../base.html' %}
+
+{% block content %}
+
+<div class="container mt-5 text-white">
+    <h2 class="mb-4">Lista de Solicitudes</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped bg-white">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Objetivo</th>
+                    <th>Descripción</th>
+                    <th>PDF de la Solicitud</th>
+                    <th>Fecha de Creación</th>
+                    <th>Presupuesto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for solicitud in solicitudes %}
+                    <tr>
+                        <td>{{ solicitud.id }}</td>
+                        <td>{{ solicitud.objetivo }}</td>
+                        <td>{{ solicitud.descripcion }}</td>
+                        <td>
+                            {% if solicitud.pdf_peticion %}
+                                <a href="{{ solicitud.pdf_peticion.url }}" target="_blank" class="btn btn-link">Ver PDF</a>
+                            {% else %}
+                                <span class="text-muted">Sin PDF</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ solicitud.fecha_creacion|date:"d-m-Y H:i" }}</td>
+                        <td>
+                            {% if solicitud.presupuesto_externo.exists %}
+                                <a href="{{ solicitud.presupuesto_externo.first.archivo.url }}" target="_blank" class="btn btn-success">
+                                    Ver Presupuesto
+                                </a>
+                            {% else %}
+                                <a href="{% url 'gestionar_presupuesto' solicitud.id %}" class="btn btn-primary">
+                                    Cargar Presupuesto
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay solicitudes disponibles.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @media (max-width: 576px) {
+        .table th, .table td {
+            font-size: 12px;
+            padding: 0.25rem;
+        }
+        .btn-sm {
+            font-size: 10px;
+            padding: 0.25rem 0.5rem;
+        }
+    }
+</style>
+
+{% endblock %}

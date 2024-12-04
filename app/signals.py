@@ -1,7 +1,7 @@
 from django.db.models.signals import post_migrate, post_save
 from django.contrib.auth.models import Group
 from django.dispatch import receiver
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.conf import settings
 from .models import Estado, Notificacion, SolicitudExterno, PresupuestoExterno
 import threading
@@ -81,11 +81,11 @@ def enviar_correo_asincrono_solicitud(sender, instance, created, **kwargs):
 def send_correo_solicitud(solicitud):
     asunto = "Nueva Solicitud de Trabajo"
     texto_plano = f"""
-    Estimado {solicitud.nombre_externo},
+    Estimado {solicitud.externo.username},
 
     Se ha generado una nueva solicitud de trabajo para usted. A continuación, los detalles:
 
-    - Fecha del trabajo: {solicitud.fecha_creacion.strftime('%d/%m/%Y')}
+    - Fecha de Creacion: {solicitud.fecha_creacion.strftime('%d/%m/%Y')}
     - Descripción: {solicitud.descripcion}
 
     Por favor, revise el archivo adjunto para más información.
@@ -94,7 +94,7 @@ def send_correo_solicitud(solicitud):
     Equipo de Mantenimiento
     """
     html_contenido = f"""
-    <p>Estimado <strong>{solicitud.nombre_externo}</strong>,</p>
+    <p>Estimado <strong>{solicitud.externo.username}</strong>,</p>
     <p>Se ha generado una nueva solicitud de trabajo para usted. A continuación, los detalles:</p>
     <ul>
         <li><strong>Fecha de Solicitud:</strong> {solicitud.fecha_creacion.strftime('%d/%m/%Y')}</li>
@@ -105,7 +105,7 @@ def send_correo_solicitud(solicitud):
     <p><strong>Equipo de Mantenimiento</strong></p>
     """
 
-    destinatarios = [solicitud.correo_externo]
+    destinatarios = [solicitud.externo.email]
 
     try:
         mensaje = EmailMultiAlternatives(asunto, texto_plano, settings.DEFAULT_FROM_EMAIL, destinatarios)
@@ -123,35 +123,38 @@ def send_correo_solicitud(solicitud):
 
 
 @receiver(post_save, sender=PresupuestoExterno)
-def enviar_correo_asincrono_presupuesto(sender, instance, created, **kwargs):
-    if instance.aprobado and instance.fecha_asistencia:
-        threading.Thread(target=enviar_correo_externo, args=(instance,)).start()
+def enviar_correo_presupuesto(sender, instance, created, **kwargs):
+    solicitud = instance.solicitud
+    externo_email = solicitud.externo.email
+    asunto = ''
+    mensaje = ''
 
-def enviar_correo_externo(presupuesto):
-    asunto = f"Trabajo Aprobado - Fecha de Asistencia Asignada"
-    texto_plano = f"""
-    Hola {presupuesto.solicitud.nombre_externo},
+    if instance.estado == 'rechazado':
+        asunto = 'Presupuesto Rechazado'
+        mensaje = f"""
+        Hola {solicitud.externo.username},
 
-    Tu presupuesto ha sido aprobado. Por favor, revisa la fecha de asistencia asignada:
+        Lamentamos informarte que el presupuesto enviado ha sido rechazado.
+        Razón del rechazo: {instance.mensaje}
 
-    Fecha de Asistencia: {presupuesto.fecha_asistencia.strftime('%d/%m/%Y')}
+        Gracias por tu comprensión.
+        """
+    elif instance.estado == 'aprobado':
+        asunto = 'Presupuesto Aprobado'
+        mensaje = f"""
+        Hola {solicitud.externo.username},
 
-    ¡Gracias por tu colaboración!
-    """
-    html_contenido = f"""
-    <p>Hola <strong>{presupuesto.solicitud.nombre_externo}</strong>,</p>
-    <p>Tu presupuesto ha sido aprobado. Por favor, revisa la fecha de asistencia asignada:</p>
-    <ul>
-        <li><strong>Fecha de Asistencia:</strong> {presupuesto.fecha_asistencia.strftime('%d/%m/%Y')}</li>
-    </ul>
-    <p>¡Gracias por tu colaboración!</p>
-    """
+        Nos complace informarte que tu presupuesto ha sido aprobado.
+        Fecha de asistencia asignada: {instance.fecha_asistencia.strftime('%d/%m/%Y')}
 
-    destinatarios = [presupuesto.solicitud.correo_externo]
-    try:
-        mensaje = EmailMultiAlternatives(asunto, texto_plano, settings.DEFAULT_FROM_EMAIL, destinatarios)
-        mensaje.attach_alternative(html_contenido, "text/html")
-        mensaje.send()
-        print(f"Correo enviado a {destinatarios}")
-    except Exception as e:
-        print(f"Error al enviar correo: {e}")
+        ¡Gracias por tu colaboración!
+        """
+
+    if asunto and mensaje:
+        send_mail(
+            asunto,
+            mensaje,
+            settings.DEFAULT_FROM_EMAIL,
+            [externo_email],
+            fail_silently=False,
+        )

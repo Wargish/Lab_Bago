@@ -102,7 +102,7 @@ class FeedbackTarea(models.Model):
     aprobado = models.BooleanField()
     comentarios = models.TextField(null=True, blank=True)
     creado_en = models.DateTimeField(auto_now_add=True)
-    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Usuario que crea el feedback (supervisor o responsable)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.aprobado:
@@ -116,29 +116,70 @@ class FeedbackTarea(models.Model):
         return f'Feedback para Tarea: {self.tarea.objetivo} - Aprobado: {"Sí" if self.aprobado else "No"}'
     
 
-
+# Externos
 
 class SolicitudExterno(models.Model):
-    nombre_externo = models.CharField(max_length=255)
-    correo_externo = models.EmailField()
+    externo = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solicitudes_externas')
+    objetivo = models.CharField(max_length=200)
     descripcion = models.TextField()
-    imagen = models.ImageField(upload_to='peticiones_imagenes/', blank=True, null=True)
-    pdf_peticion = models.FileField(upload_to='peticiones/', blank=True, null=True)
+    imagen = models.ImageField(upload_to='ex_peticiones_imagenes/', blank=True, null=True)
+    pdf_peticion = models.FileField(upload_to='ex_peticiones/', blank=True, null=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f"Solicitud a {self.externo.username} - {self.fecha_creacion}"
+
+# Model for the task assigned to the external user (TareaExterno)
+class TareaExterno(models.Model):
+    solicitud = models.ForeignKey(SolicitudExterno, on_delete=models.CASCADE, related_name='tareas_externas')
+    estado = models.CharField(
+        max_length=20,
+        choices=[('en_espera', 'En Espera'), ('en_curso', 'En Curso'), ('completada', 'Completada'), ('rechazada', 'Rechazada')],
+        default='en_espera'
+    )
+    fecha_asistencia = models.DateField(null=True, blank=True)  # Date when external user will come
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Solicitud a {self.nombre_externo} - {self.fecha_creacion}"
-    
+        return f"Tarea de {self.solicitud.externo.username} - {self.estado}"
 
+# Model for the external budget (PresupuestoExterno)
 class PresupuestoExterno(models.Model):
-    solicitud = models.ForeignKey('SolicitudExterno', on_delete=models.CASCADE)  # Relaciona con la solicitud inicial
-    archivo_pdf = models.FileField(upload_to='presupuestos/')
-    aprobado = models.BooleanField(default=False)
+    solicitud = models.ForeignKey(SolicitudExterno, on_delete=models.CASCADE, related_name='presupuesto_externo')
+    archivo = models.FileField(upload_to='ex_presupuestos/')
     fecha_asistencia = models.DateField(null=True, blank=True)
-
-    creado_en = models.DateTimeField(auto_now_add=True)
-    actualizado_en = models.DateTimeField(auto_now=True)
+    estado = models.CharField(
+        max_length=20,
+        choices=[('pendiente', 'Pendiente'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')],
+        default='pendiente'
+    )
+    mensaje = models.TextField(blank=True, null=True)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Presupuesto de {self.solicitud.externo.nombre} - {'Aprobado' if self.aprobado else 'Pendiente'}"
+        return f"Presupuesto de {self.solicitud.externo.username} - Estado: {self.estado}"
 
+class ExternoReporte(models.Model):
+    tarea_externo = models.ForeignKey(TareaExterno, on_delete=models.CASCADE, related_name='reportes')
+    descripcion = models.TextField(blank=True, null=True)
+    imagen = models.ImageField(upload_to='ex_reporte_imagenes/', blank=True, null=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+
+    def __str__(self):
+        return f"Reporte de {self.tarea_externo.solicitud.externo.username} - {self.fecha_creacion}"
+
+# Model for feedback from supervisor or superuser
+class ExternoFeedback(models.Model):
+    tarea_externo = models.ForeignKey(TareaExterno, on_delete=models.CASCADE, related_name='feedback')
+    aprobado = models.BooleanField()
+    comentario = models.TextField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"Feedback de {self.supervisor.username} - {self.fecha_creacion}"
+    

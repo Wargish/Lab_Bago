@@ -58,7 +58,7 @@
                                 {% else %}
                                     Aun no se ha creado un reporte
                                 {% endif %}
-                            {% elif es_tecnico or es_externo %}
+                            {% elif es_tecnico %}
                                 {% if tarea.reporte_tarea %}
                                     <a href="{% url 'detalle_reporte' tarea.reporte_tarea.id %}" class="btn btn-info btn-sm">Ver Reporte</a>
                                 {% else %}
@@ -75,7 +75,7 @@
                                 {% else %}
                                     No hay Feedback creado
                                 {% endif %}
-                            {% elif es_tecnico or es_externo %}
+                            {% elif es_tecnico %}
                                 {% if tarea.feedbacktarea %}
                                     <a href="{% url 'detalle_feedback' tarea.feedbacktarea.id %}" class="btn btn-info btn-sm">Ver Feedback</a>
                                 {% else %}

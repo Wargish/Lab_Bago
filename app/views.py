@@ -1,10 +1,11 @@
 # Importaciones estándar de Django
-from django.shortcuts import render, redirect, get_object_or_404,HttpResponseRedirect
+from django.shortcuts import render, redirect, get_object_or_404,HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 from django.core.cache import cache
+from django.http import JsonResponse
 from .signals import *
 import sweetify
 
@@ -13,9 +14,11 @@ import plotly.express as px
 import pandas as pd
 from datetime import timedelta
 
+from xhtml2pdf import pisa
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from django.core.files.base import ContentFile
+from django.template.loader import render_to_string
 
 # Importaciones locales (formularios y modelos)
 from .forms import *
@@ -229,7 +232,7 @@ def listar_tareas(request):
     tareas = Tarea.objects.all()
 
     if not is_superuser:
-        if 'Técnico' in user_roles or 'Externo' in user_roles:
+        if 'Técnico' in user_roles:
             tareas = tareas.filter(asignado_a=request.user)
         elif 'Supervisor' in user_roles or 'Operario' in user_roles:
             tareas = tareas.filter(informe__usuario=request.user)
@@ -243,7 +246,6 @@ def listar_tareas(request):
         'estado_selec': estado_selec,
         'es_superusuario': is_superuser,
         'es_tecnico': 'Técnico' in user_roles,
-        'es_externo': 'Externo' in user_roles,
         'es_supervisor': 'Supervisor' in user_roles,
         'es_operario': 'Operario' in user_roles,
     })
@@ -419,58 +421,80 @@ def detalle_feedback(request, feedback_id):
     return render(request, 'app/detalle/feedback.html', {'feedback': feedback})
 
 
-
 def generar_pdf_peticion(solicitud):
+    # Renderizar el HTML con los datos de la solicitud
+    html = render_to_string('app/plantillas/pdf.html', {'solicitud': solicitud})
+
+    # Crear un buffer en memoria para almacenar el PDF
     buffer = BytesIO()
-    p = canvas.Canvas(buffer)
 
-    # Información de la solicitud
-    p.drawString(100, 800, f"Nombre del Externo: {solicitud.nombre_externo}")
-    p.drawString(100, 780, f"Correo del Externo: {solicitud.correo_externo}")
-    p.drawString(100, 760, f"Fecha: {solicitud.fecha_creacion.strftime('%d/%m/%Y')}")
-    p.drawString(100, 740, f"Descripción: {solicitud.descripcion}")
+    # Usar xhtml2pdf para convertir el HTML a PDF
+    pisa_status = pisa.CreatePDF(html, dest=buffer)
 
-    # Finalizar PDF
-    p.showPage()
-    p.save()
-
+    # Si la conversión es exitosa, devolver el contenido del PDF
+    if pisa_status.err:
+        return None
+    
+    # Reposicionar el puntero del buffer al inicio
     buffer.seek(0)
-    pdf_file = ContentFile(buffer.getvalue(), name=f"peticion_{solicitud.id}.pdf")
-    return pdf_file
 
+    return buffer.getvalue()
+
+@login_required
 def crear_solicitud_externo(request):
     if request.method == 'POST':
         form = SolicitudExternoForm(request.POST, request.FILES)
         if form.is_valid():
-            solicitud = form.save()  # Guarda la solicitud en la base de datos
+            solicitud = form.save(commit=False)
+            solicitud.externo = form.cleaned_data['externo']
+            solicitud.save()
 
-            # Generar y guardar el PDF
-            pdf_file = generar_pdf_peticion(solicitud)
-            solicitud.pdf_peticion.save(pdf_file.name, pdf_file)
-            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Solicitud creada', text='Solicitud creada correctamente')
+            # Generar y guardar el PDF con xhtml2pdf
+            pdf_content = generar_pdf_peticion(solicitud)
+            if pdf_content:
+                solicitud.pdf_peticion.save(f'peticion_{solicitud.id}.pdf', ContentFile(pdf_content))
+                sweetify.sweetalert(request, icon='success', persistent='Ok', title='Solicitud creada', text='Solicitud creada correctamente')
+            else:
+                sweetify.error(request, 'Error', text='Hubo un error al generar el PDF.', persistent='Ok')
 
-            return redirect('home')  # Redirigir a una página de lista
+            return redirect('home')
     else:
         form = SolicitudExternoForm()
+    
     return render(request, 'app/infraestructura/crear_solicitud.html', {'form': form})
 
+@login_required
+def obtener_datos_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    data = {
+        'email': user.email,
+    }
+    return JsonResponse(data)
 
+@login_required
+@group_required('Operario', 'Supervisor')
 def cargar_presupuesto(request, solicitud_id):
     solicitud = get_object_or_404(SolicitudExterno, id=solicitud_id)
-    
     if request.method == 'POST':
         form = PresupuestoExternoForm(request.POST, request.FILES)
         if form.is_valid():
             presupuesto = form.save(commit=False)
-            presupuesto.solicitud = solicitud
+            presupuesto.solicitud = solicitud  # Asegúrate de asignar la solicitud aquí
+            presupuesto.creado_por = request.user  # Asigna el usuario que crea el presupuesto
             presupuesto.save()
 
-            # Mensaje de éxito
-            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Presupuesto cargado', text='Presupuesto cargado correctamente')
-            return redirect('home') #solicitud_id=solicitud.id
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Presupuesto creado', text='Presupuesto creado correctamente')
+            return redirect('listar_solicitudes')  # Cambiar por la vista adecuada
     else:
         form = PresupuestoExternoForm()
 
-    return render(request, 'cargar_presupuesto.html', {'form': form, 'solicitud': solicitud})
+    return render(request, 'app/infraestructura/presupuesto.html', {'form': form, 'solicitud': solicitud})
 
 
+@login_required
+@group_required('Operario', 'Externo', 'Supervisor')
+def listar_solicitudes(request):
+    solicitudes = SolicitudExterno.objects.prefetch_related('presupuesto_externo').all()
+    return render(request, "app/dashboard/listar_solicitudes.html", {
+        'solicitudes': solicitudes,
+    })

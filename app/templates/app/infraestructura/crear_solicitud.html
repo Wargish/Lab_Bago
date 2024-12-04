@@ -2,19 +2,23 @@
 {% block content %}
 
 <div class="container mt-9 text-white">
-    <h2 class="mb-4">Crear Solicitud a Externo</h2>
-        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <h2 class="mb-4">Solicitud Externo</h2>
+    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
         <div class="form-group">
             {{ form.non_field_errors }}
-            {{ form.nombre_externo.label_tag }}
-            {{ form.nombre_externo }}
-            {{ form.nombre_externo.errors }}
+            {{ form.externo.label_tag }}
+            {{ form.externo }}
+            {{ form.externo.errors }}
         </div>
         <div class="form-group">
-            {{ form.correo_externo.label_tag }}
-            {{ form.correo_externo }}
-            {{ form.correo_externo.errors }}
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+            {{ form.objetivo.label_tag }}
+            {{ form.objetivo }}
+            {{ form.objetivo.errors }}
         </div>
         <div class="form-group">
             {{ form.descripcion.label_tag }}
@@ -29,4 +33,16 @@
         <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
     </form>
 </div>
+
+<script>
+    document.getElementById('id_externo').addEventListener('change', function() {
+        var userId = this.value;
+        fetch(`/api/user/${userId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('email').value = data.email;
+            });
+    });
+</script>
+
 {% endblock %}

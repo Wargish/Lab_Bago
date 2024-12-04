@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from .models import *
+from django.core.exceptions import ValidationError
 
 
 class RegistroForm(forms.ModelForm):
@@ -127,22 +128,37 @@ class FeedbackForm(forms.ModelForm):
 
 
 class SolicitudExternoForm(forms.ModelForm):
+    externo = forms.ModelChoiceField(
+        queryset=User.objects.filter(groups__name='Externo'),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Usuario Externo',
+        error_messages={
+            'required': 'Este campo es obligatorio.',
+            }
+        )
+
+
     class Meta:
         model = SolicitudExterno
-        fields = ['nombre_externo', 'correo_externo', 'descripcion', 'imagen']
+        fields = ['externo','objetivo','descripcion', 'imagen']
         widgets = {
-            'nombre_externo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Externo'}),
-            'correo_externo': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Correo Electrónico'}),
+            'objetivo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Objetivo'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripción'}),
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+        error_messages={
+            'required': 'Este campo es obligatorio.',
+            }
+
 
 class PresupuestoExternoForm(forms.ModelForm):
     class Meta:
         model = PresupuestoExterno
-        fields = ['archivo_pdf', 'aprobado', 'fecha_asistencia']
+        fields = ['archivo', 'estado', 'mensaje', 'fecha_asistencia']
         widgets = {
-            'fecha_asistencia': forms.DateInput(attrs={'type': 'date'}),
+            'mensaje': forms.Textarea(attrs={'class': 'form-control'}),
+            'fecha_asistencia': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'estado': forms.Select(attrs={'id': 'id_estado'}),
         }
 
 
