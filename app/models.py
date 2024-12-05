@@ -162,7 +162,7 @@ class PresupuestoExterno(models.Model):
         return f"Presupuesto de {self.solicitud.externo.username} - Estado: {self.estado}"
 
 class ExternoReporte(models.Model):
-    tarea_externo = models.ForeignKey(TareaExterno, on_delete=models.CASCADE, related_name='reportes')
+    tarea_externo = models.OneToOneField(TareaExterno, on_delete=models.CASCADE, related_name='externo_reportes')
     descripcion = models.TextField(blank=True, null=True)
     imagen = models.ImageField(upload_to='ex_reporte_imagenes/', blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -174,7 +174,7 @@ class ExternoReporte(models.Model):
 
 # Model for feedback from supervisor or superuser
 class ExternoFeedback(models.Model):
-    tarea_externo = models.ForeignKey(TareaExterno, on_delete=models.CASCADE, related_name='feedback')
+    tarea_externo = models.OneToOneField(TareaExterno, on_delete=models.CASCADE, related_name='externo_feedback')
     aprobado = models.BooleanField()
     comentario = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)

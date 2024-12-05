@@ -38,7 +38,8 @@ urlpatterns = [
 
     path('error404/', error404, name='error404'),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
 
-
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

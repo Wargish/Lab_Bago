@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.http import JsonResponse
 from .signals import *
 import sweetify
+import os
 
 # Importaciones para graficos
 import plotly.express as px
@@ -429,7 +430,7 @@ def generar_pdf_peticion(solicitud):
     buffer = BytesIO()
 
     # Usar xhtml2pdf para convertir el HTML a PDF
-    pisa_status = pisa.CreatePDF(html, dest=buffer)
+    pisa_status = pisa.CreatePDF(html, dest=buffer, link_callback=link_callback)
 
     # Si la conversión es exitosa, devolver el contenido del PDF
     if pisa_status.err:
@@ -439,6 +440,29 @@ def generar_pdf_peticion(solicitud):
     buffer.seek(0)
 
     return buffer.getvalue()
+
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths so xhtml2pdf can access those resources
+    """
+    sUrl = settings.STATIC_URL  # Typically /static/
+    sRoot = settings.STATIC_ROOT  # Typically /home/userX/project_static/
+    mUrl = settings.MEDIA_URL  # Typically /media/
+    mRoot = settings.MEDIA_ROOT  # Typically /home/userX/project_media/
+
+    if uri.startswith(mUrl):
+        path = os.path.join(mRoot, uri.replace(mUrl, ""))
+    elif uri.startswith(sUrl):
+        path = os.path.join(sRoot, uri.replace(sUrl, ""))
+    else:
+        return uri
+
+    # Make sure that file exists
+    if not os.path.isfile(path):
+        raise Exception(
+            'media URI must start with %s or %s' % (sUrl, mUrl)
+        )
+    return path
 
 @login_required
 def crear_solicitud_externo(request):

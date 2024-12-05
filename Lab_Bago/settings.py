@@ -150,10 +150,11 @@ SWEETIFY_SWEETALERT_LIBRARY = 'sweetalert2'
 # possible options: 'error', 'warning', 'info', 'question', 'success' - default is 'error'
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Usamos el backend SMTP
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'  # El servidor SMTP de Mailtrap
-EMAIL_PORT = 2525  # Puerto SMTP recomendado por Mailtrap
-EMAIL_HOST_USER = '41f84546e254a7'  # Usuario de Mailtrap (lo encuentras en el dashboard de Mailtrap)
-EMAIL_HOST_PASSWORD = 'e8d0eedb235f6e'  # Contraseña de Mailtrap (también en el dashboard)
-EMAIL_USE_TLS = True  # Usamos TLS para seguri
-DEFAULT_FROM_EMAIL = 'Sistem.Bago@gmail.com'  # Correo electrónico que enviará los mensajes
+# Configuración de correo en Django para usar Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Servidor SMTP de Gmail
+EMAIL_PORT = 587  # Puerto de Gmail para TLS
+EMAIL_HOST_USER = 'bago.emailtest@gmail.com'  # Tu correo de Gmail
+EMAIL_HOST_PASSWORD = 'orsn ouqw ktuj sxcv'  # La contraseña de la cuenta
+EMAIL_USE_TLS = True  # Usamos TLS para mayor seguridad
+DEFAULT_FROM_EMAIL = 'bago.emailtest@gmail.com'  # El correo que enviará los mensajes

@@ -111,7 +111,8 @@ def send_correo_solicitud(solicitud):
         mensaje = EmailMultiAlternatives(asunto, texto_plano, settings.DEFAULT_FROM_EMAIL, destinatarios)
         # Adjuntar el PDF si está presente
         if solicitud.pdf_peticion:
-            mensaje.attach(solicitud.pdf_peticion.name, solicitud.pdf_peticion.read(), 'application/pdf')
+            with solicitud.pdf_peticion.open('rb') as pdf_file:
+                mensaje.attach(solicitud.pdf_peticion.name, pdf_file.read(), 'application/pdf')
 
         mensaje.attach_alternative(html_contenido, "text/html")
         mensaje.send()

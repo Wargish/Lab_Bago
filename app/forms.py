@@ -162,4 +162,35 @@ class PresupuestoExternoForm(forms.ModelForm):
         }
 
 
+class TareaExternoForm(forms.ModelForm):
+    class Meta:
+        model = TareaExterno
+        fields = ['solicitud', 'estado', 'fecha_asistencia']
+        widgets = {
+            'solicitud': forms.Select(attrs={'class': 'form-control'}),
+            'estado': forms.Select(attrs={'class': 'form-control'}),
+            'fecha_asistencia': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
 
+
+
+
+class ExternoReporte(forms.ModelForm):
+    class Meta:
+        model = ExternoReporte
+        fields = ['tarea_externo', 'descripcion', 'imagen']
+        widgets = {
+            'tarea_externo': forms.HiddenInput(),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+class ExternoFeedback(forms.ModelForm):
+    class Meta:
+        model = ExternoFeedback
+        fields = ['tarea_externo', 'aprobado', 'comentario']
+        widgets = {
+            'tarea_externo': forms.HiddenInput(),
+            'aprobado': forms.RadioSelect(choices=[(True, 'Sí'), (False, 'No')]),
+            'comentario': forms.Textarea(attrs={'class': 'form-control'}),
+        }

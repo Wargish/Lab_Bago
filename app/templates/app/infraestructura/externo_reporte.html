@@ -1,30 +1,31 @@
-{% extends "../base.html" %}
-{% block content %}
+{% extends '../base.html' %}
 
+{% block content %}
 <div class="container mt-9 text-white">
-    <h2 class="mb-4">Solicitud Externo</h2>
+    <h2 class="mb-4">Crear Reporte Externo</h2>
     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
-        <div class="form-group">
-            {{ form.non_field_errors }}
-            {{ form.externo.label_tag }}
-            {{ form.externo }}
-            {{ form.externo.errors }}
+    
+        <!-- Campo Tarea (Oculto) -->
+        
+        <!-- Mostrar Tarea -->
+        <div class="md-form">
+            <label for="tarea">Tarea:</label>
+            <input type="text" id="tarea" class="form-control" value="{{ tarea }}" readonly>
         </div>
-        <div class="form-group">
-            <label for="email">Correo Electrónico</label>
-            <input type="email" id="email" class="form-control" readonly>
+    
+        <!-- Contenido -->
+        <div class="md-form">
+            {{ form.contenido.label_tag }}
+            {{ form.contenido }}
+            <div class="invalid-feedback">
+                {% for error in form.contenido.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
         </div>
-        <div class="form-group">
-            {{ form.objetivo.label_tag }}
-            {{ form.objetivo }}
-            {{ form.objetivo.errors }}
-        </div>
-        <div class="form-group">
-            {{ form.descripcion.label_tag }}
-            {{ form.descripcion }}
-            {{ form.descripcion.errors }}
-        </div>
+    
+        <!-- Imagen -->
         <div class="md-form">
             {{ form.imagen.label_tag }}
             {{ form.imagen }}
@@ -37,26 +38,20 @@
                 <img id="imagen-preview" src="#" alt="Vista previa de la imagen" style="display: none; max-width: 100%; height: auto; margin-top: 10px;">
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+    
+        <button type="submit" class="btn btn-primary">Enviar</button>
     </form>
 </div>
 
-<script>
-    document.getElementById('id_externo').addEventListener('change', function() {
-        var userId = this.value;
-        fetch(`/api/user/${userId}/`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('email').value = data.email;
-            });
-    });
 
-    const imageInput = document.getElementById('id_imagen');
-    const imagePreview = document.getElementById('imagen-preview');
+
+<script>
+    const imageInput = document.getElementById('id_imagen');  // Seleccionamos el input de archivo
+    const imagePreview = document.getElementById('imagen-preview');  // Vista previa de la imagen
 
     if (imageInput) {
         imageInput.addEventListener('change', function (event) {
-            const file = event.target.files[0]; 
+            const file = event.target.files[0];  // Obtenemos el archivo seleccionado
             if (file) {
                 const fileType = file.type.split('/')[0];  // Verificamos que sea una imagen
                 if (fileType === 'image') {
@@ -77,5 +72,5 @@
         });
     }
 </script>
-
 {% endblock %}
+
