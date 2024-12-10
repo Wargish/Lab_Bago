@@ -516,7 +516,6 @@ def cargar_presupuesto(request, solicitud_id):
 
 
 @login_required
-@group_required('Operario', 'Externo', 'Supervisor')
 def listar_solicitudes(request):
     solicitudes = SolicitudExterno.objects.prefetch_related('presupuesto_externo').all()
     return render(request, "app/dashboard/listar_solicitudes.html", {
