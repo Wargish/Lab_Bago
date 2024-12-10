@@ -134,6 +134,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Configuración de archivos estáticos (CSS, JavaScript, Imágenes)
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'app/static')]
 
 # SESSION_COOKIE_SECURE = True  # Solo se envía a través de HTTPS

@@ -465,12 +465,14 @@ def link_callback(uri, rel):
     return path
 
 @login_required
+@group_required('Operario', 'Supervisor')
 def crear_solicitud_externo(request):
     if request.method == 'POST':
         form = SolicitudExternoForm(request.POST, request.FILES)
         if form.is_valid():
             solicitud = form.save(commit=False)
             solicitud.externo = form.cleaned_data['externo']
+            solicitud.creado_por = request.user
             solicitud.save()
 
             # Generar y guardar el PDF con xhtml2pdf
@@ -495,16 +497,21 @@ def obtener_datos_usuario(request, user_id):
     }
     return JsonResponse(data)
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import PresupuestoExternoForm
+from .models import TareaExterno
+
 @login_required
 @group_required('Operario', 'Supervisor')
-def cargar_presupuesto(request, solicitud_id):
-    solicitud = get_object_or_404(SolicitudExterno, id=solicitud_id)
+def cargar_presupuesto(request, tarea_id):
+    tarea = get_object_or_404(TareaExterno, id=tarea_id)
     if request.method == 'POST':
         form = PresupuestoExternoForm(request.POST, request.FILES)
         if form.is_valid():
             presupuesto = form.save(commit=False)
-            presupuesto.solicitud = solicitud  # Asegúrate de asignar la solicitud aquí
-            presupuesto.creado_por = request.user  # Asigna el usuario que crea el presupuesto
+            presupuesto.tarea = tarea
+            presupuesto.creado_por = request.user
             presupuesto.save()
 
             sweetify.sweetalert(request, icon='success', persistent='Ok', title='Presupuesto creado', text='Presupuesto creado correctamente')
@@ -512,12 +519,33 @@ def cargar_presupuesto(request, solicitud_id):
     else:
         form = PresupuestoExternoForm()
 
-    return render(request, 'app/infraestructura/presupuesto.html', {'form': form, 'solicitud': solicitud})
+    return render(request, 'app/infraestructura/presupuesto.html', {'form': form, 'tarea': tarea})
 
 
 @login_required
 def listar_solicitudes(request):
-    solicitudes = SolicitudExterno.objects.prefetch_related('presupuesto_externo').all()
+    estado_selec = request.GET.get('estado', 'todos')
+    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada']
+
+    user_roles = request.user.groups.values_list('name', flat=True)
+    is_superuser = request.user.is_superuser
+
+    tareas_externo = TareaExterno.objects.all()
+
+    if not is_superuser:
+        if 'Externo' in user_roles:
+            tareas_externo = tareas_externo.filter(solicitud__externo=request.user)
+        elif 'Supervisor' in user_roles or 'Operario' in user_roles:
+            tareas_externo = tareas_externo.filter(solicitud__creado_por=request.user)
+
+    if estado_selec != 'todos' and estado_selec in estados_validos:
+        tareas_externo = tareas_externo.filter(estado=estado_selec)
+
     return render(request, "app/dashboard/listar_solicitudes.html", {
-        'solicitudes': solicitudes,
+        'tareas_externo': tareas_externo,
+        'estado_selec': estado_selec,
+        'es_superusuario': is_superuser,
+        'es_externo': 'Externo' in user_roles,
+        'es_supervisor': 'Supervisor' in user_roles,
+        'es_operario': 'Operario' in user_roles,
     })

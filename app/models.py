@@ -120,17 +120,22 @@ class FeedbackTarea(models.Model):
 
 class SolicitudExterno(models.Model):
     externo = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solicitudes_externas')
+    creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     objetivo = models.CharField(max_length=200)
     descripcion = models.TextField()
     imagen = models.ImageField(upload_to='ex_peticiones_imagenes/', blank=True, null=True)
     pdf_peticion = models.FileField(upload_to='ex_peticiones/', blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            TareaExterno.objects.create(solicitud=self)
 
     def __str__(self):
         return f"Solicitud a {self.externo.username} - {self.fecha_creacion}"
 
-# Model for the task assigned to the external user (TareaExterno)
 class TareaExterno(models.Model):
     solicitud = models.ForeignKey(SolicitudExterno, on_delete=models.CASCADE, related_name='tareas_externas')
     estado = models.CharField(
@@ -138,15 +143,14 @@ class TareaExterno(models.Model):
         choices=[('en_espera', 'En Espera'), ('en_curso', 'En Curso'), ('completada', 'Completada'), ('rechazada', 'Rechazada')],
         default='en_espera'
     )
-    fecha_asistencia = models.DateField(null=True, blank=True)  # Date when external user will come
+    fecha_asistencia = models.DateField(null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Tarea de {self.solicitud.externo.username} - {self.estado}"
 
-# Model for the external budget (PresupuestoExterno)
 class PresupuestoExterno(models.Model):
-    solicitud = models.ForeignKey(SolicitudExterno, on_delete=models.CASCADE, related_name='presupuesto_externo')
+    tarea_externo = models.OneToOneField(TareaExterno, on_delete=models.CASCADE, related_name='presupuesto_externo')
     archivo = models.FileField(upload_to='ex_presupuestos/')
     fecha_asistencia = models.DateField(null=True, blank=True)
     estado = models.CharField(
@@ -172,7 +176,6 @@ class ExternoReporte(models.Model):
     def __str__(self):
         return f"Reporte de {self.tarea_externo.solicitud.externo.username} - {self.fecha_creacion}"
 
-# Model for feedback from supervisor or superuser
 class ExternoFeedback(models.Model):
     tarea_externo = models.OneToOneField(TareaExterno, on_delete=models.CASCADE, related_name='externo_feedback')
     aprobado = models.BooleanField()

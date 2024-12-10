@@ -17,7 +17,7 @@ urlpatterns = [
     path('infraestructura/reporte', reporte, name='reporte'),
     path('infraestructura/feedback', feedback, name='feedback'),
     path('infraestructura/crear_solicitud/', crear_solicitud_externo, name='crear_solicitud'),
-    path('infraestructura/presupuesto/<int:solicitud_id>/', cargar_presupuesto, name='gestionar_presupuesto'),
+    path('infraestructura/presupuesto/<int:tarea_id>/', cargar_presupuesto, name='gestionar_presupuesto'),
     path('api/user/<int:user_id>/', obtener_datos_usuario, name='obtener_datos_usuario'),
     path('dashboard/listar_solicitudes', listar_solicitudes, name='listar_solicitudes'),
 
@@ -42,4 +42,4 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

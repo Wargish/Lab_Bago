@@ -3,51 +3,58 @@
 {% block content %}
 
 <div class="container mt-5 text-white">
-    <h2 class="mb-4">Lista de Solicitudes</h2>
+    <h2 class="mb-4">Lista de Tareas Externas</h2>
+    
+    <form method="get" action="{% url 'listar_solicitudes' %}">
+        <div class="input-group mb-3">
+            <select name="estado" id="estadoSelect" class="form-select" onchange="this.form.submit()">
+                <option value="todos" {% if estado_selec == 'todos' %}selected{% endif %}>Todas</option>
+                <option value="en_espera" {% if estado_selec == 'en_espera' %}selected{% endif %}>En Espera</option>
+                <option value="en_curso" {% if estado_selec == 'en_curso' %}selected{% endif %}>En Curso</option>
+                <option value="completada" {% if estado_selec == 'completada' %}selected{% endif %}>Completada</option>
+                <option value="rechazada" {% if estado_selec == 'rechazada' %}selected{% endif %}>Rechazada</option>
+            </select>
+        </div>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped bg-white">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Objetivo</th>
-                    <th>Descripción</th>
-                    <th>PDF de la Solicitud</th>
+                    <th>Solicitud</th>
+                    <th>Estado</th>
+                    <th>Fecha de Asistencia</th>
                     <th>Fecha de Creación</th>
                     <th>Presupuesto</th>
+                    <th>Reporte</th>
+                    <th>Feedback</th>
                 </tr>
             </thead>
             <tbody>
-                {% for solicitud in solicitudes %}
-                    <tr>
-                        <td>{{ solicitud.id }}</td>
-                        <td>{{ solicitud.objetivo }}</td>
-                        <td>{{ solicitud.descripcion }}</td>
-                        <td>
-                            {% if solicitud.pdf_peticion %}
-                                <a href="{{ solicitud.pdf_peticion.url }}" target="_blank" class="btn btn-link">Ver PDF</a>
-                            {% else %}
-                                <span class="text-muted">Sin PDF</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ solicitud.fecha_creacion|date:"d-m-Y H:i" }}</td>
-                        <td>
-                            {% if solicitud.presupuesto_externo.exists %}
-                                <a href="{{ solicitud.presupuesto_externo.first.archivo.url }}" target="_blank" class="btn btn-success">
-                                    Ver Presupuesto
-                                </a>
-                            {% else %}
-                                <a href="{% url 'gestionar_presupuesto' solicitud.id %}" class="btn btn-primary">
-                                    Cargar Presupuesto
-                                </a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">No hay solicitudes disponibles.</td>
-                    </tr>
-                {% endfor %}
+                {% for tarea in tareas_externo %}
+                <tr>
+                    <td>{{ tarea.id }}</td>
+                    <td>{{ tarea.solicitud.objetivo }}</td>
+                    <td>{{ tarea.estado }}</td>
+                    <td>
+                        {% if tarea.fecha_asistencia %}
+                            {{ tarea.fecha_asistencia|date:"d-m-Y" }}
+                        {% else %}
+                            Fecha no asignada
+                        {% endif %}
+                    </td>
+                    <td>{{ tarea.fecha_creacion|date:"d-m-Y H:i" }}</td>
+                    <td><a href="" class="btn btn-info btn-sm">Presupuesto</a></td>
+                    <td><a href="" class="btn btn-info btn-sm">Reporte</a></td>
+                    <td><a href="" class="btn btn-info btn-sm">Feedback</a></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No hay tareas disponibles.</td>
+                </tr>
+            {% endfor %}
+            
             </tbody>
         </table>
     </div>
