@@ -1,0 +1,24 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header">
+        <a href="{% url 'listar_solicitudes' %}" class="btn btn-secondary">
+            &#8592; Volver a Listar Tareas
+        </a>
+        <h1>Detalle Solicitud</h1>
+    </div>
+    <div class="card-body">
+        <h5>Tecnico Externo: {{ solicitud.externo }} </h5>
+        <p>Objetivo de la Solicitud: {{ solicitud.objetivo }}</p>
+        <p>Descripción: {{ solicitud.descripcion }}</p>
+        <p>Fecha de Creación: {{ solicitud.fecha_creacion|date:"d-m-Y H:i" }}</p>
+        {% if solicitud.imagen %}
+            <p>Imagen Referencia: <img src="{{ solicitud.imagen.url }}" alt="Imagen de la solicitud" class="img-fluid"></p>
+        {% endif %}
+        {% if solicitud.pdf_peticion %}
+            <p>PDF Enviado: <a href="{{ solicitud.pdf_peticion.url }}" target="_blank">Ver PDF</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

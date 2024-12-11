@@ -1,0 +1,17 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header">
+        <a href="{% url 'listar_solicitudes' %}" class="btn btn-secondary">
+            &#8592; Volver a Listar Tareas
+        </a>
+        <h1>Detalle Feedback</h1>
+    </div>
+    <div class="card-body">
+        <p>Aprobado: {{ feedback.aprobado|yesno:"Sí,No" }}</p>
+        <p>Comentarios: {{ feedback.comentario }}</p>
+        <p>Fecha de Creación: {{ feedback.fecha_creacion|date:"d-m-Y H:i" }}</p>
+    </div>
+</div>
+{% endblock %}

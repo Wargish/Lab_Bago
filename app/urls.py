@@ -36,6 +36,11 @@ urlpatterns = [
     path('detalle/reporte/<int:reporte_id>/', detalle_reporte, name='detalle_reporte'),
     path('detalle/feedback/<int:feedback_id>/', detalle_feedback, name='detalle_feedback'),
 
+    path('detalle_externo/solicitud/<int:solicitud_id>/', detalle_solicitud, name='detalle_solicitud'),
+    path('detalle_externo/presupuesto_ext/<int:presupuesto_id>/', detalle_presupuesto, name='detalle_presupuesto'),
+    path('detalle_externo/reporte_ext/<int:reporte_ex_id>/', detalle_reporte_ex, name='detalle_reporte_ext'),
+    path('detalle_externo/feedback_ext/<int:feedback_ex_id>/', detalle_feedbacks_ex, name='detalle_feedback_ext'),
+
     path('error404/', error404, name='error404'),
 
 ]

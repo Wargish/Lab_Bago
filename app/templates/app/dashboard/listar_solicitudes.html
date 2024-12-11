@@ -5,6 +5,7 @@
 <div class="container mt-5 text-white">
     <h2 class="mb-4">Lista de Tareas Externas</h2>
     
+    <!-- Formulario de filtro de estado -->
     <form method="get" action="{% url 'listar_solicitudes' %}">
         <div class="input-group mb-3">
             <select name="estado" id="estadoSelect" class="form-select" onchange="this.form.submit()">
@@ -24,8 +25,9 @@
                     <th>ID</th>
                     <th>Solicitud</th>
                     <th>Estado</th>
-                    <th>Fecha de Asistencia</th>
                     <th>Fecha de Creación</th>
+                    <th>Fecha de Asistencia</th>
+                    <th>Solicitud</th>
                     <th>Presupuesto</th>
                     <th>Reporte</th>
                     <th>Feedback</th>
@@ -37,6 +39,7 @@
                     <td>{{ tarea.id }}</td>
                     <td>{{ tarea.solicitud.objetivo }}</td>
                     <td>{{ tarea.estado }}</td>
+                    <td>{{ tarea.fecha_creacion|date:"d-m-Y H:i" }}</td>
                     <td>
                         {% if tarea.fecha_asistencia %}
                             {{ tarea.fecha_asistencia|date:"d-m-Y" }}
@@ -44,14 +47,50 @@
                             Fecha no asignada
                         {% endif %}
                     </td>
-                    <td>{{ tarea.fecha_creacion|date:"d-m-Y H:i" }}</td>
-                    <td><a href="" class="btn btn-info btn-sm">Presupuesto</a></td>
-                    <td><a href="" class="btn btn-info btn-sm">Reporte</a></td>
-                    <td><a href="" class="btn btn-info btn-sm">Feedback</a></td>
+                    <td>
+                        {% if tarea.solicitud %}
+                            <a href="{% url 'detalle_solicitud' tarea.solicitud.id %}" class="btn btn-info btn-sm">Solicitud</a>
+                        {% else %}
+                            <p>Sin Solicitud</p>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if tarea.presupuesto_externo %}
+                            <a href="{% url 'detalle_presupuesto' tarea.presupuesto_externo.id %}" class="btn btn-info btn-sm">Presupuesto</a>
+                        {% else %}
+                            {% if es_supervisor or es_operario %}
+                                <a href="{% url 'gestionar_presupuesto' tarea.id %}" class="btn btn-success btn-sm">Crear Presupuesto</a>
+                            {% else %}
+                                Aun no se ha creado un presupuesto
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if tarea.reporte %}
+                            <a href="{% url 'detalle_reporte_ext' tarea.reporte.id %}" class="btn btn-info btn-sm">Reporte</a>
+                        {% else %}
+                            {% if es_externo and tarea.presupuesto_externo %}
+                                <a href="{% url 'crear_reporte' tarea.id %}" class="btn btn-success btn-sm">Crear Reporte</a>
+                            {% else %}
+                                Aun no se ha creado un Reporte
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if tarea.feedback %}
+                            <a href="{% url 'detalle_feedback_ext' tarea.feedback.id %}" class="btn btn-info btn-sm">Feedback</a>
+                        {% else %}
+                            {% if es_supervisor or es_operario and tarea.reporte %}
+                                <a href="{% url 'crear_feedback' tarea.id %}" class="btn btn-success btn-sm">Crear Feedback</a>
+                            {% else %}
+                                Aun no se ha creado un Feedback
+                            {% endif %}
+                        {% endif %}
+                    </td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center text-muted">No hay tareas disponibles.</td>
+                    <td colspan="9" class="text-center text-muted">No hay tareas disponibles.</td>
                 </tr>
             {% endfor %}
             
@@ -60,6 +99,7 @@
     </div>
 </div>
 
+<!-- Estilo responsive -->
 <style>
     @media (max-width: 576px) {
         .table th, .table td {

@@ -146,6 +146,10 @@ class TareaExterno(models.Model):
     fecha_asistencia = models.DateField(null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+    def actualizar_estado(self, nuevo_estado):
+        self.estado = nuevo_estado
+        self.save()
+
     def __str__(self):
         return f"Tarea de {self.solicitud.externo.username} - {self.estado}"
 
@@ -162,8 +166,15 @@ class PresupuestoExterno(models.Model):
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.fecha_asistencia:
+            self.tarea_externo.fecha_asistencia = self.fecha_asistencia
+            self.tarea_externo.save()
+        self.tarea_externo.actualizar_estado('en_curso')
+
     def __str__(self):
-        return f"Presupuesto de {self.solicitud.externo.username} - Estado: {self.estado}"
+        return f"Presupuesto de {self.tarea_externo.solicitud.externo.username} - Estado: {self.estado}"
 
 class ExternoReporte(models.Model):
     tarea_externo = models.OneToOneField(TareaExterno, on_delete=models.CASCADE, related_name='externo_reportes')
@@ -183,6 +194,11 @@ class ExternoFeedback(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        nuevo_estado = 'completada' if self.aprobado else 'rechazada'
+        self.tarea_externo.actualizar_estado(nuevo_estado)
+
     def __str__(self):
-        return f"Feedback de {self.supervisor.username} - {self.fecha_creacion}"
+        return f"Feedback de {self.creado_por.username} - {self.fecha_creacion}"
     

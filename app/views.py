@@ -510,7 +510,7 @@ def cargar_presupuesto(request, tarea_id):
         form = PresupuestoExternoForm(request.POST, request.FILES)
         if form.is_valid():
             presupuesto = form.save(commit=False)
-            presupuesto.tarea = tarea
+            presupuesto.tarea_externo = tarea
             presupuesto.creado_por = request.user
             presupuesto.save()
 
@@ -521,11 +521,10 @@ def cargar_presupuesto(request, tarea_id):
 
     return render(request, 'app/infraestructura/presupuesto.html', {'form': form, 'tarea': tarea})
 
-
 @login_required
 def listar_solicitudes(request):
     estado_selec = request.GET.get('estado', 'todos')
-    estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada']
+    estados_validos = ['en_espera', 'en_curso', 'completada', 'rechazada']
 
     user_roles = request.user.groups.values_list('name', flat=True)
     is_superuser = request.user.is_superuser
@@ -544,8 +543,29 @@ def listar_solicitudes(request):
     return render(request, "app/dashboard/listar_solicitudes.html", {
         'tareas_externo': tareas_externo,
         'estado_selec': estado_selec,
-        'es_superusuario': is_superuser,
         'es_externo': 'Externo' in user_roles,
         'es_supervisor': 'Supervisor' in user_roles,
         'es_operario': 'Operario' in user_roles,
     })
+
+
+# Vistas de Externo (Solicitud, Presupuesto, reportes, feedbacks)
+@login_required
+def detalle_solicitud(request, solicitud_id):
+    solicitud = get_object_or_404(SolicitudExterno, id=solicitud_id)
+    return render(request, 'app/detalle_externo/solicitud.html', {'solicitud': solicitud})
+
+@login_required
+def detalle_presupuesto(request, presupuesto_id):
+    presupuesto = get_object_or_404(PresupuestoExterno, id=presupuesto_id)
+    return render(request, 'app/detalle_externo/presupuesto_ext.html', {'presupuesto': presupuesto})
+
+@login_required
+def detalle_reporte_ex(request, reporte_ex_id):
+    reporte = get_object_or_404(ExternoReporte, id=reporte_ex_id)
+    return render(request, 'app/detalle_externo/reporte_ext.html', {'reporte': reporte})
+
+@login_required
+def detalle_feedbacks_ex(request, feedback_ex_id):
+    feedback = get_object_or_404(ExternoFeedback, id=feedback_ex_id)
+    return render(request, 'app/detalle_externo/feedback_ext.html', {'feedback': feedback})
