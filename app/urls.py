@@ -2,13 +2,15 @@ from django.urls import path
 from .views import *
 from django.conf import settings
 from django.conf.urls.static import static
+from axes.decorators import axes_dispatch
+
 
 urlpatterns = [
     path('', home, name="home"),
     path('base/', base, name="base"),
     path('logout/', cerrar_session, name="logout"),
 
-    path('auth/login/', iniciar_session, name="login"),
+    path('auth/login/', axes_dispatch(iniciar_session), name="login"),
     path('auth/registro/', registro, name="registro"),
     path('auth/roles/', roles, name='roles'),
 

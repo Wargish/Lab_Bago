@@ -37,15 +37,27 @@
           {% endif %}
         </div>
 
+        <!-- reCAPTCHA Field -->
+        <div class="mb-4">
+          <label for="captcha">Verificación reCAPTCHA</label>
+          {{ form.captcha }}
+          {% if form.captcha.errors %}
+            <div class="text-danger">
+              {{ form.captcha.errors }}
+            </div>
+          {% endif %}
+        </div>
+
         <div class="form-check mb-4">
           <input class="form-check-input" type="checkbox" id="rememberMe" />
           <label class="form-check-label" for="rememberMe">Recordarme</label>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block" action="{% url 'home' %}">Iniciar Sesión</button>
+        <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
       </form>
     </div>
   </div>
 </div>
+
 {% endblock content %}
 

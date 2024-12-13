@@ -75,14 +75,20 @@ def iniciar_session(request):
                 login(request, user)
                 sweetify.sweetalert(request, icon='success', title='Bienvenido', text='Inicio de sesión exitoso')
                 return redirect('home')
+            else:
+                sweetify.error(request, 'Error', text='Usuario o contraseña incorrectos.')
         else:
-            sweetify.error(request, 'Error', text='Usuario o contraseña incorrectos.')
+            if 'captcha' in form.errors:
+                sweetify.error(request, 'Error', text='Captcha inválido. Por favor, inténtalo de nuevo.')
+            else:
+                sweetify.error(request, 'Error', text='Usuario o contraseña incorrectos.')
     else:
         form = LoginForm()
     return render(request, "app/auth/login.html", {'form': form})
 
 def cerrar_session(request):
     logout(request)
+    sweetify.sweetalert(request, icon='success', title='Sesión cerrada', text='Has cerrado sesión exitosamente.')
     return redirect('home')
 
 @login_required
@@ -117,7 +123,7 @@ def roles(request):
 
 # Vistas de CRUD y movimiento de información
 @login_required
-@group_required('Operario', 'Técnico', 'Externo', 'Supervisor')
+@group_required('Operario','Supervisor')
 def informe(request):
     if request.method == 'POST':
         form = InformeForm(request.POST, request.FILES)
@@ -134,7 +140,7 @@ def informe(request):
     return render(request, "app/infraestructura/Informe.html", {'form': form})
 
 @login_required
-@group_required('Operario', 'Técnico', 'Externo', 'Supervisor')
+@group_required('Técnico')
 def reporte(request):
     tarea_id = request.GET.get('tarea_id')
     if not tarea_id:
@@ -168,7 +174,7 @@ def reporte(request):
     })  
 
 @login_required
-@group_required('Operario', 'Técnico', 'Externo', 'Supervisor')
+@group_required('Operario', 'Supervisor')
 def feedback(request):
     tarea_id = request.GET.get('tarea_id')
     if not tarea_id:
@@ -543,6 +549,7 @@ def listar_solicitudes(request):
     return render(request, "app/dashboard/listar_solicitudes.html", {
         'tareas_externo': tareas_externo,
         'estado_selec': estado_selec,
+        'es_superusuario': is_superuser,
         'es_externo': 'Externo' in user_roles,
         'es_supervisor': 'Supervisor' in user_roles,
         'es_operario': 'Operario' in user_roles,

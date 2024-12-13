@@ -201,4 +201,3 @@ class ExternoFeedback(models.Model):
 
     def __str__(self):
         return f"Feedback de {self.creado_por.username} - {self.fecha_creacion}"
-    

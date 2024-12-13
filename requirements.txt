@@ -5,3 +5,5 @@ plotly
 pandas
 sweetify
 xhtml2pdf
+django-axes
+django-recaptcha
