@@ -2,13 +2,15 @@ from django.urls import path
 from .views import *
 from django.conf import settings
 from django.conf.urls.static import static
+from axes.decorators import axes_dispatch
+
 
 urlpatterns = [
     path('', home, name="home"),
     path('base/', base, name="base"),
     path('logout/', cerrar_session, name="logout"),
 
-    path('auth/login/', iniciar_session, name="login"),
+    path('auth/login/', axes_dispatch(iniciar_session), name="login"),
     path('auth/registro/', registro, name="registro"),
     path('auth/roles/', roles, name='roles'),
 
@@ -17,7 +19,7 @@ urlpatterns = [
     path('infraestructura/reporte', reporte, name='reporte'),
     path('infraestructura/feedback', feedback, name='feedback'),
     path('infraestructura/crear_solicitud/', crear_solicitud_externo, name='crear_solicitud'),
-    path('infraestructura/presupuesto/<int:solicitud_id>/', cargar_presupuesto, name='gestionar_presupuesto'),
+    path('infraestructura/presupuesto/<int:tarea_id>/', cargar_presupuesto, name='gestionar_presupuesto'),
     path('api/user/<int:user_id>/', obtener_datos_usuario, name='obtener_datos_usuario'),
     path('dashboard/listar_solicitudes', listar_solicitudes, name='listar_solicitudes'),
 
@@ -36,10 +38,15 @@ urlpatterns = [
     path('detalle/reporte/<int:reporte_id>/', detalle_reporte, name='detalle_reporte'),
     path('detalle/feedback/<int:feedback_id>/', detalle_feedback, name='detalle_feedback'),
 
+    path('detalle_externo/solicitud/<int:solicitud_id>/', detalle_solicitud, name='detalle_solicitud'),
+    path('detalle_externo/presupuesto_ext/<int:presupuesto_id>/', detalle_presupuesto, name='detalle_presupuesto'),
+    path('detalle_externo/reporte_ext/<int:reporte_ex_id>/', detalle_reporte_ex, name='detalle_reporte_ext'),
+    path('detalle_externo/feedback_ext/<int:feedback_ex_id>/', detalle_feedbacks_ex, name='detalle_feedback_ext'),
+
     path('error404/', error404, name='error404'),
 
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

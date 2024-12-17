@@ -1,0 +1,76 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="container mt-9 text-white">
+    <h2 class="mb-4">Crear Reporte</h2>
+    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+    
+        <!-- Campo Tarea (Oculto) -->
+        {{ form.tarea }}
+        
+        <!-- Mostrar Tarea -->
+        <div class="md-form">
+            <label for="tarea">Tarea:</label>
+            <input type="text" id="tarea" class="form-control" value="{{ tarea }}" readonly>
+        </div>
+    
+        <!-- Contenido -->
+        <div class="md-form">
+            {{ form.contenido.label_tag }}
+            {{ form.contenido }}
+            <div class="invalid-feedback">
+                {% for error in form.contenido.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Imagen -->
+        <div class="md-form">
+            {{ form.imagen.label_tag }}
+            {{ form.imagen }}
+            <div class="invalid-feedback">
+                {% for error in form.imagen.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            <div>
+                <img id="imagen-preview" src="#" alt="Vista previa de la imagen" style="display: none; max-width: 100%; height: auto; margin-top: 10px;">
+            </div>
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+</div>
+
+
+
+<script>
+    const imageInput = document.getElementById('id_imagen');  // Seleccionamos el input de archivo
+    const imagePreview = document.getElementById('imagen-preview');  // Vista previa de la imagen
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];  // Obtenemos el archivo seleccionado
+            if (file) {
+                const fileType = file.type.split('/')[0];  // Verificamos que sea una imagen
+                if (fileType === 'image') {
+                    const reader = new FileReader();  // Creamos un nuevo FileReader
+                    reader.onload = function (e) {
+                        // Cuando el archivo se haya leído, lo asignamos como src del preview
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';  // Mostramos la imagen previa
+                    };
+                    reader.readAsDataURL(file);  // Leemos el archivo como una URL de datos
+                } else {
+                    // Si no es una imagen, mostramos un mensaje de error
+                    alert('Tipo de archivo no válido. Por favor selecciona una imagen.');
+                    imageInput.value = '';  // Limpiamos el campo
+                    imagePreview.style.display = 'none';  // Ocultamos la vista previa
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

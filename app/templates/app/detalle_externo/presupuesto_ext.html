@@ -1,0 +1,18 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header">
+        <a href="{% url 'listar_solicitudes' %}" class="btn btn-secondary">
+            &#8592; Volver a Listar Tareas
+        </a>
+        <h1>Detalle Presupuesto</h1>
+    </div>
+    <div class="card-body">
+        <p>Estado: {{ presupuesto.estado }}</p>
+        <p>Fecha de Asistencia: {{ presupuesto.fecha_asistencia|date:"d-m-Y" }}</p>
+        <p>Mensaje: {{ presupuesto.mensaje }}</p>
+        <p>Archivo: <a href="{{ presupuesto.archivo.url }}" target="_blank">Ver Archivo</a></p>
+    </div>
+</div>
+{% endblock %}

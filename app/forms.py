@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from .models import *
-from django.core.exceptions import ValidationError
-
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
 class RegistroForm(forms.ModelForm):
     username = forms.CharField(
@@ -36,9 +36,10 @@ class RegistroForm(forms.ModelForm):
             'required': 'Este campo es obligatorio.',
         }
     )
+        
     class Meta:
         model = User
-        fields = ['username', 'email' , 'password']
+        fields = ['username', 'email', 'password']
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -46,7 +47,7 @@ class RegistroForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-    
+
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
@@ -69,6 +70,9 @@ class LoginForm(AuthenticationForm):
             'required': 'Este campo es obligatorio.',
         }
     )
+    
+    # Adding ReCAPTCHA to the Login Form
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
 
 
 class InformeForm(forms.ModelForm):

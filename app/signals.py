@@ -125,7 +125,7 @@ def send_correo_solicitud(solicitud):
 
 @receiver(post_save, sender=PresupuestoExterno)
 def enviar_correo_presupuesto(sender, instance, created, **kwargs):
-    solicitud = instance.solicitud
+    solicitud = instance.tarea_externo.solicitud
     externo_email = solicitud.externo.email
     asunto = ''
     mensaje = ''

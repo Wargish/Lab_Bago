@@ -26,7 +26,7 @@ LOGIN_REDIRECT_URL = '/home/'
 SECRET_KEY = 'django-insecure-6y0lrv#8id)*7+2&+@r&5=522d)mo159p=_bgi6f)2jvhu04f%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'sweetify',
+    'axes',
+    'django_recaptcha',
 
 ]
 
@@ -53,7 +55,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',
 ]
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'axes.backends.AxesStandaloneBackend',
+]
+
+
+
 
 ROOT_URLCONF = 'Lab_Bago.urls'
 
@@ -99,6 +111,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 12,  # Contraseña de al menos 12 caracteres
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -106,7 +121,26 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 12,  # Asegura contraseñas largas
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {
+            'user_attributes': ['username', 'email'],  # Evita que la contraseña sea parecida al nombre de usuario o correo
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.UppercaseValidator',  # Asegura al menos una mayúscula
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.SpecialCharacterValidator',  # Asegura al menos un carácter especial
+    },
 ]
+
 
 
 # Internationalization
@@ -132,12 +166,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-# Configuración de archivos estáticos (CSS, JavaScript, Imágenes)
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'app/static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# SESSION_COOKIE_SECURE = True  # Solo se envía a través de HTTPS
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Cierra la sesión al cerrar el navegador
 
 
 # Default primary key field type
@@ -158,3 +191,60 @@ EMAIL_HOST_USER = 'bago.emailtest@gmail.com'  # Tu correo de Gmail
 EMAIL_HOST_PASSWORD = 'orsn ouqw ktuj sxcv'  # La contraseña de la cuenta
 EMAIL_USE_TLS = True  # Usamos TLS para mayor seguridad
 DEFAULT_FROM_EMAIL = 'bago.emailtest@gmail.com'  # El correo que enviará los mensajes
+
+
+# Key y Secret de Google reCAPTCHA
+RECAPTCHA_PUBLIC_KEY = '6LcVpJoqAAAAAOY9_u-ep22mSQzIoPbDgbLk7Zrz'
+RECAPTCHA_PRIVATE_KEY = '6LcVpJoqAAAAABuXx2QBkXgW_5EBYQi-twAj4gGt'
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
+
+# Intentos de inicio de sesión
+AXES_ENABLED = True  # Habilitar protección contra intentos fallidos
+AXES_FAILURE_LIMIT = 5  # Número de intentos fallidos antes de bloquear temporalmente
+AXES_COOLOFF_TIME = 1  # Tiempo en horas que debe pasar antes de permitir nuevos intentos después del límite
+AXES_LOCKOUT_BY_COMBINATION_USER_AND_IP = True  # Bloquear IP por usuario e IP combinados
+
+
+
+# Seguridad
+#SECURE_SSL_REDIRECT = True
+#SECURE_HSTS_SECONDS = 31536000  # 1 año recomendado
+#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#SECURE_HSTS_PRELOAD = True
+#SECURE_BROWSER_XSS_FILTER = True
+#SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Cookies seguras
+SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Cierra la sesión al cerrar el navegador
+
+# Referer Policy
+#SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+
+# Configuración de LOGGING
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'security.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.security': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+}
