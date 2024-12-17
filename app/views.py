@@ -55,11 +55,12 @@ def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            form.save()
-            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Registro exitoso', text='Usuario creado correctamente')
-            return redirect('home')
-        else:
-            sweetify.error(request, 'Error', text='Error en el formulario.', persistent='Ok')
+            try:
+                form.save()
+                sweetify.sweetalert(request, icon='success', persistent='Ok', title='Registro exitoso', text='Usuario creado correctamente')
+                return redirect('login')
+            except Exception as e:
+                form.add_error(None, f'Hubo un problema al crear el usuario: {str(e)}')
     else:
         form = RegistroForm()
     return render(request, "app/auth/registro.html", {'form': form})
@@ -175,13 +176,8 @@ def reporte(request):
 
 @login_required
 @group_required('Operario', 'Supervisor')
-def feedback(request):
-    tarea_id = request.GET.get('tarea_id')
-    if not tarea_id:
-        return redirect('listar_tareas')
-    
+def feedback(request, tarea_id):
     tarea = get_object_or_404(Tarea, id=tarea_id)
-
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
         if form.is_valid():
@@ -190,17 +186,12 @@ def feedback(request):
             feedback.creado_por = request.user
             feedback.save()
             sweetify.sweetalert(request, icon='success', persistent='Ok', title='Feedback creado', text='Feedback creado correctamente')
-            return redirect('home')
+            return redirect('listar_solicitudes')
         else:
-            sweetify.error(request, 'Error', text='Error en el formulario.', persistent='Ok')
+            sweetify.error(request, 'Error', text='Rellene los campos solicitados.')
     else:
         form = FeedbackForm(initial={'tarea': tarea})
-
-    return render(request, "app/infraestructura/feedback.html", {
-        'form': form,
-        'tarea': tarea,
-        'tarea_id': tarea.id
-    })
+    return render(request, 'app/infraestructura/feedback.html', {'form': form, 'tarea': tarea})
 
 
 # Vistas de notificaciones
@@ -555,6 +546,46 @@ def listar_solicitudes(request):
         'es_operario': 'Operario' in user_roles,
     })
 
+@login_required
+@group_required('Externo')
+def reporte_externo(request, tarea_id):
+    tarea = get_object_or_404(TareaExterno, id=tarea_id)
+    if request.method == 'POST':
+        form = ExternoReporteForm(request.POST, request.FILES)
+        if form.is_valid():
+            reporte = form.save(commit=False)
+            reporte.tarea_externo = tarea
+            reporte.creado_por = request.user
+            reporte.save()
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Reporte creado', text='Reporte creado correctamente')
+            return redirect('listar_solicitudes')
+        else:
+            # Print form errors to the console for debugging
+            print(form.errors)
+            sweetify.error(request, 'Error', text='Rellene los campos solicitados.')
+    else:
+        form = ExternoReporteForm(initial={'tarea_externo': tarea})
+    return render(request, 'app/infraestructura/reporte_externo.html', {'form': form, 'tarea': tarea})
+
+
+@login_required
+@group_required('Operario', 'Supervisor')
+def feedback_externo(request, tarea_id):
+    tarea = get_object_or_404(TareaExterno, id=tarea_id)
+    if request.method == 'POST':
+        form = ExternoFeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save(commit=False)
+            feedback.tarea_externo = tarea
+            feedback.creado_por = request.user
+            feedback.save()
+            sweetify.sweetalert(request, icon='success', persistent='Ok', title='Feedback creado', text='Feedback creado correctamente')
+            return redirect('listar_solicitudes')
+        else:
+            sweetify.error(request, 'Error', text='Rellene los campos solicitados.')
+    else:
+        form = ExternoFeedbackForm(initial={'tarea_externo': tarea})
+    return render(request, 'app/infraestructura/feedback_externo.html', {'form': form, 'tarea': tarea})
 
 # Vistas de Externo (Solicitud, Presupuesto, reportes, feedbacks)
 @login_required

@@ -86,7 +86,7 @@
                                     {% if tarea.feedbacktarea %}
                                         <a href="{% url 'detalle_feedback' tarea.feedbacktarea.id %}" class="btn btn-info btn-sm">Ver Feedback</a>
                                     {% else %}
-                                        <a href="{% url 'feedback' %}?tarea_id={{ tarea.id }}" class="btn btn-info">Crear Feedback</a>
+                                        <a href="{% url 'feedback' tarea.id %}" class="btn btn-info">Crear Feedback</a>
                                     {% endif %}
                                 {% else %}
                                     En revisión

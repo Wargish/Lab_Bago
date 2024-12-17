@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
         'OPTIONS': {
-            'min_length': 12,  # Contraseña de al menos 12 caracteres
+            'min_length': 8,  # Contraseña de al menos 12 caracteres
         }
     },
     {
@@ -122,22 +122,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 12,  # Asegura contraseñas largas
-        }
+        'NAME': 'app.validators.UppercaseValidator',  # Asegura al menos una mayúscula
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-        'OPTIONS': {
-            'user_attributes': ['username', 'email'],  # Evita que la contraseña sea parecida al nombre de usuario o correo
-        }
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.UppercaseValidator',  # Asegura al menos una mayúscula
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.SpecialCharacterValidator',  # Asegura al menos un carácter especial
+        'NAME': 'app.validators.SpecialCharacterValidator',  # Asegura al menos un carácter especial
     },
 ]
 

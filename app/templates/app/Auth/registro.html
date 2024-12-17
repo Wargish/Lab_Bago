@@ -7,10 +7,22 @@
       <form method="POST" action="{% url 'registro' %}">
         {% csrf_token %}
 
+        <!-- Bloque de mensajes de error -->
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          <ul>
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
         <div class="form-outline-login mb-4">
           <i class="fas fa-user prefix" aria-hidden="true"></i>
           <label for="id_username">Nombre de usuario</label>
-          {{ form.username }} {% if form.username.errors %}
+          {{ form.username }}
+          {% if form.username.errors %}
           <div class="text-danger">{{ form.username.errors }}</div>
           {% endif %}
         </div>
@@ -18,7 +30,8 @@
         <div class="form-outline-login mb-4">
           <i class="fas fa-envelope prefix" aria-hidden="true"></i>
           <label for="id_email">Correo electrónico</label>
-          {{ form.email }} {% if form.email.errors %}
+          {{ form.email }}
+          {% if form.email.errors %}
           <div class="text-danger">{{ form.email.errors }}</div>
           {% endif %}
         </div>
@@ -26,8 +39,18 @@
         <div class="form-outline-login mb-4">
           <i class="fas fa-lock prefix" aria-hidden="true"></i>
           <label for="id_password">Contraseña</label>
-          {{ form.password }} {% if form.password.errors %}
+          {{ form.password }}
+          {% if form.password.errors %}
           <div class="text-danger">{{ form.password.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-outline-login mb-4">
+          <i class="fas fa-lock prefix" aria-hidden="true"></i>
+          <label for="id_password2">Repita su Contraseña</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+          <div class="text-danger">{{ form.password2.errors }}</div>
           {% endif %}
         </div>
 

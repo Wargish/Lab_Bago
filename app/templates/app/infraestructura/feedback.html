@@ -11,19 +11,22 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const conformeRadios = document.querySelectorAll('input[name="conforme"]');
-            const comentarioField = document.querySelector('textarea[name="comentario"]').parentElement;
+            const aprobadoRadios = document.querySelectorAll('input[name="aprobado"]');
+            const comentarioField = document.querySelector('textarea[name="comentarios"]').parentElement;
             
+            // Ocultar el campo de comentario por defecto
+            comentarioField.style.display = 'none';
+
             function toggleComentarioField() {
-                const conformeValue = document.querySelector('input[name="conforme"]:checked').value;
-                if (conformeValue === 'True') {
+                const aprobadoValue = document.querySelector('input[name="aprobado"]:checked').value;
+                if (aprobadoValue === 'True') {
                     comentarioField.style.display = 'none';
                 } else {
                     comentarioField.style.display = 'block';
                 }
             }
-            
-            conformeRadios.forEach(radio => {
+
+            aprobadoRadios.forEach(radio => {
                 radio.addEventListener('change', toggleComentarioField);
             });
             toggleComentarioField();  // Inicializar el estado del campo comentario
@@ -31,6 +34,3 @@
     </script>
 </div>
 {% endblock %}
-
-
-

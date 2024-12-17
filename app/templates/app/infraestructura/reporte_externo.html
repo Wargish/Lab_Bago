@@ -6,8 +6,8 @@
     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
     
-        <!-- Campo Tarea (Oculto) -->
-        {{ form.tarea }}
+        <!-- Campo Tarea Externo (Oculto) -->
+        {{ form.tarea_externo }}
         
         <!-- Mostrar Tarea -->
         <div class="md-form">
@@ -15,12 +15,12 @@
             <input type="text" id="tarea" class="form-control" value="{{ tarea }}" readonly>
         </div>
     
-        <!-- Contenido -->
+        <!-- Descripcion -->
         <div class="md-form">
-            {{ form.contenido.label_tag }}
-            {{ form.contenido }}
+            {{ form.descripcion.label_tag }}
+            {{ form.descripcion }}
             <div class="invalid-feedback">
-                {% for error in form.contenido.errors %}
+                {% for error in form.descripcion.errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
             </div>
@@ -43,8 +43,6 @@
         <button type="submit" class="btn btn-primary">Enviar</button>
     </form>
 </div>
-
-
 
 <script>
     const imageInput = document.getElementById('id_imagen');  // Seleccionamos el input de archivo

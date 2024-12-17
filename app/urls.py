@@ -17,16 +17,18 @@ urlpatterns = [
 
     path('infraestructura/Informe', informe, name='Informe'),
     path('infraestructura/reporte', reporte, name='reporte'),
-    path('infraestructura/feedback', feedback, name='feedback'),
+    path('infraestructura/feedback/<int:tarea_id>/', feedback, name='feedback'),
+
     path('infraestructura/crear_solicitud/', crear_solicitud_externo, name='crear_solicitud'),
     path('infraestructura/presupuesto/<int:tarea_id>/', cargar_presupuesto, name='gestionar_presupuesto'),
+    path('infraestructura/reporte_externo/<int:tarea_id>/', reporte_externo, name='reporte_externo'),
+    path('infraestructura/feedback_externo/<int:tarea_id>/', feedback_externo, name='feedback_externo'),
+
     path('api/user/<int:user_id>/', obtener_datos_usuario, name='obtener_datos_usuario'),
-    path('dashboard/listar_solicitudes', listar_solicitudes, name='listar_solicitudes'),
-
-
 
     path('dashboard/graficos', graficos, name='graficos'),
     path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
+    path('dashboard/listar_solicitudes', listar_solicitudes, name='listar_solicitudes'),
 
     path('notificaciones/', notificaciones, name='notificaciones'),
     path('notificaciones/<int:notificaciones_id>/', notificaciones_id , name='notificaciones_id'),

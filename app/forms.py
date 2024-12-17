@@ -4,13 +4,13 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import *
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
+from django.contrib.auth.password_validation import validate_password
 
 class RegistroForm(forms.ModelForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ingresa tu usuario',
-            'required': 'required'
+            'placeholder': 'Ingresa tu usuario'
         }),
         error_messages={
             'required': 'Este campo es obligatorio.',
@@ -19,8 +19,7 @@ class RegistroForm(forms.ModelForm):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ingresa tu correo electrónico',
-            'required': 'required'
+            'placeholder': 'Ingresa tu correo electrónico'
         }),
         error_messages={
             'required': 'Este campo es obligatorio.',
@@ -29,14 +28,38 @@ class RegistroForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Ingrese su Contraseña',
-            'required': 'required'
+            'placeholder': 'Ingrese su Contraseña'
         }),
         error_messages={
             'required': 'Este campo es obligatorio.',
         }
     )
-        
+
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirme su Contraseña'
+        }),
+        error_messages={
+            'required': 'Este campo es obligatorio.',
+        }
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password2 = cleaned_data.get('password2')
+
+        if password != password2:
+            raise forms.ValidationError('Las contraseñas no coinciden.')
+
+        try:
+            validate_password(password2)
+        except forms.ValidationError as e:
+            raise forms.ValidationError(f'Error en la contraseña: {"; ".join(e.messages)}')
+
+        return cleaned_data
+
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
@@ -121,11 +144,11 @@ class FeedbackForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        conforme = cleaned_data.get('conforme')
-        comentario = cleaned_data.get('comentario')
+        conforme = cleaned_data.get('aprobado')
+        comentario = cleaned_data.get('comentarios')
 
         if conforme is False and not comentario:
-            self.add_error('comentario', 'Este campo es obligatorio si no está conforme.')
+            self.add_error('comentarios', 'Este campo es obligatorio si no está conforme.')
 
         return cleaned_data
     
@@ -179,7 +202,7 @@ class TareaExternoForm(forms.ModelForm):
 
 
 
-class ExternoReporte(forms.ModelForm):
+class ExternoReporteForm(forms.ModelForm):
     class Meta:
         model = ExternoReporte
         fields = ['tarea_externo', 'descripcion', 'imagen']
@@ -189,7 +212,7 @@ class ExternoReporte(forms.ModelForm):
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
-class ExternoFeedback(forms.ModelForm):
+class ExternoFeedbackForm(forms.ModelForm):
     class Meta:
         model = ExternoFeedback
         fields = ['tarea_externo', 'aprobado', 'comentario']
@@ -198,3 +221,14 @@ class ExternoFeedback(forms.ModelForm):
             'aprobado': forms.RadioSelect(choices=[(True, 'Sí'), (False, 'No')]),
             'comentario': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        conforme = cleaned_data.get('aprobado')
+        comentario = cleaned_data.get('comentario')
+
+        if conforme is False and not comentario:
+            self.add_error('comentario', 'Este campo es obligatorio si no está conforme.')
+
+        return cleaned_data
+    
