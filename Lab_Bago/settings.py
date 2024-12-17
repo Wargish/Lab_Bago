@@ -26,7 +26,7 @@ LOGIN_REDIRECT_URL = '/home/'
 SECRET_KEY = 'django-insecure-6y0lrv#8id)*7+2&+@r&5=522d)mo159p=_bgi6f)2jvhu04f%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'sweetify',
     'axes',
     'django_recaptcha',
+    'huey.contrib.djhuey',
 
 ]
 

@@ -36,9 +36,6 @@ def group_required(*group_names):
 def base(request):
     return render(request, "app/base.html")
 
-def error404(request):
-    return render(request, "app/404.html")
-
 def home(request):
     username = None
     grupos = []
@@ -218,6 +215,7 @@ def marcar_notificacion_leida(request, notificacion_id):
 
 # Vistas de tareas y roles especiales
 @login_required
+@group_required('Operario', 'Supervisor', 'Técnico')
 def listar_tareas(request):
     estado_selec = request.GET.get('estado', 'todos')
     estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada', 'Archivada']
@@ -404,16 +402,19 @@ def graficos(request):
 
 # Vistas de detalles (informes, reportes, feedbacks)
 @login_required
+@group_required('Operario', 'Supervisor', 'Técnico')
 def detalle_informe(request, informe_id):
     informe = get_object_or_404(Informe, id=informe_id)
     return render(request, 'app/detalle/informe.html', {'informe': informe})
 
 @login_required
+@group_required('Operario', 'Supervisor', 'Técnico')
 def detalle_reporte(request, reporte_id):
     reporte = get_object_or_404(ReporteTarea, id=reporte_id)
     return render(request, 'app/detalle/reporte.html', {'reporte': reporte})
 
 @login_required
+@group_required('Operario', 'Supervisor', 'Técnico')
 def detalle_feedback(request, feedback_id):
     feedback = get_object_or_404(FeedbackTarea, id=feedback_id)
     return render(request, 'app/detalle/feedback.html', {'feedback': feedback})
@@ -519,6 +520,7 @@ def cargar_presupuesto(request, tarea_id):
     return render(request, 'app/infraestructura/presupuesto.html', {'form': form, 'tarea': tarea})
 
 @login_required
+@group_required('Operario', 'Supervisor', 'Externo')
 def listar_solicitudes(request):
     estado_selec = request.GET.get('estado', 'todos')
     estados_validos = ['en_espera', 'en_curso', 'completada', 'rechazada']
@@ -607,3 +609,22 @@ def detalle_reporte_ex(request, reporte_ex_id):
 def detalle_feedbacks_ex(request, feedback_ex_id):
     feedback = get_object_or_404(ExternoFeedback, id=feedback_ex_id)
     return render(request, 'app/detalle_externo/feedback_ext.html', {'feedback': feedback})
+
+
+
+
+
+
+
+
+
+
+
+# Vistas de error
+def error_404(request):
+    return render(request, "app/error/404.html", status=404)
+
+
+
+
+
