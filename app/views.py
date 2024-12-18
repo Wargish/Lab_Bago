@@ -1,6 +1,5 @@
 # Importaciones estándar de Django
 from django.shortcuts import render, redirect, get_object_or_404,HttpResponseRedirect, HttpResponse
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
@@ -15,6 +14,7 @@ import plotly.express as px
 import pandas as pd
 from datetime import timedelta
 
+# Importaciones para PDF
 from xhtml2pdf import pisa
 from io import BytesIO
 from reportlab.pdfgen import canvas
@@ -51,6 +51,7 @@ def home(request):
 
 
 # Vistas de autenticación y gestión de usuarios
+"""
 def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -91,7 +92,7 @@ def cerrar_session(request):
     logout(request)
     sweetify.sweetalert(request, icon='success', title='Sesión cerrada', text='Has cerrado sesión exitosamente.')
     return redirect('home')
-
+"""
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def roles(request):
@@ -121,7 +122,7 @@ def roles(request):
 
     return render(request, "app/auth/roles.html", {'usuarios': usuarios, 'roles': roles, 'tareas_sin_tecnico': tareas_sin_tecnico})
 
-
+"""
 # Vistas de CRUD y movimiento de información
 @login_required
 @group_required('Operario','Supervisor')
@@ -193,7 +194,9 @@ def feedback(request, tarea_id):
         form = FeedbackForm(initial={'tarea': tarea})
     return render(request, 'app/infraestructura/feedback.html', {'form': form, 'tarea': tarea})
 
+"""
 
+"""
 # Vistas de notificaciones
 @login_required
 def notificaciones(request):
@@ -215,7 +218,8 @@ def marcar_notificacion_leida(request, notificacion_id):
         return redirect('detalle_informe', informe_id=notificacion.informe.id)
     else:
         return redirect('home')
-
+"""
+"""
 # Vistas de tareas y roles especiales
 @login_required
 def listar_tareas(request):
@@ -248,7 +252,7 @@ def listar_tareas(request):
         'es_operario': 'Operario' in user_roles,
     })
 
-
+"""
 @login_required
 @user_passes_test(lambda u: u.is_superuser or u.groups.filter(name='Supervisor').exists())
 def graficos(request):
@@ -401,7 +405,7 @@ def graficos(request):
     return render(request, "app/dashboard/graficos.html", context)
 
 
-
+"""
 # Vistas de detalles (informes, reportes, feedbacks)
 @login_required
 def detalle_informe(request, informe_id):
@@ -417,8 +421,8 @@ def detalle_reporte(request, reporte_id):
 def detalle_feedback(request, feedback_id):
     feedback = get_object_or_404(FeedbackTarea, id=feedback_id)
     return render(request, 'app/detalle/feedback.html', {'feedback': feedback})
-
-
+"""
+"""
 def generar_pdf_peticion(solicitud):
     # Renderizar el HTML con los datos de la solicitud
     html = render_to_string('app/plantillas/pdf.html', {'solicitud': solicitud})
@@ -439,9 +443,9 @@ def generar_pdf_peticion(solicitud):
     return buffer.getvalue()
 
 def link_callback(uri, rel):
-    """
-    Convert HTML URIs to absolute system paths so xhtml2pdf can access those resources
-    """
+
+    #Convert HTML URIs to absolute system paths so xhtml2pdf can access those resources
+
     sUrl = settings.STATIC_URL  # Typically /static/
     sRoot = settings.STATIC_ROOT  # Typically /home/userX/project_static/
     mUrl = settings.MEDIA_URL  # Typically /media/
@@ -494,10 +498,6 @@ def obtener_datos_usuario(request, user_id):
     }
     return JsonResponse(data)
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import PresupuestoExternoForm
-from .models import TareaExterno
 
 @login_required
 @group_required('Operario', 'Supervisor')
@@ -607,3 +607,5 @@ def detalle_reporte_ex(request, reporte_ex_id):
 def detalle_feedbacks_ex(request, feedback_ex_id):
     feedback = get_object_or_404(ExternoFeedback, id=feedback_ex_id)
     return render(request, 'app/detalle_externo/feedback_ext.html', {'feedback': feedback})
+
+"""
