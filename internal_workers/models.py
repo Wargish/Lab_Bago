@@ -100,7 +100,7 @@ class ReporteTarea(models.Model):
 class FeedbackTarea(models.Model):
     tarea = models.OneToOneField(Tarea, on_delete=models.CASCADE)
     aprobado = models.BooleanField()
-    comentarios = models.TextField(null=True, blank=True)
+    comentarios = models.TextField(null=False, blank=True, default="Trabajo aprobado")
     creado_en = models.DateTimeField(auto_now_add=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 

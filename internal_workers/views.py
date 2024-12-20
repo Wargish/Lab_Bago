@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404,HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
-from ..app.signals import *
+from app.signals import *
 import sweetify
 import os
 # Importaciones locales (formularios y modelos)
@@ -67,7 +67,7 @@ def reporte(request):
             return redirect('listar_tareas')
         else:
             # Si el formulario no es válido, muestra los errores
-            sweetify.error(request, 'Error', text='Error en el formulario.', persistent='Ok')
+            sweetify.error(request, 'Error', text='Debe rellenar todos los campos.', persistent='Ok')
     else:
         form = ReporteForm(initial={'tarea': tarea})
 
@@ -75,7 +75,7 @@ def reporte(request):
         'form': form,
         'tarea': tarea,
         'tarea_id': tarea.id
-    })  
+    })
 
 @login_required
 @group_required('Operario', 'Supervisor')
@@ -89,7 +89,7 @@ def feedback(request, tarea_id):
             feedback.creado_por = request.user
             feedback.save()
             sweetify.sweetalert(request, icon='success', persistent='Ok', title='Feedback creado', text='Feedback creado correctamente')
-            return redirect('listar_solicitudes')
+            return redirect('listar_tareas')
         else:
             sweetify.error(request, 'Error', text='Rellene los campos solicitados.')
     else:

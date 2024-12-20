@@ -7,3 +7,5 @@ sweetify
 xhtml2pdf
 django-axes
 django-recaptcha
+django-crispy-forms
+crispy-bootstrap5

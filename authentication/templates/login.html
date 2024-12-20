@@ -6,52 +6,53 @@
     <div class="card-body">
       <h4 class="card-title text-center">Iniciar Sesión</h4>
 
-      {% if form.non_field_errors %}
+        
+        {% if form.non_field_errors %}
         <div class="alert alert-danger" role="alert">
           {{ form.non_field_errors }}
         </div>
-      {% endif %}
+        {% endif %}
+        
+        <form method="POST">
+          {% csrf_token %}
+          
+          <div class="form-outline-login mb-4">
+            <i class="fas fa-user prefix"></i>
+            <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <div class="text-danger">
+                {{ form.username.errors }}
+              </div>
+            {% endif %}
+          </div>
 
-      <form method="POST">
-        {% csrf_token %}
+          <div class="form-outline-login mb-4">
+            <i class="fas fa-lock prefix"></i>
+            <label for="{{ form.password.id_for_label }}">Contraseña</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+              <div class="text-danger">
+                {{ form.password.errors }}
+              </div>
+            {% endif %}
+          </div>
 
-        <div class="form-outline-login mb-4">
-          <i class="fas fa-user prefix"></i>
-          <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
-          {{ form.username }}
-          {% if form.username.errors %}
-            <div class="text-danger">
-              {{ form.username.errors }}
-            </div>
-          {% endif %}
-        </div>
-
-        <div class="form-outline-login mb-4">
-          <i class="fas fa-lock prefix"></i>
-          <label for="{{ form.password.id_for_label }}">Contraseña</label>
-          {{ form.password }}
-          {% if form.password.errors %}
-            <div class="text-danger">
-              {{ form.password.errors }}
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- reCAPTCHA Field -->
-        <div class="mb-4">
-          <label for="captcha">Verificación reCAPTCHA</label>
-          {{ form.captcha }}
-          {% if form.captcha.errors %}
-            <div class="text-danger">
-              {{ form.captcha.errors }}
-            </div>
-          {% endif %}
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
-      </form>
+          <!-- reCAPTCHA Field -->
+          <div class="mb-4">
+            <label for="captcha">Verificación reCAPTCHA</label>
+            {{ form.captcha }}
+            {% if form.captcha.errors %}
+              <div class="text-danger">
+                {{ form.captcha.errors }}
+              </div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
 {% endblock content %}
 

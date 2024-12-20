@@ -102,10 +102,6 @@ def obtener_datos_usuario(request, user_id):
     }
     return JsonResponse(data)
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import PresupuestoExternoForm
-from .models import TareaExterno
 
 @login_required
 @group_required('Operario', 'Supervisor')
@@ -121,6 +117,8 @@ def cargar_presupuesto(request, tarea_id):
 
             sweetify.sweetalert(request, icon='success', persistent='Ok', title='Presupuesto creado', text='Presupuesto creado correctamente')
             return redirect('listar_solicitudes')  # Cambiar por la vista adecuada
+        else:
+            sweetify.error(request, 'Error', text='Rellene los campos solicitados.')
     else:
         form = PresupuestoExternoForm()
 

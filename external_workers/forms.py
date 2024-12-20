@@ -27,6 +27,8 @@ class SolicitudExternoForm(forms.ModelForm):
             }
 
 
+from django.core.exceptions import ValidationError
+
 class PresupuestoExternoForm(forms.ModelForm):
     class Meta:
         model = PresupuestoExterno
@@ -36,6 +38,16 @@ class PresupuestoExternoForm(forms.ModelForm):
             'fecha_asistencia': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'estado': forms.Select(attrs={'id': 'id_estado'}),
         }
+        error_messages={
+            'required': 'Este campo es obligatorio.',
+        }
+
+    def clean_archivo(self):
+        archivo = self.cleaned_data.get('archivo')
+        if archivo:
+            if not archivo.name.endswith('.pdf'):
+                raise ValidationError('El archivo debe estar en formato PDF.')
+        return archivo
 
 
 class TareaExternoForm(forms.ModelForm):
@@ -47,6 +59,9 @@ class TareaExternoForm(forms.ModelForm):
             'estado': forms.Select(attrs={'class': 'form-control'}),
             'fecha_asistencia': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
+        error_messages={
+            'required': 'Este campo es obligatorio.',
+            }
 
 
 
@@ -60,6 +75,9 @@ class ExternoReporteForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+        error_messages={
+            'required': 'Este campo es obligatorio.',
+            }
 
 class ExternoFeedbackForm(forms.ModelForm):
     class Meta:
@@ -70,6 +88,9 @@ class ExternoFeedbackForm(forms.ModelForm):
             'aprobado': forms.RadioSelect(choices=[(True, 'Sí'), (False, 'No')]),
             'comentario': forms.Textarea(attrs={'class': 'form-control'}),
         }
+        error_messages={
+            'required': 'Este campo es obligatorio.',
+            }
 
     def clean(self):
         cleaned_data = super().clean()
@@ -81,3 +102,4 @@ class ExternoFeedbackForm(forms.ModelForm):
 
         return cleaned_data
     
+

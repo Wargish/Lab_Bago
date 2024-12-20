@@ -7,10 +7,10 @@ from django.contrib.auth.models import User
 class SolicitudExterno(models.Model):
     externo = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solicitudes_externas')
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    objetivo = models.CharField(max_length=200)
-    descripcion = models.TextField()
-    imagen = models.ImageField(upload_to='ex_peticiones_imagenes/', blank=True, null=True)
-    pdf_peticion = models.FileField(upload_to='ex_peticiones/', blank=True, null=True)
+    objetivo = models.CharField(max_length=200, null=False, blank=False)
+    descripcion = models.TextField(null=False, blank=False)
+    imagen = models.ImageField(upload_to='ex_peticiones_imagenes/', null=False, blank=False)
+    pdf_peticion = models.FileField(upload_to='ex_peticiones/', null=False, blank=False)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -41,14 +41,14 @@ class TareaExterno(models.Model):
 
 class PresupuestoExterno(models.Model):
     tarea_externo = models.OneToOneField(TareaExterno, on_delete=models.CASCADE, related_name='presupuesto_externo')
-    archivo = models.FileField(upload_to='ex_presupuestos/')
+    archivo = models.FileField(upload_to='ex_presupuestos/', blank=False)
     fecha_asistencia = models.DateField(null=True, blank=True)
     estado = models.CharField(
         max_length=20,
         choices=[('pendiente', 'Pendiente'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')],
         default='pendiente'
     )
-    mensaje = models.TextField(blank=True, null=True)
+    mensaje = models.TextField(blank=False, null=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
@@ -64,8 +64,8 @@ class PresupuestoExterno(models.Model):
 
 class ExternoReporte(models.Model):
     tarea_externo = models.OneToOneField(TareaExterno, on_delete=models.CASCADE, related_name='externo_reportes')
-    descripcion = models.TextField(blank=True, null=True)
-    imagen = models.ImageField(upload_to='ex_reporte_imagenes/', blank=True, null=True)
+    descripcion = models.TextField(blank=False, null=True)
+    imagen = models.ImageField(upload_to='ex_reporte_imagenes/', blank=False, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -75,8 +75,8 @@ class ExternoReporte(models.Model):
 
 class ExternoFeedback(models.Model):
     tarea_externo = models.OneToOneField(TareaExterno, on_delete=models.CASCADE, related_name='externo_feedback')
-    aprobado = models.BooleanField()
-    comentario = models.TextField()
+    aprobado = models.BooleanField(blank=False)
+    comentario = models.TextField(null=False, blank=True, default="Trabajo aprobado")
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -87,3 +87,5 @@ class ExternoFeedback(models.Model):
 
     def __str__(self):
         return f"Feedback de {self.creado_por.username} - {self.fecha_creacion}"
+    
+
