@@ -44,10 +44,19 @@
 <script>
     document.getElementById('id_externo').addEventListener('change', function() {
         var userId = this.value;
-        fetch(`/api/user/${userId}/`)
-            .then(response => response.json())
+        fetch(`/externos/api/user/${userId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 document.getElementById('email').value = data.email;
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                alert('Error al obtener los datos del usuario.');
             });
     });
 

@@ -5,6 +5,11 @@
 <div class="container mt-5" style="background-color: darkgray;">
     <h1 class="text-center">Dashboard</h1>
 
+        <!-- Botón para descargar las tareas -->
+    <div class="text-center mb-3">
+        <a href="{% url 'descargar_tareas' %}" class="btn btn-primary">Descargar Tareas</a>
+    </div>
+
     <!-- Gráfico: Tareas Completadas vs. Rechazadas -->
     <div class="graph-container mb-5">
         <h3 class="graph-title">Cantidad de Tareas por Ubicación (Aceptada vs Rechazada)</h3>

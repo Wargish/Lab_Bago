@@ -69,6 +69,7 @@ def link_callback(uri, rel):
         )
     return path
 
+
 @login_required
 @group_required('Operario', 'Supervisor')
 def crear_solicitud_externo(request):
@@ -80,19 +81,36 @@ def crear_solicitud_externo(request):
             solicitud.creado_por = request.user
             solicitud.save()
 
-            # Generar y guardar el PDF con xhtml2pdf
+            # Generar y guardar el PDF
             pdf_content = generar_pdf_peticion(solicitud)
             if pdf_content:
-                solicitud.pdf_peticion.save(f'peticion_{solicitud.id}.pdf', ContentFile(pdf_content))
-                sweetify.sweetalert(request, icon='success', persistent='Ok', title='Solicitud creada', text='Solicitud creada correctamente')
+                try:
+                    filename = f'peticion_{solicitud.id}.pdf'
+                    solicitud.pdf_peticion.save(filename, ContentFile(pdf_content), save=True)
+                    
+                    # Verificar que el archivo se guardó correctamente
+                    if os.path.exists(solicitud.pdf_peticion.path):
+                        print(f"PDF guardado exitosamente: {filename}")
+                        print(f"Ruta del PDF: {solicitud.pdf_peticion.path}")
+                        print(f"Tamaño del archivo: {os.path.getsize(solicitud.pdf_peticion.path)} bytes")
+                    else:
+                        print("Error: El archivo PDF no existe en el sistema de archivos")
+                        
+                except Exception as e:
+                    print(f"Error al guardar PDF: {str(e)}")
+                    
+                sweetify.sweetalert(request, icon='success', persistent='Ok', 
+                                  title='Solicitud creada', text='Solicitud creada correctamente')
             else:
-                sweetify.error(request, 'Error', text='Hubo un error al generar el PDF.', persistent='Ok')
-
+                sweetify.error(request, 'Error', text='Error al generar el PDF.')
             return redirect('home')
+        else:
+            sweetify.error(request, 'Error', text='Rellene los campos solicitados.')
     else:
         form = SolicitudExternoForm()
     
     return render(request, 'app/infraestructura/crear_solicitud.html', {'form': form})
+
 
 @login_required
 def obtener_datos_usuario(request, user_id):

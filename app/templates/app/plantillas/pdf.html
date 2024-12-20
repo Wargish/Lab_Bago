@@ -1,166 +1,156 @@
-
-<!-- solicitud_pdf.html -->
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
-
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Solicitud Externa</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
 
-    body {
-      margin: 0;
-    }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #9f187e;
+            padding-bottom: 20px;
+        }
 
-    body {
-      font-family: Arial, sans-serif;
-      margin-top: 0px;
-      margin-right: 0px;
-      margin-bottom: 0px;
-      margin-left: 0px;
-      padding-top: 20px;
-      padding-right: 20px;
-      padding-bottom: 20px;
-      padding-left: 20px;
-      background-color: rgb(255, 255, 255);
-      color: rgb(51, 51, 51);
-    }
+        .logo-placeholder img {
+            width: 150px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            margin-bottom: 15px;
+        }
 
-    header {
-      background-color: rgb(166, 11, 131);
-      color: white;
-      text-align: center;
-      padding-top: 20px;
-      padding-right: 0px;
-      padding-bottom: 20px;
-      padding-left: 0px;
-    }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-    header img {
-      max-height: 80px;
-      vertical-align: middle;
-    }
+        .section label {
+            font-weight: bold;
+            color: #9f187e;
+            display: block;
+            margin-bottom: 5px;
+        }
 
-    .container {
-      margin-top: 30px;
-      margin-right: 20px;
-      margin-bottom: 20px;
-      margin-left: 20px;
-    }
+        .section p {
+            margin: 5px 0;
+        }
 
-    .title {
-      font-size: 24px;
-      font-weight: bold;
-      color: rgb(166, 11, 131);
-      margin-bottom: 20px;
-    }
+        .signature {
+            margin-top: 50px;
+            text-align: center;
+        }
 
-    .section {
-      margin-bottom: 20px;
-    }
+        .signature-line {
+            width: 250px;
+            border-bottom: 1px solid #333;
+            margin: 10px auto;
+        }
 
-    .section label {
-      font-weight: bold;
-    }
+        .signature p {
+            color: #666;
+            font-size: 0.9em;
+        }
 
-    .section input,
-    .section textarea {
-      width: 100%;
-      padding-top: 8px;
-      padding-right: 8px;
-      padding-bottom: 8px;
-      padding-left: 8px;
-      margin-top: 5px;
-      border-top-width: 1px;
-      border-right-width: 1px;
-      border-bottom-width: 1px;
-      border-left-width: 1px;
-      border-top-style: solid;
-      border-right-style: solid;
-      border-bottom-style: solid;
-      border-left-style: solid;
-      border-top-color: rgb(204, 204, 204);
-      border-right-color: rgb(204, 204, 204);
-      border-bottom-color: rgb(204, 204, 204);
-      border-left-color: rgb(204, 204, 204);
-      border-image-source: initial;
-      border-image-slice: initial;
-      border-image-width: initial;
-      border-image-outset: initial;
-      border-image-repeat: initial;
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
-      border-bottom-right-radius: 4px;
-      border-bottom-left-radius: 4px;
-    }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
 
-    .section textarea {
-      height: 120px;
-    }
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #9f187e;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
 
-    .signature p {
-      display: inline-block;
-      margin-right: 50px;
-    }
+        .image-section img {
+            max-width: 100%;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
 
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 12px;
-      color: rgb(102, 102, 102);
-    }
+        @media print {
+            body {
+                background-color: white;
+                color: black;
+                padding: 10mm;
+            }
 
-    * {
-      box-sizing: border-box;
-    }
+            .container {
+                box-shadow: none;
+            }
 
-    .section p {
-      margin-top: 5px;
-      line-height: 1.5;
-    }
+            header {
+                background-color: #9f187e;
+                color: white;
+            }
 
-    .image-section img {
-      max-width: 100%;
-      margin-top: 20px;
-    }
-  </style>
+            .section {
+                page-break-inside: avoid;
+            }
 
+            footer {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <header>
-    <h1>Solicitud Externa</h1>
-  </header>
-  <div class="container">
-    <div class="title font-bold text-xl">Solicitud a {{ solicitud.externo.username }}</div>
-    <div class="section">
-      <label class="font-semibold">Objetivo:</label>
-      {{ solicitud.objetivo }}
-    </div>
-    <div class="section">
-      <label class="font-semibold">Descripción:</label>
-      {{ solicitud.descripcion }}
+    <div class="header">
+        <div class="logo-placeholder">
+            <img src="https://bagochile.cl/wp-content/uploads/2023/05/cropped-SIMBOLO-LOGO-BAGO-OFF.jpg" alt="Logo Bagó">
+        </div>
+        <h1>Solicitud de Laboratorio</h1>
     </div>
 
-    {% if solicitud.imagen %}
-      <div class="image-section">
-        <label class="font-semibold">Imagen Adjunta:</label>
-        <img src="{{ solicitud.imagen.url }}" alt="Imagen de Solicitud" />
-      </div>
-    {% endif %}
+    <div class="container">
+        <div class="title">Solicitud a {{ solicitud.externo.username }}</div>
 
-    <div class="section">
-      <label class="font-semibold">Fecha de Creación:</label>
-      {{ solicitud.fecha_creacion }}
+        <div class="section">
+            <label>Objetivo:</label>
+            <p>{{ solicitud.objetivo }}</p>
+        </div>
+
+        <div class="section">
+            <label>Descripción:</label>
+            <p>{{ solicitud.descripcion }}</p>
+        </div>
+
+        {% if solicitud.imagen %}
+        <div class="image-section">
+            <label>Imagen Adjunta:</label>
+            <img src="{{ solicitud.imagen.url }}" alt="Imagen de Solicitud">
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <label>Fecha de Creación:</label>
+            <p>{{ solicitud.fecha_creacion }}</p>
+        </div>
     </div>
-  </div>
-  <footer class="footer">
-    <p>© 2024 Laboratorio Bagó. Todos los derechos reservados.</p>
-  </footer>
+
+    <footer class="footer">
+        <p>© 2024 Laboratorio Bagó. Todos los derechos reservados.</p>
+    </footer>
 </body>
-
 </html>

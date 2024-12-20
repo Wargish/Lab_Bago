@@ -5,8 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 from django.core.cache import cache
 from .signals import *
-import sweetify
-import os
+import csv
 
 # Importaciones para graficos
 import plotly.express as px
@@ -16,6 +15,7 @@ from datetime import timedelta
 # Importaciones locales (formularios y modelos)
 from .forms import *
 from .models import *
+from internal_workers.models import Tarea
 
 # Filtro de grupos
 def group_required(*group_names):
@@ -240,3 +240,26 @@ def graficos(request):
     cache.set('dashboard_graphs', context, timeout=3600)
 
     return render(request, "app/dashboard/graficos.html", context)
+
+def descargar_tareas(request):
+    # Crear la respuesta HTTP con el archivo CSV
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="tareas.csv"'
+
+    writer = csv.writer(response)
+
+    # Obtener los nombres de las columnas del modelo Tarea
+    field_names = [field.name for field in Tarea._meta.fields]
+    writer.writerow(field_names)
+
+    # Obtener los valores de las tareas
+    tareas = Tarea.objects.all().values_list()
+    for tarea in tareas:
+        writer.writerow(tarea)
+
+    return response
+
+
+
+def error_404(request):
+    return render (request, "app/error/404.html")

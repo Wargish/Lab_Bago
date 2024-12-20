@@ -5,7 +5,9 @@ from django.core.mail import EmailMultiAlternatives, send_mail
 from django.conf import settings
 from internal_workers.models import *
 from external_workers.models import *
+import os
 import threading
+import time
 
 
 # Signal para crear grupos y estados después de las migraciones
@@ -23,63 +25,20 @@ def create_groups(sender, **kwargs):
             Estado.objects.get_or_create(nombre=nombre)
 
 
-# Signal para enviar correo de manera asíncrona cuando se crea una Notificación
-@receiver(post_save, sender=Notificacion)
-def enviar_correo_asincrono_notificacion(sender, instance, created, **kwargs):
-    if created:
-        print(f"Notificación creada: {instance}")
-        threading.Thread(target=send_correo_notificacion, args=(instance,)).start()
-
-
-def send_correo_notificacion(notificacion):
-    asunto = f"Notificación de Informe: {notificacion.informe.objetivo}"
-    texto_plano = f"""
-    Hola {notificacion.usuario.username},
-
-    Se te ha asignado una nueva tarea. A continuación, te presentamos algunos detalles del informe:
-
-    Objetivo del Informe: {notificacion.informe.objetivo}
-    Categoría: {'Infraestructura' if notificacion.informe.categoría == 'INF' else 'Maquinaria'}
-    Ubicación: {notificacion.informe.ubicacion.nombre if notificacion.informe.ubicacion else 'No especificada'}
-    Fecha de Creación del Informe: {notificacion.informe.creado_en.strftime('%d/%m/%Y %H:%M:%S')}
-    
-    Puedes acceder al informe a través de tu panel de Tareas.
-
-    ¡Saludos!
-    """
-    html_contenido = f"""
-    <p>Hola <strong>{notificacion.usuario.username}</strong>,</p>
-    <p>Se te ha asignado una nueva tarea. A continuación, te presentamos algunos detalles del informe:</p>
-    <ul>
-        <li><strong>Objetivo del Informe:</strong> {notificacion.informe.objetivo}</li>
-        <li><strong>Categoría:</strong> {"Infraestructura" if notificacion.informe.categoría == "INF" else "Maquinaria"}</li>
-        <li><strong>Ubicación:</strong> {notificacion.informe.ubicacion.nombre if notificacion.informe.ubicacion else "No especificada"}</li>
-        <li><strong>Fecha de Creación del Informe:</strong> {notificacion.informe.creado_en.strftime('%d/%m/%Y %H:%M:%S')}</li>
-    </ul>
-    <p>Puedes acceder al informe a través de tu panel de Tareas.</p>
-    <p>¡Saludos!</p>
-    """
-
-    destinatarios = [notificacion.usuario.email]
-
-    try:
-        mensaje = EmailMultiAlternatives(asunto, texto_plano, settings.DEFAULT_FROM_EMAIL, destinatarios)
-        mensaje.attach_alternative(html_contenido, "text/html")
-        mensaje.send()
-        print(f"Correo enviado a {destinatarios}")
-    except Exception as e:
-        print(f"Error al enviar correo: {e}")
-
-
-# Signal para enviar correo de manera asíncrona cuando se crea una SolicitudExterno
 @receiver(post_save, sender=SolicitudExterno)
 def enviar_correo_asincrono_solicitud(sender, instance, created, **kwargs):
     if created:
-        print(f"Solicitud de externo creada: {instance}")
-        threading.Thread(target=send_correo_solicitud, args=(instance,)).start()
-
+        def send_delayed():
+            # Esperar a que el archivo esté guardado
+            time.sleep(5)
+            # Recargar la instancia para obtener el archivo actualizado
+            instance.refresh_from_db()
+            send_correo_solicitud(instance)
+            
+        threading.Thread(target=send_delayed).start()
 
 def send_correo_solicitud(solicitud):
+    print(f"Iniciando envío de correo para solicitud {solicitud.id}")    
     asunto = "Nueva Solicitud de Trabajo"
     texto_plano = f"""
     Estimado {solicitud.externo.username},
@@ -110,20 +69,27 @@ def send_correo_solicitud(solicitud):
 
     try:
         mensaje = EmailMultiAlternatives(asunto, texto_plano, settings.DEFAULT_FROM_EMAIL, destinatarios)
+
         # Adjuntar el PDF si está presente
-        if solicitud.pdf_peticion:
-            with solicitud.pdf_peticion.open('rb') as pdf_file:
-                mensaje.attach(solicitud.pdf_peticion.name, pdf_file.read(), 'application/pdf')
+        if solicitud.pdf_peticion and hasattr(solicitud.pdf_peticion, 'file'):
+            try:
+                pdf_content = solicitud.pdf_peticion.read()
+                pdf_name = os.path.basename(solicitud.pdf_peticion.name)
+                mensaje.attach(pdf_name, pdf_content, 'application/pdf')
+            except Exception as e:
+                print(f"Error al leer el PDF: {e}")
+            finally:
+                solicitud.pdf_peticion.close()
 
         mensaje.attach_alternative(html_contenido, "text/html")
         mensaje.send()
-        print(f"Correo enviado a {destinatarios}")
+        print(f"Correo enviado exitosamente a {destinatarios}")
+        
     except Exception as e:
         print(f"Error al enviar correo: {e}")
+        print(f"Detalles adicionales: {str(e)}")
 
-
-
-
+# signal para enviar correo sobre el estado del presupuesto
 @receiver(post_save, sender=PresupuestoExterno)
 def enviar_correo_presupuesto(sender, instance, created, **kwargs):
     solicitud = instance.tarea_externo.solicitud

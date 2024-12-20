@@ -27,6 +27,8 @@ urlpatterns = [
     #path('api/user/<int:user_id>/', obtener_datos_usuario, name='obtener_datos_usuario'),
 
     path('dashboard/graficos', graficos, name='graficos'),
+    path('descargar-tareas/', descargar_tareas, name='descargar_tareas'),
+
     #path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
     #path('dashboard/listar_solicitudes', listar_solicitudes, name='listar_solicitudes'),
 
