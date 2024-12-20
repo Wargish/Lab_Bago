@@ -6,6 +6,8 @@ from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from django.contrib.auth.password_validation import validate_password
 
+
+""""
 class RegistroForm(forms.ModelForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -96,7 +98,10 @@ class LoginForm(AuthenticationForm):
     
     # Adding ReCAPTCHA to the Login Form
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+"""
 
+    
+"""
 
 class InformeForm(forms.ModelForm):
     class Meta:
@@ -151,7 +156,7 @@ class FeedbackForm(forms.ModelForm):
             self.add_error('comentarios', 'Este campo es obligatorio si no está conforme.')
 
         return cleaned_data
-    
+            
 
 
 class SolicitudExternoForm(forms.ModelForm):
@@ -232,3 +237,4 @@ class ExternoFeedbackForm(forms.ModelForm):
 
         return cleaned_data
     
+"""

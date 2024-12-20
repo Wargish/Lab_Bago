@@ -10,25 +10,37 @@
         <div class="form-group">
             <label for="id_pdf_presupuesto">Cargar Presupuesto (PDF):</label>
             {{ form.archivo }}
+            {% if form.archivo.errors %}
+                <div class="text-danger">{{ form.archivo.errors }}</div>
+            {% endif %}
         </div>
         <div class="form-group">
             <label for="id_estado">Estado:</label>
             {{ form.estado }}
+            {% if form.estado.errors %}
+                <div class="text-danger">{{ form.estado.errors }}</div>
+            {% endif %}
         </div>
         
         <!-- Campo Razón de Rechazo -->
         <div class="form-group">
             <label for="id_mensaje">Mensaje:</label>
             {{ form.mensaje }}
+            {% if form.mensaje.errors %}
+                <div class="text-danger">{{ form.mensaje.errors }}</div>
+            {% endif %}
         </div>
         
         <!-- Campo Fecha de Asistencia -->
         <div class="form-group">
             <label for="id_fecha_asistencia">Fecha de Asistencia:</label>
             {{ form.fecha_asistencia }}
-    </div>
+            {% if form.fecha_asistencia.errors %}
+                <div class="text-danger">{{ form.fecha_asistencia.errors }}</div>
+            {% endif %}
+        </div>
     
-    <button type="submit" class="btn btn-primary">Guardar</button>
-</form>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
 </div>
 {% endblock %}

@@ -1,5 +1,4 @@
-from .models import Notificacion
-from django.contrib.auth.models import Group
+from internal_workers.models import Notificacion
 
 def user_groups(request):
     if request.user.is_authenticated:

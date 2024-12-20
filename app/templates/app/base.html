@@ -67,14 +67,14 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="tareasDropdown">
                             <li>
-                                <a class="dropdown-item" href="/dashboard/listar_tareas">
+                                <a class="dropdown-item" href="/internos/listar_tareas">
                                     <i class="fas fa-tasks me-2"></i>Listar Tareas
                                 </a>
                             </li>
                             {% if not user.is_superuser %}
                                 <li>
-                                    <a class="dropdown-item" href="/infraestructura/Informe">
-                                        <i class="fas fa-file-alt me-2"></i>Crear Informe
+                                    <a class="dropdown-item" href="/internos/Informe">
+                                        <i class="fas fa-file-alt me-2"></i>Nuevo Informe
                                     </a>
                                 </li>
                             {% endif %}

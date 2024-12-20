@@ -3,7 +3,8 @@ from django.contrib.auth.models import Group
 from django.dispatch import receiver
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.conf import settings
-from .models import Estado, Notificacion, SolicitudExterno, PresupuestoExterno
+from internal_workers.models import *
+from external_workers.models import *
 import threading
 
 

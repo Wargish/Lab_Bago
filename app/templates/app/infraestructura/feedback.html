@@ -2,13 +2,14 @@
 
 {% block content %}
 <div class="container mt-9 text-white">
-    <h2>Feedback de la Tarea: {{ tarea.objetivo }}</h2>
+    <h2 class="mb-4">Feedback de la Tarea: {{ tarea.objetivo }}</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Enviar Feedback</button>
     </form>
     
+</div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const aprobadoRadios = document.querySelectorAll('input[name="aprobado"]');
@@ -32,5 +33,4 @@
             toggleComentarioField();  // Inicializar el estado del campo comentario
         });
     </script>
-</div>
 {% endblock %}

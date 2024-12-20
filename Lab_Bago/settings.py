@@ -26,7 +26,7 @@ LOGIN_REDIRECT_URL = '/home/'
 SECRET_KEY = 'django-insecure-6y0lrv#8id)*7+2&+@r&5=522d)mo159p=_bgi6f)2jvhu04f%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -40,13 +40,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
-    'sweetify',
     'axes',
     'django_recaptcha',
-    'huey.contrib.djhuey',
-
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'sweetify',
+    'app',
+    'authentication',
+    'internal_workers',
+    'external_workers',
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
