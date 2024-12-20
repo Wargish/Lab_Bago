@@ -1,4 +1,5 @@
 from django.urls import path
+from django.conf.urls import handler404
 from .views import *
 from django.conf import settings
 from django.conf.urls.static import static
@@ -44,10 +45,13 @@ urlpatterns = [
     #path('detalle_externo/reporte_ext/<int:reporte_ex_id>/', detalle_reporte_ex, name='detalle_reporte_ext'),
     #path('detalle_externo/feedback_ext/<int:feedback_ex_id>/', detalle_feedbacks_ex, name='detalle_feedback_ext'),
 
-    path('error404/', error404, name='error404'),
+    path('app/error/404', error_404, name='error_404'),
 
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+handler404 = error_404
