@@ -41,7 +41,7 @@ def send_correo_solicitud(solicitud):
     print(f"Iniciando envío de correo para solicitud {solicitud.id}")    
     asunto = "Nueva Solicitud de Trabajo"
     texto_plano = f"""
-    Estimado {solicitud.externo.username},
+    Estimado {solicitud.externo.username},  
 
     Se ha generado una nueva solicitud de trabajo para usted. A continuación, los detalles:
 
