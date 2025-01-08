@@ -8,5 +8,6 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('externos/', include('external_workers.urls')),
     path('internos/', include('internal_workers.urls')),
+    path('mant_preventivo/', include('mant_preventivo.urls')),
 ]
 

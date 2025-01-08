@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'authentication',
     'internal_workers',
     'external_workers',
+    'mant_preventivo',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

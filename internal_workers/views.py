@@ -17,12 +17,12 @@ from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 
 
-
 # Filtro Grupos de Usuarios
 def group_required(*group_names):
     def in_groups(u):
         return u.is_authenticated and bool(u.groups.filter(name__in=group_names))
     return user_passes_test(in_groups)
+
 
 
 # Vistas de CRUD y movimiento de información

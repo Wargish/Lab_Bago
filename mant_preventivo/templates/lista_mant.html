@@ -1,0 +1,59 @@
+{% extends "app/base.html" %}
+{% block content %}
+
+<div class="container mt-5 text-white">
+    <h2 class="mb-4">Lista de Mantenimiento Preventivo</h2>
+
+    <!-- Formulario de filtro de estado -->
+    <form method="get" action="">
+        <div class="input-group mb-3">
+            <select name="estado" id="estadoSelect" class="form-select" onchange="this.form.submit()">
+                <option value="todos" {% if estado_selec == 'todos' %}selected{% endif %}>Todas</option>
+                <option value="en_curso" {% if estado_selec == 'en_curso' %}selected{% endif %}>En Curso</option>
+                <option value="revision" {% if estado_selec == 'revision' %}selected{% endif %}>Revision</option>
+                <option value="archivada" {% if estado_selec == 'archivada' %}selected{% endif %}>Archivada</option>
+            </select>
+        </div>
+    </form>
+
+    <form action="{% url 'agregar_tarea' %}" method="get">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-plus"></i> <!-- Font Awesome icon for "+" -->
+        </button>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped bg-white">
+            <thead>
+                <tr>
+                    <th>Creada</th>
+                    <th>Asignado</th>
+                    <th>Fecha_creacion</th>
+                    <th>Ultmima modificacion</th>
+                    <th>Estado</th>
+                    <th>Informe</th>
+                    <th>Modificar</th>
+                    <th>Cerrar Tarea</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mantenimiento in mantenimientos %}
+                <tr>
+                    <td>{{ mantenimiento.tarea_mantenimiento.creada }}</td>
+                    <td>{{ mantenimiento.asignado_a }}</td>
+                    <td>{{ mantenimiento.fecha }}</td>
+                    <td>{{ mantenimiento.ultima_modificacion }}</td>
+                    <td>{{ mantenimiento.tarea_mantenimiento.estado }}</td>
+                    <td><a href="{% url 'modificar_informe' mantenimiento.id %}">Ver Informe</a></td>
+                    
+                    <td><a href="{% url 'modificar_informe' mantenimiento.id %}">Modificar</a></td>
+                    <td><a href="{% url 'cerrar_tarea' mantenimiento.tarea_mantenimiento.id %}">Cerrar Tarea</a></td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
