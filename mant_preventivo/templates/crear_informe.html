@@ -1,11 +1,54 @@
-{% extends "../base.html" %}
+{% extends "app/base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
 <div class="container mt-5">
-    <h2>Crear Informe de Mantenimiento Preventivo</h2>
+    <h2>Formulario de Mantenimiento Preventivo</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        {{ form|crispy }}
+        <h2>Tabla Dinámica</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Columna 1</th>
+                    <th>Columna 2</th>
+                    <th>Columna 3</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-dinamica">
+                {% for form in formset %}
+                <tr>
+                    <td>{{ form.columna1 }}</td>
+                    <td>{{ form.columna2 }}</td>
+                    <td>{{ form.columna3 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" onclick="addRow()">Agregar Fila</button>
+        <button type="button" onclick="addColumn()">Agregar Columna</button>
+        
+        <button type="submit">Guardar</button>
     </form>
 </div>
+
+
+
+<script>
+    function addRow() {
+        const tableBody = document.getElementById('tabla-dinamica');
+        const newRow = tableBody.insertRow();
+        for (let i = 0; i < 3; i++) {
+            const cell = newRow.insertCell(i);
+            cell.innerHTML = `<input type="text" name="tabla_dinamica_${tableBody.rows.length}_${i}" />`;
+        }
+    }
+    function addColumn() {
+        const tableBody = document.getElementById('tabla-dinamica');
+        for (let i = 0; i < tableBody.rows.length; i++) {
+            const cell = tableBody.rows[i].insertCell(-1);
+            cell.innerHTML = `<input type="text" name="tabla_dinamica_${i}_${tableBody.rows[i].cells.length}" />`;
+        }
+    }
+</script>
 {% endblock %}

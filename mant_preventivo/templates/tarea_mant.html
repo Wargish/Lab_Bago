@@ -1,11 +1,14 @@
 {% extends "app/base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Modificar Informe de Mantenimiento Preventivo</h2>
+
+<div class="container mt-5 text-white">
+    <h2>Tarea de Mantenimiento</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form|crispy }}
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 </div>
+
 {% endblock %}

@@ -2,21 +2,21 @@
 {% block content %}
 
 <div class="container mt-5 text-white">
-    <h2 class="mb-4">Lista de Mantenimiento Preventivo</h2>
+    <h2 class="mb-4">Lista de Tareas de Mantenimiento</h2>
 
     <!-- Formulario de filtro de estado -->
     <form method="get" action="">
         <div class="input-group mb-3">
             <select name="estado" id="estadoSelect" class="form-select" onchange="this.form.submit()">
                 <option value="todos" {% if estado_selec == 'todos' %}selected{% endif %}>Todas</option>
-                <option value="en_curso" {% if estado_selec == 'en_curso' %}selected{% endif %}>En Curso</option>
-                <option value="revision" {% if estado_selec == 'revision' %}selected{% endif %}>Revision</option>
-                <option value="archivada" {% if estado_selec == 'archivada' %}selected{% endif %}>Archivada</option>
+                <option value="En Curso" {% if estado_selec == 'En Curso' %}selected{% endif %}>En Curso</option>
+                <option value="Revision" {% if estado_selec == 'Revision' %}selected{% endif %}>Revision</option>
+                <option value="Archivada" {% if estado_selec == 'Archivada' %}selected{% endif %}>Archivada</option>
             </select>
         </div>
     </form>
 
-    <form action="{% url 'agregar_tarea' %}" method="get">
+    <form action="{% url 'tarea_mant' %}" method="get">
         <button type="submit" class="btn btn-primary">
             <i class="fas fa-plus"></i> <!-- Font Awesome icon for "+" -->
         </button>
@@ -26,10 +26,9 @@
         <table class="table table-bordered table-striped bg-white">
             <thead>
                 <tr>
-                    <th>Creada</th>
+                    <th>Fecha de creación</th>
                     <th>Asignado</th>
-                    <th>Fecha_creacion</th>
-                    <th>Ultmima modificacion</th>
+                    <th>Última modificación</th>
                     <th>Estado</th>
                     <th>Informe</th>
                     <th>Modificar</th>
@@ -37,19 +36,27 @@
                 </tr>
             </thead>
             <tbody>
-                {% for mantenimiento in mantenimientos %}
+                {% for tarea in tareas_mantenimiento %}
                 <tr>
-                    <td>{{ mantenimiento.tarea_mantenimiento.creada }}</td>
-                    <td>{{ mantenimiento.asignado_a }}</td>
-                    <td>{{ mantenimiento.fecha }}</td>
-                    <td>{{ mantenimiento.ultima_modificacion }}</td>
-                    <td>{{ mantenimiento.tarea_mantenimiento.estado }}</td>
-                    <td><a href="{% url 'modificar_informe' mantenimiento.id %}">Ver Informe</a></td>
-                    
-                    <td><a href="{% url 'modificar_informe' mantenimiento.id %}">Modificar</a></td>
-                    <td><a href="{% url 'cerrar_tarea' mantenimiento.tarea_mantenimiento.id %}">Cerrar Tarea</a></td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td>{{ tarea.creada }}</td>
+                    <td>{{ tarea.asignado_a.username }}</td>
+                    <td>{{ tarea.ultima_modificacion }}</td>
+                    <td>{{ tarea.estado }}</td>
+                    <td>
+                        {% if tarea.informe_mantenimiento %}
+                            <a href="{% url 'crear_informe' tarea.informe_mantenimiento.id %}">Crear Informe</a>
+                        {% else %}
+                            <a href="{% url 'crear_informe' %}">Crear Informe</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if tarea.informe_mantenimiento %}
+                            <a href="{% url 'modificar_informe' tarea.informe_mantenimiento.id %}">Modificar</a>
+                        {% else %}
+                            <a href="#">Modificar</a>
+                        {% endif %}
+                    </td>
+                    <td><a href="{% url 'cerrar_tarea' tarea.id %}">Cerrar Tarea</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

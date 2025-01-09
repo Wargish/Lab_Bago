@@ -26,6 +26,12 @@ class TareaMantenimiento(models.Model):
     ultima_modificacion = models.DateTimeField(auto_now=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creador')
 
+    def save(self, *args, **kwargs):
+        if not self.estado:
+            self.estado = 'En Curso'
+        super().save(*args, **kwargs)
+
+
 
 class TablaDinamica(models.Model):
     informe = models.ForeignKey(MantenimientoPreventivo, on_delete=models.CASCADE, related_name='tabla_dinamica')
