@@ -35,6 +35,8 @@ class TareaMantenimiento(models.Model):
 
 class TablaDinamica(models.Model):
     informe = models.ForeignKey(MantenimientoPreventivo, on_delete=models.CASCADE, related_name='tabla_dinamica')
-    columna1 = models.CharField(max_length=100)
-    columna2 = models.CharField(max_length=100, blank=True, null=True)
-    columna3 = models.CharField(max_length=100, blank=True, null=True)
+    codigo_equipo = models.CharField(max_length=100)
+    nombre_equipo = models.CharField(max_length=100, blank=True, null=True)
+    medidas = models.CharField(max_length=100, blank=True, null=True)
+    cantidad = models.CharField(max_length=100, blank=True, null=True)
+

@@ -16,9 +16,11 @@
         </div>
     </form>
 
-    <form action="{% url 'tarea_mant' %}" method="get">
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-plus"></i> <!-- Font Awesome icon for "+" -->
+    <!-- Formulario de agregar tarea -->
+    <form action="{% url 'tarea_mant' %}" method="get" class="mb-3">
+        <button type="submit" class="button-61 d-flex align-items-center justify-content-center">
+            <i class="fas fa-plus-circle me-2"></i> <!-- Ícono de agregar tarea -->
+            <span class="fw-bold">Agregar Tarea</span>
         </button>
     </form>
 
@@ -30,9 +32,14 @@
                     <th>Asignado</th>
                     <th>Última modificación</th>
                     <th>Estado</th>
-                    <th>Informe</th>
-                    <th>Modificar</th>
-                    <th>Cerrar Tarea</th>
+                    {% if es_tecnico or es_externo %}
+                        <th>Informe</th>
+                    {% endif %}
+                    {% if es_supervisor %}
+                        <th>Modificar</th>
+                        <th>Cerrar Tarea</th>
+                    {% endif %}
+                    <th>PDF</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,25 +49,97 @@
                     <td>{{ tarea.asignado_a.username }}</td>
                     <td>{{ tarea.ultima_modificacion }}</td>
                     <td>{{ tarea.estado }}</td>
+                    {% if es_tecnico or es_externo %}
+                        <td>
+                            {% if tarea.informe_mantenimiento %}
+                                <span class="text-muted">El informe ya fue creado, solo puede ser modificado por el supervisor</span>
+                            {% else %}
+                                <a href="{% url 'crear_informe' tarea.id %}" class="btn btn-primary btn-sm">Crear Informe</a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    {% if es_supervisor %}
+                        <td>
+                            {% if tarea.informe_mantenimiento %}
+                                <a href="{% url 'modificar_informe' tarea.informe_mantenimiento.id %}" class="btn btn-warning btn-sm">Modificar</a>
+                            {% else %}
+                                <span class="text-muted">No se ha creado un informe</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'cerrar_tarea' tarea.id %}" class="btn btn-danger btn-sm">Cerrar Tarea</a>
+                        </td>
+                    {% endif %}
                     <td>
-                        {% if tarea.informe_mantenimiento %}
-                            <a href="{% url 'crear_informe' tarea.informe_mantenimiento.id %}">Crear Informe</a>
+                        {% if tarea.estado == 'Archivada' %}
+                            <a href="{% url 'ver_pdf' tarea.id %}" class="btn btn-info btn-sm">Ver PDF</a>
                         {% else %}
-                            <a href="{% url 'crear_informe' %}">Crear Informe</a>
+                            <span class="text-muted">No disponible</span>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if tarea.informe_mantenimiento %}
-                            <a href="{% url 'modificar_informe' tarea.informe_mantenimiento.id %}">Modificar</a>
-                        {% else %}
-                            <a href="#">Modificar</a>
-                        {% endif %}
-                    </td>
-                    <td><a href="{% url 'cerrar_tarea' tarea.id %}">Cerrar Tarea</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- Estilos CSS para el botón -->
+<style>
+    .button-61 {
+        align-items: center;
+        appearance: none;
+        border-radius: 4px;
+        border-style: none;
+        box-shadow: rgba(0, 0, 0, .2) 0 3px 1px -2px, rgba(0, 0, 0, .14) 0 2px 2px 0, rgba(0, 0, 0, .12) 0 1px 5px 0;
+        box-sizing: border-box;
+        color: #fff;
+        cursor: pointer;
+        display: inline-flex;
+        font-family: Roboto, sans-serif;
+        font-size: .875rem;
+        font-weight: 500;
+        height: 36px;
+        justify-content: center;
+        letter-spacing: .0892857em;
+        line-height: normal;
+        min-width: 64px;
+        outline: none;
+        overflow: visible;
+        padding: 0 16px;
+        position: relative;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1), background-color 280ms cubic-bezier(.4, 0, .2, 1);
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        vertical-align: middle;
+        will-change: transform, opacity;
+        background-color: #6200ee; /* Fondo morado */
+    }
+
+    .button-61:hover {
+        box-shadow: rgba(0, 0, 0, .2) 0 2px 4px -1px, rgba(0, 0, 0, .14) 0 4px 5px 0, rgba(0, 0, 0, .12) 0 1px 10px 0;
+    }
+
+    .button-61:disabled {
+        background-color: rgba(0, 0, 0, .12);
+        box-shadow: rgba(0, 0, 0, .2) 0 0 0 0, rgba(0, 0, 0, .14) 0 0 0 0, rgba(0, 0, 0, .12) 0 0 0 0;
+        color: rgba(0, 0, 0, .37);
+        cursor: default;
+        pointer-events: none;
+    }
+
+    .button-61:focus {
+        box-shadow: rgba(0, 0, 0, .2) 0 2px 4px -1px, rgba(0, 0, 0, .14) 0 4px 5px 0, rgba(0, 0, 0, .12) 0 1px 10px 0;
+    }
+
+    .button-61:active {
+        box-shadow: rgba(0, 0, 0, .2) 0 5px 5px -3px, rgba(0, 0, 0, .14) 0 8px 10px 1px, rgba(0, 0, 0, .12) 0 3px 14px 2px;
+        background: #A46BF5; /* Fondo morado más claro al presionar */
+    }
+</style>
+
 {% endblock %}

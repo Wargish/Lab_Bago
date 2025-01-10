@@ -58,15 +58,18 @@ def agregar_tarea(request):
 
 @login_required
 @group_required('Técnico','Externo')
-def crear_informe(request):
+def crear_informe(request, tarea_id):
+    tarea = get_object_or_404(TareaMantenimiento, id=tarea_id)
     if request.method == 'POST':
         form = MantenimientoForm(request.POST)
         if form.is_valid():
-            form.save()
+            informe = form.save(commit=False)
+            informe.tarea_mantenimiento = tarea
+            informe.save()
             return redirect('lista_mantenimiento')
     else:
         form = MantenimientoForm()
-    return render(request, 'crear_informe.html', {'form': form})
+    return render(request, 'crear_informe.html', {'form': form, 'tarea': tarea})
 
 @login_required
 @group_required('Supervisor')
