@@ -1,11 +1,81 @@
 {% extends "app/base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
 <div class="container mt-5">
     <h2>Modificar Informe de Mantenimiento Preventivo</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        {{ form|crispy }}
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        <li>{{ field }}: {{ errors }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <h2>Tabla Dinámica</h2>
+        <table border="1" id="tabla-dinamica">
+            <thead>
+                <tr>
+                    <th>Refacción</th>
+                    <th>Medidas</th>
+                    <th>Cantidad</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in informe.tabla_dinamica %}
+                <tr>
+                    <td><input type="text" name="tabla-{{ forloop.counter0 }}-refacción" class="form-control" value="{{ fila.refacción }}"></td>
+                    <td><input type="text" name="tabla-{{ forloop.counter0 }}-medidas" class="form-control" value="{{ fila.medidas }}"></td>
+                    <td><input type="number" name="tabla-{{ forloop.counter0 }}-cantidad" class="form-control" value="{{ fila.cantidad }}"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="hidden" name="tabla_dinamica_total" id="tabla_dinamica_total" value="{{ informe.tabla_dinamica|length }}">
+        <button type="button" id="add-row" class="btn btn-primary">Agregar Fila</button>
+        <button type="submit" class="btn btn-success">Guardar</button>
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const tableBody = document.querySelector("#tabla-dinamica tbody");
+                const totalFormsInput = document.getElementById("tabla_dinamica_total");
+        
+                const updateTotalForms = () => {
+                    totalFormsInput.value = tableBody.children.length;
+                };
+        
+                const addRow = () => {
+                    const rowCount = tableBody.children.length;
+        
+                    const newRow = document.createElement("tr");
+                    newRow.innerHTML = `
+                        <td><input type="text" name="tabla-${rowCount}-refacción" class="form-control"></td>
+                        <td><input type="text" name="tabla-${rowCount}-medidas" class="form-control"></td>
+                        <td><input type="number" name="tabla-${rowCount}-cantidad" class="form-control"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
+                    `;
+        
+                    // Botón para eliminar la fila
+                    newRow.querySelector(".remove-row").addEventListener("click", (e) => {
+                        e.preventDefault();
+                        newRow.remove();
+                        updateTotalForms();
+                    });
+        
+                    tableBody.appendChild(newRow);
+                    updateTotalForms();
+                };
+        
+                document.getElementById("add-row").addEventListener("click", addRow);
+                updateTotalForms();
+            });
+        </script>
+        
     </form>
 </div>
 {% endblock %}

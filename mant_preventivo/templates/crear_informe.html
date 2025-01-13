@@ -6,49 +6,67 @@
     <form method="post">
         {% csrf_token %}
         {{ form|crispy }}
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        <li>{{ field }}: {{ errors }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
         <h2>Tabla Dinámica</h2>
-        <table border="1">
+        <table border="1" id="tabla-dinamica">
             <thead>
                 <tr>
-                    <th>Columna 1</th>
-                    <th>Columna 2</th>
-                    <th>Columna 3</th>
+                    <th>Refacción</th>
+                    <th>Medidas</th>
+                    <th>Cantidad</th>
+                    <th>Eliminar</th>
                 </tr>
             </thead>
-            <tbody id="tabla-dinamica">
-                {% for form in formset %}
-                <tr>
-                    <td>{{ form.columna1 }}</td>
-                    <td>{{ form.columna2 }}</td>
-                    <td>{{ form.columna3 }}</td>
-                </tr>
-                {% endfor %}
+            <tbody>
+                <!-- Las filas iniciales pueden cargarse aquí si es necesario -->
             </tbody>
         </table>
-        <button type="button" onclick="addRow()">Agregar Fila</button>
-        <button type="button" onclick="addColumn()">Agregar Columna</button>
+        <input type="hidden" name="tabla_dinamica_total" id="tabla_dinamica_total" value="0">
+        <button type="button" id="add-row" class="btn btn-primary">Agregar Fila</button>
+        <button type="submit" class="btn btn-success">Guardar</button>
         
-        <button type="submit">Guardar</button>
-    </form>
-</div>
-
-
-
-<script>
-    function addRow() {
-        const tableBody = document.getElementById('tabla-dinamica');
-        const newRow = tableBody.insertRow();
-        for (let i = 0; i < 3; i++) {
-            const cell = newRow.insertCell(i);
-            cell.innerHTML = `<input type="text" name="tabla_dinamica_${tableBody.rows.length}_${i}" />`;
-        }
-    }
-    function addColumn() {
-        const tableBody = document.getElementById('tabla-dinamica');
-        for (let i = 0; i < tableBody.rows.length; i++) {
-            const cell = tableBody.rows[i].insertCell(-1);
-            cell.innerHTML = `<input type="text" name="tabla_dinamica_${i}_${tableBody.rows[i].cells.length}" />`;
-        }
-    }
-</script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const tableBody = document.querySelector("#tabla-dinamica tbody");
+                const totalFormsInput = document.getElementById("tabla_dinamica_total");
+        
+                const updateTotalForms = () => {
+                    totalFormsInput.value = tableBody.children.length;
+                };
+        
+                const addRow = () => {
+                    const rowCount = tableBody.children.length;
+        
+                    const newRow = document.createElement("tr");
+                    newRow.innerHTML = `
+                        <td><input type="text" name="tabla-${rowCount}-refacción" class="form-control"></td>
+                        <td><input type="text" name="tabla-${rowCount}-medidas" class="form-control"></td>
+                        <td><input type="number" name="tabla-${rowCount}-cantidad" class="form-control"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm remove-row">X</button></td>
+                    `;
+        
+                    // Botón para eliminar la fila
+                    newRow.querySelector(".remove-row").addEventListener("click", (e) => {
+                        e.preventDefault();
+                        newRow.remove();
+                        updateTotalForms();
+                    });
+        
+                    tableBody.appendChild(newRow);
+                    updateTotalForms();
+                };
+        
+                document.getElementById("add-row").addEventListener("click", addRow);
+                updateTotalForms();
+            });
+        </script>
+        
 {% endblock %}

@@ -3,40 +3,26 @@ from django.contrib.auth.models import User
 
 class MantenimientoPreventivo(models.Model):
     tarea_mantenimiento = models.OneToOneField('TareaMantenimiento', on_delete=models.CASCADE, related_name='informe_mantenimiento', blank=True, null=True)
-    tipo_ot = models.CharField(max_length=30)
+    tipo_ot = models.CharField(max_length=30, blank=False, null=True)
     asignado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='asignado_mantenimiento')
-    solicitante = models.CharField(max_length=300)
+    solicitante = models.CharField(max_length=300, blank=False, null=True)
     prioridad = models.CharField(max_length=50, choices=[('Alta', 'Alta'), ('Media', 'Media'), ('Baja', 'Baja')])
-    programado_para = models.CharField(max_length=50)
+    programado_para = models.DateField(max_length=50, blank=False, null=True)
     turno = models.CharField(max_length=50, choices=[('Dia', 'Dia'), ('Noche', 'Noche')])
-    descripcion_trabajo = models.TextField(max_length=100)
-    cod_equipo = models.CharField(max_length=50)
-    equipo = models.CharField(max_length=50)
-    observaciones = models.TextField(blank=True, null=True)
+    descripcion_trabajo = models.TextField(max_length=100, blank=False, null=True)
+    cod_equipo = models.CharField(max_length=50, blank=False, null=True)
+    equipo = models.CharField(max_length=50, blank=False, null=True)
+    observaciones = models.TextField(blank=True, null=True, default='No se han registrado observaciones')
     realizado_por = models.CharField(max_length=30, blank=True, null=True)
     supervisor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='supervisado_por')
     fecha = models.DateTimeField(auto_now_add=True)
     ultima_modificacion = models.DateTimeField(auto_now=True)
+    tabla_dinamica = models.JSONField(default=list)  # Aquí se guardará la tabla como un JSON
 
 
 class TareaMantenimiento(models.Model):
-    estado = models.CharField(max_length=50, choices=[('En Curso', 'En Curso'), ('Revision', 'Revision'), ('Archivada', 'Archivada')])
+    estado = models.CharField(max_length=50, choices=[('En Curso', 'En Curso'), ('Revision', 'Revision'), ('Archivada', 'Archivada')], default= 'En Curso')
     asignado_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name='asignado_tarea')
     creada = models.DateTimeField(auto_now_add=True)
     ultima_modificacion = models.DateTimeField(auto_now=True)
     creado_por = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creador')
-
-    def save(self, *args, **kwargs):
-        if not self.estado:
-            self.estado = 'En Curso'
-        super().save(*args, **kwargs)
-
-
-
-class TablaDinamica(models.Model):
-    informe = models.ForeignKey(MantenimientoPreventivo, on_delete=models.CASCADE, related_name='tabla_dinamica')
-    codigo_equipo = models.CharField(max_length=100)
-    nombre_equipo = models.CharField(max_length=100, blank=True, null=True)
-    medidas = models.CharField(max_length=100, blank=True, null=True)
-    cantidad = models.CharField(max_length=100, blank=True, null=True)
-

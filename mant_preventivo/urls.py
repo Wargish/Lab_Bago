@@ -7,5 +7,7 @@ urlpatterns = [
     path('modificar/<int:pk>/', modificar_informe, name='modificar_informe'),
     path('cerrar/<int:pk>/', cerrar_tarea, name='cerrar_tarea'),
     path('tarea_mant/', agregar_tarea, name='tarea_mant'),
+    path('ver_pdf/<int:tarea_id>/', ver_pdf, name='ver_pdf'),
+
 
 ]

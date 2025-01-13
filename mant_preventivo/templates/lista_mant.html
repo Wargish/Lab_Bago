@@ -17,13 +17,14 @@
     </form>
 
     <!-- Formulario de agregar tarea -->
-    <form action="{% url 'tarea_mant' %}" method="get" class="mb-3">
-        <button type="submit" class="button-61 d-flex align-items-center justify-content-center">
-            <i class="fas fa-plus-circle me-2"></i> <!-- Ícono de agregar tarea -->
-            <span class="fw-bold">Agregar Tarea</span>
-        </button>
-    </form>
-
+    {% if es_supervisor %}
+        <form action="{% url 'tarea_mant' %}" method="get" class="mb-3">
+            <button type="submit" class="button-61 d-flex align-items-center justify-content-center">
+                <i class="fas fa-plus-circle me-2"></i> <!-- Ícono de agregar tarea -->
+                <span class="fw-bold">Agregar Tarea</span>
+            </button>
+        </form>
+    {% endif %}
     <div class="table-responsive">
         <table class="table table-bordered table-striped bg-white">
             <thead>
@@ -60,14 +61,26 @@
                     {% endif %}
                     {% if es_supervisor %}
                         <td>
-                            {% if tarea.informe_mantenimiento %}
-                                <a href="{% url 'modificar_informe' tarea.informe_mantenimiento.id %}" class="btn btn-warning btn-sm">Modificar</a>
+                            {% if tarea.estado == 'Archivada' %}
+                                <span class="text-muted">Cerrada</span>
                             {% else %}
-                                <span class="text-muted">No se ha creado un informe</span>
+                                {% if tarea.informe_mantenimiento %}
+                                    <a href="{% url 'modificar_informe' tarea.informe_mantenimiento.id %}" class="btn btn-warning btn-sm">Modificar</a>
+                                {% else %}
+                                    <span class="text-muted">No se ha creado un informe</span>
+                                {% endif %}
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% url 'cerrar_tarea' tarea.id %}" class="btn btn-danger btn-sm">Cerrar Tarea</a>
+                            {% if tarea.estado == 'Archivada' %}
+                                <span class="text-muted">Cerrada</span>
+                            {% else %}
+                                {% if tarea.informe_mantenimiento %}
+                                    <a href="{% url 'cerrar_tarea' tarea.id %}" class="btn btn-danger btn-sm" onclick="return confirmCerrarTarea();">Cerrar Tarea</a>
+                                {% else %}
+                                    <span class="text-muted">Informe no creado</span>
+                                {% endif %}
+                            {% endif %}
                         </td>
                     {% endif %}
                     <td>
@@ -83,6 +96,12 @@
         </table>
     </div>
 </div>
+
+<script>
+    function confirmCerrarTarea() {
+        return confirm("¿Está seguro de que desea cerrar esta tarea? Esta acción no se puede deshacer y el informe quedará cerrado solo para su vista.");
+    }
+</script>
 
 <!-- Estilos CSS para el botón -->
 <style>
