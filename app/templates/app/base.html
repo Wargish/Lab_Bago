@@ -89,15 +89,18 @@
                         <ul class="dropdown-menu" aria-labelledby="solicitudesDropdown">
                             <li>
                                 <a class="dropdown-item" href="{% url 'crear_solicitud' %}">
-                                    <i class="fas fa-plus-circle me-2"></i>Nueva Solicitud
+                                    <i class="fas fa-list me-2"></i>Listar Solicitudes
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{% url 'listar_solicitudes' %}">
-                                    <i class="fas fa-list me-2"></i>Ver Solicitudes
+                                    <i class="fas fa-plus-circle me-2"></i>Nueva Solicitud
                                 </a>
                             </li>
                         </ul>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="{% url 'lista_mantenimiento' %}">Mantenimiento Preventivo</a>
                     </li>
                 </ul>
             </div>
