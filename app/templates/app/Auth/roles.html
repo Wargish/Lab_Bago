@@ -2,7 +2,25 @@
 
 {% block content %}
 <div class="container mt-5 text-white">
-    <h2 class="mb-4">Control de Usuarios</h2>
+  <h2 class="mb-4">Control de Usuarios</h2>
+  
+  <!-- Add role filter -->
+  <div class="mb-3">
+      <form method="get" class="form-inline">
+          <div class="input-group">
+              <select name="role" class="form-select" onchange="this.form.submit()">
+                  <option value="all" {% if selected_role == 'all' %}selected{% endif %}>Todos los roles</option>
+                  {% for role in roles %}
+                      <option value="{{ role.name }}" {% if selected_role == role.name %}selected{% endif %}>
+                          {{ role.name }}
+                      </option>
+                  {% endfor %}
+              </select>
+          </div>
+      </form>
+  </div>
+
+  <div class="table-responsive">
     <div class="table-responsive">
       <table class="table table-striped bg-white">
         <thead>
@@ -20,21 +38,26 @@
             <td>{{ user.email }}</td>
             <td>{{ user.groups.all.0.name }}</td>
             <td>
-                <div class="dropdown">
-                    <button class="btn btn-warning dropdown-toggle"
-                            type="button"
-                            id="dropdownMenuButton"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                        Acción
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><button class="dropdown-item" type="button" data-action="assign_task" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Asignar Tarea</button></li>
-                        <li><button class="dropdown-item" type="button" data-action="change_role" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Cambiar Rol</button></li>
-                        <li><button class="dropdown-item" type="button" data-action="modify" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Modificar</button></li>
-                        <li><button class="dropdown-item" type="button" data-action="delete" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Eliminar</button></li>
-                    </ul>
-                </div>
+              <div class="dropdown">
+                <button class="btn btn-warning dropdown-toggle"
+                        type="button"
+                        id="dropdownMenuButton"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                  Acción
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li><button class="dropdown-item" type="button" data-action="assign_task" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Asignar Tarea</button></li>
+                  <li><button class="dropdown-item" type="button" data-action="change_role" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Cambiar Rol</button></li>
+                  <li><button class="dropdown-item" 
+                    type="button" 
+                    data-action="modify" 
+                    data-username="{{ user.username }}" 
+                    data-user-id="{{ user.id }}" 
+                    data-email="{{ user.email }}">Modificar</button></li>
+                  <li><button class="dropdown-item" type="button" data-action="delete" data-username="{{ user.username }}" data-user-id="{{ user.id }}">Eliminar</button></li>
+                </ul>
+              </div>
             </td>
           </tr>
           {% endfor %}

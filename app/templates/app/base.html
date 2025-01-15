@@ -28,7 +28,7 @@
     <div class="container-fluid">
     <!--- TÍTULO -->
     <header class="text-center my-4">
-        <h1>Monitoreo de Infraestructura</h1>
+        <h1>Servicios Generales</h1>
     </header>
 
     <!--- NAV -->
@@ -59,7 +59,8 @@
                             <a class="nav-link" href="/auth/roles">Usuarios</a>
                         </li>
                     {% endif %}
-            
+                    
+                    {% if 'Supervisor' in grupos or 'Operario' in grupos or 'Técnico' in grupos %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="tareasDropdown" role="button" 
                            data-bs-toggle="dropdown" aria-expanded="false">
@@ -71,16 +72,18 @@
                                     <i class="fas fa-tasks me-2"></i>Listar Tareas
                                 </a>
                             </li>
-                            {% if not user.is_superuser %}
-                                <li>
-                                    <a class="dropdown-item" href="/internos/Informe">
-                                        <i class="fas fa-file-alt me-2"></i>Nuevo Informe
-                                    </a>
-                                </li>
+                            {% if 'Supervisor' in grupos or 'Operario' in grupos %}
+                            <li>
+                                <a class="dropdown-item" href="/internos/Informe">
+                                    <i class="fas fa-file-alt me-2"></i>Nuevo Informe
+                                </a>
+                            </li>
                             {% endif %}
                         </ul>
                     </li>
-            
+                    {% endif %}
+                    
+                    {% if 'Supervisor' in grupos or 'Operario' in grupos or 'Externo' in grupos %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="solicitudesDropdown" role="button" 
                            data-bs-toggle="dropdown" aria-expanded="false">
@@ -88,20 +91,26 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="solicitudesDropdown">
                             <li>
-                                <a class="dropdown-item" href="{% url 'crear_solicitud' %}">
+                                <a class="dropdown-item" href="{% url 'listar_solicitudes' %}">
                                     <i class="fas fa-list me-2"></i>Listar Solicitudes
                                 </a>
                             </li>
+                            {% if 'Supervisor' in grupos or 'Operario' in grupos %}
                             <li>
-                                <a class="dropdown-item" href="{% url 'listar_solicitudes' %}">
+                                <a class="dropdown-item" href="{% url 'crear_solicitud' %}">
                                     <i class="fas fa-plus-circle me-2"></i>Nueva Solicitud
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </li>
-                    <li>
+                    {% endif %}
+            
+                    {% if 'Supervisor' in grupos or 'Técnico' in grupos or 'Externo' in grupos %}
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'lista_mantenimiento' %}">Mantenimiento Preventivo</a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
             
@@ -169,7 +178,7 @@
                                     <span class="ms-2">{{ grupo }}</span>
                                 {% endfor %}
                             {% else %}
-                                <span class="ms-2">Sin grupo</span>
+                                <span class="ms-2">Sin Rol Asignado</span>
                             {% endif %}
                         {% endif %}
                     {% endif %}

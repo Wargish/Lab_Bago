@@ -51,19 +51,38 @@ def roles(request):
             grupo = Group.objects.get(name=rol)
             usuario.groups.clear()
             grupo.user_set.add(usuario)
-
         elif action == 'delete_user':
             usuario.delete()
         elif action == 'modify_user':
-            pass
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            usuario.username = username
+            usuario.email = email
+            if password:
+                usuario.set_password(password)
+            usuario.save()
         elif action == 'assign_task':
             tarea_id = request.POST.get('task_id')
             tarea = get_object_or_404(Tarea, id=tarea_id)
             tarea.asignar_tecnico(usuario)
+    
+    role_filter = request.GET.get('role', 'all')
 
     usuarios = User.objects.all()
+
+    if role_filter != 'all':
+        usuarios = usuarios.filter(groups__name=role_filter)
+
     roles = Group.objects.all()
     tareas_sin_tecnico = Tarea.objects.filter(asignado_a__isnull=True)
+
+    context = {
+        'usuarios': usuarios,
+        'roles': roles,
+        'tareas_sin_tecnico': tareas_sin_tecnico,
+        'selected_role': role_filter,
+    }
 
     return render(request, "app/auth/roles.html", {'usuarios': usuarios, 'roles': roles, 'tareas_sin_tecnico': tareas_sin_tecnico})
 

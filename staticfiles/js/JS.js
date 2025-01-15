@@ -112,8 +112,46 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
                     });
                 };
                 break;
+            case 'modify':
+                modalTitle.textContent = `Modificar usuario ${username}`;
+                modalBody.innerHTML = `
+                    <form id="modifyUserForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="${username}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo</label>
+                            <input type="email" class="form-control" id="email" name="email" value="${this.getAttribute('data-email')}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password">
+                        </div>
+                        <input type="hidden" name="user_id" value="${userId}">
+                        <input type="hidden" name="action" value="modify_user">
+                    </form>
+                `;
+                modalActionButton.textContent = 'Guardar Cambios';
+                modalActionButton.onclick = function () {
+                    const form = document.getElementById('modifyUserForm');
+                    const formData = new FormData(form);
+                    fetch('/auth/roles/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            console.error('Error al modificar el usuario');
+                        }
+                    });
+                };
+                break;
         }
-
         const myModal = new bootstrap.Modal(document.getElementById('actionModal'));
         myModal.show();
     });

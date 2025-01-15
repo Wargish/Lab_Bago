@@ -14,6 +14,7 @@ urlpatterns = [
     #path('auth/login/', axes_dispatch(iniciar_session), name="login"),
     #path('auth/registro/', registro, name="registro"),
     path('auth/roles/', roles, name='roles'),
+    
 
 
 

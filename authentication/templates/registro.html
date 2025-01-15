@@ -43,6 +43,9 @@
           {% if form.password.errors %}
           <div class="text-danger">{{ form.password.errors }}</div>
           {% endif %}
+          <div id="password-requirements" class="alert alert-info mt-2" role="alert" style="display: none;">
+            La contraseña debe tener al menos 8 caracteres, incluir una mayúscula y un carácter especial.
+          </div>
         </div>
 
         <div class="form-outline-login mb-4">
@@ -65,4 +68,19 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var passwordField = document.getElementById('id_password');
+    var passwordRequirements = document.getElementById('password-requirements');
+
+    passwordField.addEventListener('focus', function() {
+      passwordRequirements.style.display = 'block';
+    });
+
+    passwordField.addEventListener('blur', function() {
+      passwordRequirements.style.display = 'none';
+    });
+  });
+</script>
 {% endblock %}

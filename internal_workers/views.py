@@ -98,6 +98,7 @@ def feedback(request, tarea_id):
 
 # Vistas de tareas y roles especiales
 @login_required
+@group_required('Operario','Supervisor','Técnico')
 def listar_tareas(request):
     estado_selec = request.GET.get('estado', 'todos')
     estados_validos = ['Pendiente', 'En Curso', 'Completada', 'Rechazada', 'Archivada']

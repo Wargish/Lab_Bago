@@ -1,1 +1,2 @@
 Este es un mensaje de advertencia desde el shell.
+WARNING 2025-01-15 16:44:41,233 Forbidden (CSRF token from POST incorrect.): /auth/login/

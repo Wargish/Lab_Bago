@@ -143,6 +143,7 @@ def cargar_presupuesto(request, tarea_id):
     return render(request, 'app/infraestructura/presupuesto.html', {'form': form, 'tarea': tarea})
 
 @login_required
+@group_required('Operario','Supervisor','Externo')
 def listar_solicitudes(request):
     estado_selec = request.GET.get('estado', 'todos')
     estados_validos = ['en_espera', 'en_curso', 'completada', 'rechazada']
