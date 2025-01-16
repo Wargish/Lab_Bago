@@ -1,10 +1,10 @@
 from django.db.models.signals import post_migrate, post_save
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.dispatch import receiver
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.conf import settings
-from internal_workers.models import *
-from external_workers.models import *
+from internal_workers.models import Tarea, Notificacion, Estado
+from external_workers.models import SolicitudExterno, PresupuestoExterno
 import os
 import threading
 import time
@@ -62,7 +62,7 @@ def send_correo_solicitud(solicitud):
     </ul>
     <p>Por favor, revise el archivo adjunto para más información.</p>
     <p>Saludos,</p>
-    <p><strong>Equipo de Mantenimiento</strong></p>
+    <p><strong>Sistema de Servicios Generales</strong></p>
     """
 
     destinatarios = [solicitud.externo.email]
@@ -106,6 +106,7 @@ def enviar_correo_presupuesto(sender, instance, created, **kwargs):
         Razón del rechazo: {instance.mensaje}
 
         Gracias por tu comprensión.
+        Sistema de Servicios Generales
         """
     elif instance.estado == 'aprobado':
         asunto = 'Presupuesto Aprobado'
@@ -116,6 +117,7 @@ def enviar_correo_presupuesto(sender, instance, created, **kwargs):
         Fecha de asistencia asignada: {instance.fecha_asistencia.strftime('%d/%m/%Y')}
 
         ¡Gracias por tu colaboración!
+        Sistema de Servicios Generales
         """
 
     if asunto and mensaje:
@@ -126,3 +128,42 @@ def enviar_correo_presupuesto(sender, instance, created, **kwargs):
             [externo_email],
             fail_silently=False,
         )
+
+
+
+@receiver(post_save, sender=Tarea)
+def tarea_rechazada(sender, instance, **kwargs):
+    # Check if state changed to Rechazada
+    if instance.estado and instance.estado.nombre == 'Rechazada':
+        # Get all superusers
+        superusers = User.objects.filter(is_superuser=True)
+        
+        # Create notification for each superuser
+        for admin in superusers:
+            Notificacion.objects.create(
+                usuario=admin,
+                informe=instance.informe,
+                mensaje=f'La tarea "{instance.objetivo}" ha sido rechazada. Por favor, revise los detalles.'
+            )
+            
+            # Send email
+            send_mail(
+                'Notificación de Tarea Rechazada',
+                f'''Estimado {admin.username},
+
+                Le informamos que una tarea ha sido rechazada. A continuación, los detalles:
+
+                - Objetivo de la Tarea: {instance.objetivo}
+                - Informe Asociado: {instance.informe.objetivo}
+                - Técnico Asignado: {instance.asignado_a.username if instance.asignado_a else "No asignado"}
+                - Fecha de Creación: {instance.creado_en.strftime('%d-%m-%Y %H:%M')}
+
+                Por favor, revise el sistema para más detalles.
+
+                Saludos,
+                Sistema de Servicios Generales
+                ''',
+                settings.DEFAULT_FROM_EMAIL,
+                [admin.email],
+                fail_silently=False,
+            )

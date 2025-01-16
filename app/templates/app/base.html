@@ -135,10 +135,16 @@
                         {% if notificaciones %}
                             {% for notificacion in notificaciones %}
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'marcar_notificacion_leida' notificacion.id %}">
-                                        {{ notificacion.informe.objetivo }}
+                                    <a class="dropdown-item notification-item" href="{% url 'marcar_notificacion_leida' notificacion.id %}">
+                                        <div class="notification-title">{{ notificacion.informe.objetivo }}</div>
+                                        {% if notificacion.mensaje %}
+                                            <div class="notification-message text-muted">{{ notificacion.mensaje }}</div>
+                                        {% endif %}
                                     </a>
                                 </li>
+                                {% if not forloop.last %}
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
                             {% endfor %}
                         {% else %}
                             <li>
@@ -220,4 +226,27 @@
 {% load sweetify %}
 {% sweetify %}
 </body>
+
+<style>
+    .notification-item {
+        padding: 10px 15px;
+        white-space: normal;
+        min-width: 250px;
+    }
+    
+    .notification-title {
+        font-weight: bold;
+        margin-bottom: 3px;
+    }
+    
+    .notification-message {
+        font-size: 0.9em;
+        overflow-wrap: break-word;
+    }
+    
+    .dropdown-menu {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
 </html>
