@@ -1,8 +1,8 @@
 databases:
   - name: Lab_Bagodb
     plan: free
-    databaseName: Lab_Bago
-    user: Bago_Admin
+    databaseName: lab_bago_db
+    user: bago_admin
 
 services:
   - type: web
