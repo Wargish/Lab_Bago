@@ -108,7 +108,7 @@ WSGI_APPLICATION = 'Lab_Bago.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgresql://postgres:postgres@localhost:5432/mysite',
+        default='postgresql://lab_bagodb_user:KKcvwDHXsJ6JUoqBFS2I2PJMJHpvXIEi@dpg-cu77anlsvqrc7396m3cg-a/lab_bagodb',
         conn_max_age=600
     )
 }
