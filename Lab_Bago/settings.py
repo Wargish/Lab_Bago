@@ -27,7 +27,7 @@ LOGIN_REDIRECT_URL = '/home/'
 SECRET_KEY = 'django-insecure-6y0lrv#8id)*7+2&+@r&5=522d)mo159p=_bgi6f)2jvhu04f%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -199,8 +199,8 @@ DEFAULT_FROM_EMAIL = 'bago.emailtest@gmail.com'  # El correo que enviará los me
 
 
 # Key y Secret de Google reCAPTCHA
-RECAPTCHA_PUBLIC_KEY = '6LcVpJoqAAAAAOY9_u-ep22mSQzIoPbDgbLk7Zrz'
-RECAPTCHA_PRIVATE_KEY = '6LcVpJoqAAAAABuXx2QBkXgW_5EBYQi-twAj4gGt'
+RECAPTCHA_PUBLIC_KEY = '6LehApoqAAAAAOONn6k9whPFaHQ1GVPDprdH4HBp'
+RECAPTCHA_PRIVATE_KEY = '6LehApoqAAAAAORxooqqCIguMIGBceKB7madRUcq'
 SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 
 # Intentos de inicio de sesión
