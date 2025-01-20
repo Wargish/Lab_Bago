@@ -199,8 +199,8 @@ DEFAULT_FROM_EMAIL = 'bago.emailtest@gmail.com'  # El correo que enviará los me
 
 
 # Key y Secret de Google reCAPTCHA
-RECAPTCHA_PUBLIC_KEY = '6LehApoqAAAAAOONn6k9whPFaHQ1GVPDprdH4HBp'
-RECAPTCHA_PRIVATE_KEY = '6LehApoqAAAAAORxooqqCIguMIGBceKB7madRUcq'
+RECAPTCHA_PUBLIC_KEY = '6LcVpJoqAAAAAOY9_u-ep22mSQzIoPbDgbLk7Zrz'
+RECAPTCHA_PRIVATE_KEY = '6LcVpJoqAAAAABuXx2QBkXgW_5EBYQi-twAj4gGt'
 SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 
 # Intentos de inicio de sesión
