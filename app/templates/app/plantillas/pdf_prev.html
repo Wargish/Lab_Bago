@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Bago - Mantenimiento Preventivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 150px;
+        }
+        .title {
+            text-align: center;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .info-table th, .info-table td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .info-table th {
+            background-color: #f4f4f4;
+        }
+        .full-row {
+            background-color: #f4f4f4;
+            font-weight: bold;
+            text-align: center;
+        }
+        .observations {
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            border-top: 2px solid #000;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://bagochile.cl/wp-content/uploads/2023/05/LOGO-BAGO-SIN-FONDO-OFF.png" alt="Logo Bago" class="logo">
+        <div class="title">
+            <h1>Laboratorio Bago de Chile S.A.</h1>
+            <h3>Mantenimiento Preventivo</h3>
+        </div>
+        <div class="details">
+            <p><strong>Fecha:</strong> {{ informe.fecha|date:"d/m/Y" }}</p>
+            <p><strong>OT N°:</strong> {{ tarea.id }}</p>
+            <p><strong>Página:</strong> 1 de 1</p>
+        </div>
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <th>Tipo OP</th>
+            <td>{{ informe.tipo_ot }}</td>
+            <th>Asignado a</th>
+            <td>{{ informe.asignado_a }}</td>
+        </tr>
+        <tr>
+            <th>Solicitado por</th>
+            <td>{{ informe.solicitante }}</td>
+            <th>Prioridad</th>
+            <td>{{ informe.prioridad }}</td>
+        </tr>
+        <tr>
+            <th>Programado para</th>
+            <td>{{ informe.programado_para|date:"d/m/Y" }}</td>
+            <th>Supervisor</th>
+            <td>{{ informe.supervisor }}</td>
+        </tr>
+        <tr>
+            <th>Turno</th>
+            <td>{{ informe.turno }}</td>
+        </tr>
+    </table>
+
+    <h2>MANTENER LA ZONA DE TRABAJO LIMPIA, UTILICE E.P.P., DESENERGICE EQUIPO</h2>
+    <h3>REGISTRE EN BITÁCORA</h3>
+
+    <table class="info-table">
+        <tr>
+            <td class="full-row" colspan="2">Sistemas Críticos</td>
+        </tr>
+        <tr>
+            <th>Cód. Equipo</th>
+            <td>{{ informe.cod_equipo }}</td>
+        </tr>
+        <tr>
+            <th>Equipo</th>
+            <td>{{ informe.equipo }}</td>
+        </tr>
+    </table>
+
+    <p><strong>Descripción de Trabajo:</strong> {{ informe.descripcion_trabajo }}</p>
+
+    <table class="info-table">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Medidas</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in informe.tabla_dinamica %}
+            <tr>
+                <td>{{ item.refacción }}</td>
+                <td>{{ item.medidas }}</td>
+                <td>{{ item.cantidad }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="observations">
+        <h3>Observaciones:</h3>
+        <p>{{ informe.observaciones }}</p>
+    </div>
+
+    <div class="footer">
+        <p><strong>Nota:</strong> RETIRE TODAS LAS HERRAMIENTAS DE LA ZONA DE TRABAJO</p>
+        <p><strong>Realizado por:</strong> {{ informe.realizado_por }}</p>
+        <p><strong>Supervisado por:</strong> {{ informe.supervisor }}</p>
+        <p><strong>Fecha:</strong> {{ informe.fecha|date:"d/m/Y" }}</p>
+    </div>
+</body>
+</html>

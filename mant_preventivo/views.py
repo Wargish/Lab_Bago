@@ -5,6 +5,12 @@ from django.contrib.auth.models import Group
 from .forms import *
 from .models import *
 
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+from io import BytesIO
+from django.conf import settings
+import os
+
 import sweetify
 
 def group_required(*group_names):
@@ -144,12 +150,66 @@ def cerrar_tarea(request, pk):
     sweetify.sweetalert(request, icon='warning', persistent='Ok', title='Tarea cerrada', text='La tarea ha sido cerrada y el informe solo estará disponible para su vista.')
     return redirect('lista_mantenimiento')
 
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths for xhtml2pdf
+    """
+    sUrl = settings.STATIC_URL
+    sRoot = settings.STATIC_ROOT
+    mUrl = settings.MEDIA_URL
+    mRoot = settings.MEDIA_ROOT
+
+    if uri.startswith(mUrl):
+        path = os.path.join(mRoot, uri.replace(mUrl, ""))
+    elif uri.startswith(sUrl):
+        path = os.path.join(sRoot, uri.replace(sUrl, ""))
+    else:
+        return uri
+
+    if not os.path.isfile(path):
+        raise Exception(
+            'media URI must start with %s or %s' % (sUrl, mUrl)
+        )
+    return path
+
+def generar_pdf_mantenimiento(tarea):
+    # Get the associated maintenance report
+    informe = MantenimientoPreventivo.objects.get(tarea_mantenimiento=tarea)
+    
+    # Prepare context data for the template
+    context = {
+        'tarea': tarea,
+        'informe': informe,
+        'fecha': tarea.creada.strftime('%d/%m/%Y'),
+    }
+
+    # Render the HTML template
+    html = render_to_string('app/plantillas/pdf_prev.html', context)
+    
+    # Create PDF in memory
+    buffer = BytesIO()
+    pdf = pisa.CreatePDF(html, dest=buffer, link_callback=link_callback)
+    
+    if pdf.err:
+        return None
+    
+    buffer.seek(0)
+    return buffer.getvalue()
+
 @login_required
 @group_required('Supervisor', 'Técnico', 'Externo')
 def ver_pdf(request, tarea_id):
     tarea = get_object_or_404(TareaMantenimiento, id=tarea_id)
-    # Logic to generate or retrieve the PDF
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="tarea_{tarea_id}.pdf"'
-    # Add PDF generation logic here
-    return response
+    
+    # Generate PDF
+    pdf = generar_pdf_mantenimiento(tarea)
+    if pdf:
+        # Return PDF as response
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="mantenimiento_{tarea_id}.pdf"'
+        response.write(pdf)
+        return response
+    else:
+        # Handle error
+        sweetify.error(request, 'Error', text='Error generando el PDF')
+        return redirect('lista_mantenimiento')

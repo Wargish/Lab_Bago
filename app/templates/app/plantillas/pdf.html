@@ -3,87 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Solicitud generada para Laboratorio Bagó.">
+    <title>Solicitud de Mantenimiento</title>
     <style>
+        /* Estilo general */
         body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            margin: 40px auto;
-            background-color: #f8f9fa;
-            width: 80%;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #9f187e;
-            padding-bottom: 20px;
+        /* Sección de encabezado: logo y nombre del laboratorio */
+        .header-logo {
+            display: flex;
+            align-items: center; /* Alineación vertical */
+            justify-content: center; /* Centrar horizontalmente */
+            background-color: #9f187e; /* Color principal de Bagó */
+            color: white;
+            padding: 10px;
+            margin-bottom: 20px;
         }
 
-        .header img {
-            width: 120px;
-            margin-bottom: 10px;
+        .header-logo img {
+            height: 50px;
+            margin-right: 10px; /* Espaciado entre logo y texto */
         }
 
-        .header h1 {
-            font-size: 28px;
-            color: #9f187e;
-            text-transform: uppercase;
+        .logo-text {
+            font-size: 16px; /* Tamaño del texto del laboratorio */
             margin: 0;
         }
 
-        .container {
-            background-color: #ffffff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Título de la solicitud de mantenimiento */
+        .header-title {
+            text-align: center;
+            margin: 0; /* Eliminar márgenes extra */
+            padding: 10px 0;
         }
 
+        .header-title h1 {
+            font-size: 18px;
+            color: #9f187e;
+            margin: 0; /* Eliminar márgenes extra */
+        }
+
+        /* Contenedor principal */
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        /* Secciones dentro del contenedor */
         .section {
-            margin-bottom: 20px;
-            padding: 15px;
+            margin-bottom: 10px; /* Reducir el margen entre secciones */
             border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fdfdfd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f8f8;
         }
 
         .section h2 {
-            font-size: 20px;
+            font-size: 14px;
             color: #9f187e;
-            margin-bottom: 10px;
-            text-transform: capitalize;
+            margin: 0; /* Eliminar margen superior e inferior */
+            border-bottom: 1px solid #9f187e;
+            padding-bottom: 5px;
         }
 
         .section p {
-            margin: 0;
-            font-size: 16px;
-            color: #555;
+            margin: 0; /* Eliminar márgenes extra */
+            color: #333;
+        }
+
+        /* Sección de imagen */
+        .image-section {
+            display: block; /* Aseguramos que la imagen se muestre como un bloque */
+            margin-top: 10px;
+            text-align: center;
         }
 
         .image-section img {
-            max-width: 100%;
-            margin-top: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            max-width: 50%;
+            height: auto;
+            border: 1px solid #ccc;
+            margin-bottom: 10px; /* Espacio inferior para no pegarla al siguiente contenido */
         }
 
+        /* Pie de página */
         .footer {
             text-align: center;
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid #ddd;
-            color: #777;
-            font-size: 0.9em;
+            margin-top: 20px;
+            padding: 10px 0;
+            background-color: #9f187e;
+            color: white;
+            font-size: 10px;
         }
     </style>
-    <title>Solicitud de Laboratorio</title>
 </head>
 <body>
-    <div class="header">
-        <img src="https://bagochile.cl/wp-content/uploads/2023/05/cropped-SIMBOLO-LOGO-BAGO-OFF.jpg" alt="Logo Bagó"> Laboratorio Bagó
-        <h1>Solicitud de Laboratorio</h1>
+    <!-- Sección de logo y nombre del laboratorio -->
+    <div class="header-logo">
+        <img src="https://bagochile.cl/wp-content/uploads/2023/05/cropped-SIMBOLO-LOGO-BAGO-OFF.jpg" alt="Logo Bagó">
+        <div class="logo-text">Laboratorio Bagó de Chile S.A.</div>
+    </div>
+
+    <!-- Título de la solicitud de mantenimiento -->
+    <div class="header-title">
+        <h1>Solicitud de Mantenimiento</h1>
     </div>
 
     <div class="container">
@@ -104,7 +132,6 @@
 
         {% if solicitud.imagen %}
         <div class="section image-section">
-            <h2>Imagen Adjunta:</h2>
             <img src="{{ solicitud.imagen.url }}" alt="Imagen de Solicitud">
         </div>
         {% endif %}

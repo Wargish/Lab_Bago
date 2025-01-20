@@ -72,7 +72,6 @@ class Tarea(models.Model):
 
     def asignar_tecnico(self, tecnico):
         if self.asignado_a:
-            # Notificar al técnico anterior que la tarea fue reasignada
             Notificacion.objects.create(usuario=self.asignado_a, informe=self.informe, mensaje=f'Tarea reasignada: {self.objetivo}')
         
         self.asignado_a = tecnico
@@ -114,9 +113,3 @@ class FeedbackTarea(models.Model):
 
     def __str__(self):
         return f'Feedback para Tarea: {self.tarea.objetivo} - Aprobado: {"Sí" if self.aprobado else "No"}'
-    
-
-
-
-
-

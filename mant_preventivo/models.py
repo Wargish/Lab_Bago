@@ -17,7 +17,7 @@ class MantenimientoPreventivo(models.Model):
     supervisor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='supervisado_por')
     fecha = models.DateTimeField(auto_now_add=True)
     ultima_modificacion = models.DateTimeField(auto_now=True)
-    tabla_dinamica = models.JSONField(default=list)  # Aquí se guardará la tabla como un JSON
+    tabla_dinamica = models.JSONField(default=list)
 
 
 class TareaMantenimiento(models.Model):
