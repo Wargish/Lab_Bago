@@ -1,4 +1,4 @@
-iimport os
+import os
 import sys
 
 # Ajusta esta ruta al directorio donde está tu proyecto Django (el directorio raíz)
