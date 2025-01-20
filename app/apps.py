@@ -1,7 +1,5 @@
 from django.apps import AppConfig
-from django.contrib.auth.models import User
 import os
-
 
 class AppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -14,6 +12,8 @@ class AppConfig(AppConfig):
         # Lógica para crear el superusuario automáticamente
         if os.environ.get('RUN_MAIN', None) != 'true':
             return  # Evitar que se ejecute más de una vez en algunos servidores
+
+        from django.contrib.auth.models import User
 
         SUPERUSER_USERNAME = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
         SUPERUSER_EMAIL = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
