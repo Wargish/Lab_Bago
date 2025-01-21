@@ -1,8 +1,20 @@
 {% extends 'app/base.html' %}
-
 {% block content %}
+
 <div class="container mt-5 text-white">
   <h2 class="mb-4">Control de Usuarios</h2>
+
+  <!-- Alertas de Bootstrap -->
+  {% if messages %}
+    <div class="alert-container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
   
   <!-- Add role filter -->
   <div class="mb-3">

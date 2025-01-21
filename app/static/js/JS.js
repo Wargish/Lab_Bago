@@ -18,7 +18,7 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
                 modalBody.innerHTML = `
                     <form id="changeRoleForm">
                         <div class="mb-3">
-                            <label for="roleSelect" class="form-label">Selecciona un nuevo rol</label>
+                            <label for="roleSelect" class="form-label" style="color: black;">Selecciona un nuevo rol</label>
                             <select class="form-select" id="roleSelect" name="role">
                                 <option value="Operario">Operario</option>
                                 <option value="Técnico">Técnico</option>
@@ -84,7 +84,7 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
                 modalBody.innerHTML = `
                     <form id="assignTaskForm">
                         <div class="mb-3">
-                            <label for="taskSelect" class="form-label">Selecciona una tarea</label>
+                            <label for="taskSelect" class="form-label" style="color: black;">Selecciona una tarea</label>
                             <select class="form-select" id="taskSelect" name="task_id">
                                 ${options}
                             </select>
@@ -113,73 +113,72 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
                 };
                 break;
             case 'modify':
-                    const userEmail = this.getAttribute('data-email');
-                    modalTitle.textContent = `Modificar usuario ${username}`;
-                    modalBody.innerHTML = `
-                        <form id="modifyUserForm">
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control" id="username" name="username" value="${username}">
+                const userEmail = this.getAttribute('data-email');
+                modalTitle.textContent = `Modificar usuario ${username}`;
+                modalBody.innerHTML = `
+                    <form id="modifyUserForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label" style="color: black;">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="${username}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label" style="color: black;">Correo</label>
+                            <input type="email" class="form-control" id="email" name="email" value="${userEmail}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label" style="color: black;">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password">
+                            <div class="form-text text-muted">
+                            <p style="color: black>La contraseña debe contener al menos:</p>
+                                    <p style="color: black>8 caracteres</p>
+                                    <p style="color: black>Una mayúscula</p>
+                                    <p style="color: black>Un carácter especial (!@#$%^&*)</p>
                             </div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Correo</label>
-                                <input type="email" class="form-control" id="email" name="email" value="${userEmail}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="password" name="password">
-                                <div class="form-text text-muted">
-                                    La contraseña debe contener al menos:
-                                    <ul>
-                                        <li>8 caracteres</li>
-                                        <li>Una mayúscula</li>
-                                        <li>Un carácter especial (!@#$%^&*)</li>
-                                    </ul>
-                                </div>
-                                <div id="passwordError" class="invalid-feedback"></div>
-                            </div>
-                            <input type="hidden" name="user_id" value="${userId}">
-                            <input type="hidden" name="action" value="modify_user">
-                        </form>
-                    `;
-                    modalActionButton.textContent = 'Guardar Cambios';
-                    modalActionButton.onclick = function () {
-                        const form = document.getElementById('modifyUserForm');
-                        const password = form.querySelector('#password').value;
-                        
-                        // Solo validar si se ingresó una contraseña
-                        if (password) {
-                            const passwordRegex = /^(?=.*[A-Z])(?=.*[.!@#$%^&*.])[A-Za-z\d.!@#$%^&*.]{8,}$/;
-                            if (!passwordRegex.test(password)) {
-                                const passwordInput = form.querySelector('#password');
-                                passwordInput.classList.add('is-invalid');
-                                const errorDiv = form.querySelector('#passwordError');
-                                errorDiv.textContent = 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un carácter especial';
-                                return;
-                            }
+                            <div id="passwordError" class="invalid-feedback"></div>
+                        </div>
+                        <input type="hidden" name="user_id" value="${userId}">
+                        <input type="hidden" name="action" value="modify_user">
+                    </form>
+                `;
+                modalActionButton.textContent = 'Guardar Cambios';
+                modalActionButton.onclick = function () {
+                    const form = document.getElementById('modifyUserForm');
+                    const password = form.querySelector('#password').value;
+
+                    // Solo validar si se ingresó una contraseña
+                    if (password) {
+                        const passwordRegex = /^(?=.*[A-Z])(?=.*[.!@#$%^&*.])[A-Za-z\d.!@#$%^&*.]{8,}$/;
+                        if (!passwordRegex.test(password)) {
+                            const passwordInput = form.querySelector('#password');
+                            passwordInput.classList.add('is-invalid');
+                            const errorDiv = form.querySelector('#passwordError');
+                            errorDiv.textContent = 'La contraseña debe tener al menos 8 caracteres, una mayúscula y un carácter especial';
+                            return;
                         }
-                
-                        const formData = new FormData(form);
-                        fetch('/auth/roles/', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRFToken': getCookie('csrftoken')
-                            }
-                        }).then(response => {
-                            if (response.ok) {
-                                location.reload();
-                            } else {
-                                console.error('Error al modificar el usuario');
-                            }
-                        });
-                    };
+                    }
+
+                    const formData = new FormData(form);
+                    fetch('/auth/roles/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            console.error('Error al modificar el usuario');
+                        }
+                    });
+                };
                 break;
         }
         const myModal = new bootstrap.Modal(document.getElementById('actionModal'));
         myModal.show();
     });
 });
+
 
 function getCookie(name) {
     let cookieValue = null;
