@@ -9,6 +9,17 @@ import os
 import threading
 import time
 
+@receiver(post_migrate)
+def create_superuser(sender, **kwargs):
+    username = 'PatricioDiaz'
+    email = 'Pat.moralesg@gmail.com'
+    password = '123456789'
+    
+    if not User.objects.filter(username=username).exists():
+        User.objects.create_superuser(username=username, email=email, password=password)
+        print(f'Superuser {username} created successfully.')
+    else:
+        print(f'Superuser {username} already exists.')
 
 # Signal para crear grupos y estados después de las migraciones
 @receiver(post_migrate)
@@ -23,7 +34,9 @@ def create_groups(sender, **kwargs):
         estados = ['Pendiente', 'En Curso', 'Completada', 'Archivada', 'Rechazada']
         for nombre in estados:
             Estado.objects.get_or_create(nombre=nombre)
-
+        print('Grupos y estados creados exitosamente.')
+    else:
+        print('No se crearon grupos ni estados.')
 
 @receiver(post_save, sender=SolicitudExterno)
 def enviar_correo_asincrono_solicitud(sender, instance, created, **kwargs):
