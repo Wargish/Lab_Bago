@@ -13,7 +13,7 @@ urlpatterns = [
 
     #path('auth/login/', axes_dispatch(iniciar_session), name="login"),
     #path('auth/registro/', registro, name="registro"),
-    path('auth/roles/', roles, name='roles'),
+    path('auth/roles', roles, name='roles'),
     
 
 
@@ -28,7 +28,7 @@ urlpatterns = [
     #path('api/user/<int:user_id>/', obtener_datos_usuario, name='obtener_datos_usuario'),
 
     path('dashboard/graficos', graficos, name='graficos'),
-    path('descargar-tareas/', descargar_tareas, name='descargar_tareas'),
+    path('descargar-tareas', descargar_tareas, name='descargar_tareas'),
 
     #path('dashboard/listar_tareas', listar_tareas, name='listar_tareas'),
     #path('dashboard/listar_solicitudes', listar_solicitudes, name='listar_solicitudes'),

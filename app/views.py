@@ -26,31 +26,37 @@ def home(request):
     return render(request, "app/home.html", {'username': username, 'grupos': grupos})
 
 def roles(request):
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        usuario_id = request.POST.get('user_id')
-        usuario = get_object_or_404(User, id=usuario_id)
+    try:
+        # Código de la vista
+        if request.method == 'POST':
+            action = request.POST.get('action')
+            usuario_id = request.POST.get('user_id')
+            usuario = get_object_or_404(User, id=usuario_id)
 
-        if action == 'change_role':
-            rol = request.POST.get('role')
-            grupo = Group.objects.get(name=rol)
-            usuario.groups.clear()
-            grupo.user_set.add(usuario)
-        elif action == 'delete_user':
-            usuario.delete()
-        elif action == 'modify_user':
-            username = request.POST.get('username')
-            email = request.POST.get('email')
-            password = request.POST.get('password')
-            usuario.username = username
-            usuario.email = email
-            if password:
-                usuario.set_password(password)
-            usuario.save()
-        elif action == 'assign_task':
-            tarea_id = request.POST.get('task_id')
-            tarea = get_object_or_404(Tarea, id=tarea_id)
-            tarea.asignar_tecnico(usuario)
+            if action == 'change_role':
+                rol = request.POST.get('role')
+                grupo = Group.objects.get(name=rol)
+                usuario.groups.clear()
+                grupo.user_set.add(usuario)
+            elif action == 'delete_user':
+                usuario.delete()
+            elif action == 'modify_user':
+                username = request.POST.get('username')
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+                usuario.username = username
+                usuario.email = email
+                if password:
+                    usuario.set_password(password)
+                usuario.save()
+            elif action == 'assign_task':
+                tarea_id = request.POST.get('task_id')
+                tarea = get_object_or_404(Tarea, id=tarea_id)
+                tarea.asignar_tecnico(usuario)
+    except Exception as e:
+        # Puedes agregar logging o imprimir el error para depuración
+        print(f"Error en la vista roles: {e}")
+        raise
     
     role_filter = request.GET.get('role', 'all')
 
