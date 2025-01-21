@@ -12,9 +12,7 @@ urlpatterns = [
     #path('logout/', cerrar_session, name="logout"),
 
     #path('auth/login/', axes_dispatch(iniciar_session), name="login"),
-    #path('auth/registro/', registro, name="registro"),
-    path('auth/roles', roles, name='roles'),
-    
+    #path('auth/registro/', registro, name="registro"),    
 
 
 
