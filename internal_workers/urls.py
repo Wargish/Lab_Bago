@@ -7,6 +7,9 @@ urlpatterns = [
 
     path('listar_tareas', listar_tareas, name='listar_tareas'),
 
+    path('agregar-ubicacion/', agregar_ubicacion, name='agregar_ubicacion'),
+
+
     path('Informe', informe, name='Informe'),
     path('reporte', reporte, name='reporte'),
     path('feedback/<int:tarea_id>/', feedback, name='feedback'),

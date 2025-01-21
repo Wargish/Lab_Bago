@@ -1,10 +1,12 @@
 # Importaciones estándar de Django
 from django.shortcuts import render, redirect, get_object_or_404,HttpResponseRedirect
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test, require_POST
+from django.http import JsonResponse
 from app.signals import *
 import sweetify
 import os
+import json
 # Importaciones locales (formularios y modelos)
 from .forms import *
 from .models import *
@@ -169,4 +171,19 @@ def marcar_notificacion_leida(request, notificacion_id):
     else:
         return redirect('home')
 
-
+@require_POST
+def agregar_ubicacion(request):
+    try:
+        data = json.loads(request.body)
+        nombre = data.get('nombre')
+        if not nombre:
+            return JsonResponse({'success': False, 'error': 'Nombre es requerido'})
+        
+        ubicacion = Ubicacion.objects.create(nombre=nombre)
+        return JsonResponse({
+            'success': True,
+            'id': ubicacion.id,
+            'nombre': ubicacion.nombre
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

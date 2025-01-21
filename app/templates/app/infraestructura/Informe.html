@@ -6,15 +6,20 @@
     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
 
-        <!-- Campo de ubicación -->
-        <div class="md-form">
-            {{ form.ubicacion.label_tag }}
-            {{ form.ubicacion }}
-            <div class="invalid-feedback">
-                {% for error in form.ubicacion.errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
+        <!-- Campo de ubicación con botón añadir -->
+        <div class="md-form d-flex align-items-center">
+            <div class="flex-grow-1 mr-2">
+                {{ form.ubicacion.label_tag }}
+                {{ form.ubicacion }}
+                <div class="invalid-feedback">
+                    {% for error in form.ubicacion.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
             </div>
+            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addLocationModal">
+                <i class="fas fa-plus"></i> Añadir
+            </button>
         </div>
 
         <!-- Campo de tipo de informe -->
@@ -70,6 +75,35 @@
 </div>
 
 
+
+<!-- Modal para añadir ubicación -->
+<div class="modal fade" id="addLocationModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Añadir Nueva Ubicación</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addLocationForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="locationName">Nombre de la ubicación</label>
+                        <input type="text" class="form-control" id="locationName" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="saveLocation">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
     const imageInput = document.getElementById('id_imagen');  // Seleccionamos el input de archivo
     const imagePreview = document.getElementById('imagen-preview');  // Vista previa de la imagen
@@ -96,5 +130,42 @@
             }
         });
     }
+
+    document.getElementById('saveLocation').addEventListener('click', function() {
+        const locationName = document.getElementById('locationName').value;
+        if (!locationName) {
+            alert('Por favor ingrese un nombre para la ubicación');
+            return;
+        }
+
+        fetch('/agregar-ubicacion/', {  // Necesitarás crear esta URL
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({ nombre: locationName })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Agregar nueva opción al select
+                const select = document.getElementById('id_ubicacion');
+                const option = new Option(locationName, data.id);
+                select.add(option);
+                select.value = data.id;
+                
+                // Cerrar modal
+                $('#addLocationModal').modal('hide');
+                document.getElementById('locationName').value = '';
+            } else {
+                alert('Error al agregar la ubicación: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    });
 </script>
 {% endblock %}
