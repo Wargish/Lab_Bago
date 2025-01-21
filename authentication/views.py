@@ -95,4 +95,3 @@ def cerrar_session(request):
     logout(request)
     sweetify.sweetalert(request, icon='success', title='Sesión cerrada', text='Has cerrado sesión exitosamente.')
     return redirect('home')
-

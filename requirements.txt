@@ -1,8 +1,6 @@
 Django==5.1.2
 pillow==11.0.0
 pytz==2024.2
-plotly
-pandas
 sweetify
 xhtml2pdf
 django-axes
@@ -14,3 +12,4 @@ dj-database-url
 whitenoise[brotli]
 gunicorn 
 uvicorn
+sentry-sdk[django]
