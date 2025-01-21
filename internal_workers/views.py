@@ -9,8 +9,8 @@ import sweetify
 import json
 
 # Importaciones locales (formularios y modelos)
-from forms import InformeForm, ReporteForm, FeedbackForm
-from models import Informe, Tarea, ReporteTarea, FeedbackTarea, Notificacion, Ubicacion 
+from internal_workers.forms import InformeForm, ReporteForm, FeedbackForm
+from internal_workers.forms import Informe, Tarea, ReporteTarea, FeedbackTarea, Notificacion, Ubicacion 
 
 
 # Filtro Grupos de Usuarios
