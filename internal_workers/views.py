@@ -1,22 +1,16 @@
 # Importaciones estándar de Django
 from django.shortcuts import render, redirect, get_object_or_404,HttpResponseRedirect
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required, user_passes_test, require_POST
-from django.http import JsonResponse
-from app.signals import *
-import sweetify
-import os
-import json
-# Importaciones locales (formularios y modelos)
-from .forms import *
-from .models import *
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
 
-# Importaciones para PDF
-from xhtml2pdf import pisa
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from django.core.files.base import ContentFile
-from django.template.loader import render_to_string
+from django.http import JsonResponse
+import sweetify
+import json
+
+# Importaciones locales (formularios y modelos)
+from forms import InformeForm, ReporteForm, FeedbackForm
+from models import Informe, Tarea, ReporteTarea, FeedbackTarea, Notificacion, Ubicacion 
 
 
 # Filtro Grupos de Usuarios
