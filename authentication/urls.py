@@ -8,4 +8,5 @@ urlpatterns = [
     path('logout/', cerrar_session, name="logout"),
     path('login/', axes_dispatch(iniciar_session), name="login"),
     path('registro/', registro, name="registro"),
+    path('roles/', roles, name='roles'),
 ]
