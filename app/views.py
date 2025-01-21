@@ -14,8 +14,7 @@ from datetime import timedelta
 
 # Importaciones locales (formularios y modelos)
 from .forms import *
-from .models import *
-from internal_workers.models import Tarea
+from internal_workers.models import Tarea, Notificacion, Informe, Ubicacion
 
 # Filtro de grupos
 def group_required(*group_names):
@@ -39,7 +38,7 @@ def home(request):
     return render(request, "app/home.html", {'username': username, 'grupos': grupos})
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+#@user_passes_test(lambda u: u.is_superuser)
 def roles(request):
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -110,7 +109,7 @@ def marcar_notificacion_leida(request, notificacion_id):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser or u.groups.filter(name='Supervisor').exists())
+#@user_passes_test(lambda u: u.is_superuser or u.groups.filter(name='Supervisor').exists())
 def graficos(request):
     # Cache the graphs for 1 hour to avoid recalculating them on every request
     cached_graphs = cache.get('dashboard_graphs')
