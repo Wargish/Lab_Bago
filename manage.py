@@ -17,11 +17,6 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
-        # Llamar al script de creación del superusuario después de migrar
-    if len(sys.argv) > 1 and sys.argv[1] == 'runserver':
-        from create_superuser import create_superuser
-        create_superuser()
-
 
 if __name__ == '__main__':
     main()
