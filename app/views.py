@@ -14,8 +14,7 @@ from datetime import timedelta
 
 # Importaciones locales (formularios y modelos)
 from .forms import *
-from .models import *
-from internal_workers.models import Tarea
+from internal_workers.models import Tarea, Informe, Ubicacion
 
 # Filtro de grupos
 def group_required(*group_names):

@@ -80,10 +80,14 @@
                         {% if tarea.externo_feedback %}
                             <a href="{% url 'detalle_feedback_ext' tarea.externo_feedback.id %}" class="btn btn-info btn-sm">Feedback</a>
                         {% else %}
-                            {% if es_operario or es_supervisor and tarea.externo_reportes %}
+                            {% if tarea.externo_reportes and es_operario or es_supervisor %}
                                 <a href="{% url 'feedback_externo' tarea.id %}" class="btn btn-success btn-sm">Crear Feedback</a>
                             {% else %}
-                                Aun no se ha creado un Feedback
+                                {% if tarea.externo_reportes %}
+                                    Pendiente de Feedback
+                                {% else %}
+                                    Debe crearse el reporte primero
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     </td>

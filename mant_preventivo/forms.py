@@ -7,7 +7,7 @@ from .models import *
 class TareaMantenimientoForm(forms.ModelForm):
     class Meta:
         model = TareaMantenimiento
-        fields = ['asignado_a']
+        fields = ['asignado_a', 'tipo_ot', 'descripcion_trabajo']  # Agregar los nuevos campos
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -15,16 +15,14 @@ class TareaMantenimientoForm(forms.ModelForm):
 
 
 class MantenimientoForm(forms.ModelForm):
+    programado_para = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        required=True
+    )
     class Meta:
         model = MantenimientoPreventivo
-        fields = ['tipo_ot', 'asignado_a', 'solicitante', 'prioridad', 'tarea_mantenimiento', 'programado_para', 'turno','descripcion_trabajo','cod_equipo','equipo','observaciones','realizado_por','supervisor']
+        fields = ['solicitante', 'prioridad', 'programado_para', 'turno', 'cod_equipo', 'equipo', 'observaciones']
         widgets = {
             'programado_para': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'descripcion_trabajo': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
-        
-    def __init__(self, *args, **kwargs):
-        super(MantenimientoForm, self).__init__(*args, **kwargs)
-        tecnicos_externos = User.objects.filter(groups__name__in=['Técnico', 'Externo'])
-        self.fields['asignado_a'].queryset = tecnicos_externos

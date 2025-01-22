@@ -54,6 +54,7 @@ def agregar_tarea(request):
         if form.is_valid():
             tarea = form.save(commit=False)
             tarea.creado_por = request.user
+            tarea.supervisor = request.user  # Asigna el supervisor como el usuario que crea la tarea
             tarea.save()
             sweetify.sweetalert(request, icon='success', persistent='Ok', title='Tarea creada', text='Tarea creada correctamente')
             return redirect('lista_mantenimiento')
@@ -64,6 +65,7 @@ def agregar_tarea(request):
     return render(request, 'tarea_mant.html', {'form': form})
 
 
+
 @login_required
 @group_required('Técnico', 'Externo')
 def crear_informe(request, tarea_id):
@@ -72,7 +74,6 @@ def crear_informe(request, tarea_id):
     if request.method == 'POST':
         form = MantenimientoForm(request.POST)
 
-        # Recoge los datos de la tabla dinámica
         tabla_dinamica = []
         total_filas = int(request.POST.get('tabla_dinamica_total', 0))
         for i in range(total_filas):
@@ -90,7 +91,12 @@ def crear_informe(request, tarea_id):
         if form.is_valid():
             informe = form.save(commit=False)
             informe.tarea_mantenimiento = tarea
-            informe.tabla_dinamica = tabla_dinamica  # Guarda la tabla como JSON
+            informe.asignado_a = request.user
+            informe.realizado_por = request.user.username
+            informe.supervisor = tarea.supervisor
+            informe.tabla_dinamica = tabla_dinamica
+            informe.tipo_ot = tarea.tipo_ot
+            informe.descripcion_trabajo = tarea.descripcion_trabajo
             informe.save()
             sweetify.sweetalert(request, icon='success', persistent='Ok', title='Informe creado', text='Informe creado correctamente')
             return redirect('lista_mantenimiento')
@@ -134,7 +140,10 @@ def modificar_informe(request, pk):
         else:
             sweetify.error(request, 'Error', text='error en los campos.')
     else:
-        form = MantenimientoForm(instance=informe)
+        initial_data = {
+            'programado_para': informe.programado_para.strftime('%Y-%m-%d') if informe.programado_para else None
+        }
+        form = MantenimientoForm(instance=informe, initial=initial_data)
     
     return render(request, 'modificar_informe.html', {
         'form': form,

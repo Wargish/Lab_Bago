@@ -12,13 +12,16 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
         const modalBody = document.getElementById('modalBody');
         const modalActionButton = document.getElementById('modalActionButton');
 
+        modalTitle.style.color = '#000000';
+        modalBody.style.color = '#000000';
+
         switch (action) {
             case 'change_role':
                 modalTitle.textContent = `Cambiar rol de ${username}`;
                 modalBody.innerHTML = `
                     <form id="changeRoleForm">
                         <div class="mb-3">
-                            <label for="roleSelect" class="form-label">Selecciona un nuevo rol</label>
+                            <label for="roleSelect" class="form-label modal-label">Selecciona un nuevo rol</label>
                             <select class="form-select" id="roleSelect" name="role">
                                 <option value="Operario">Operario</option>
                                 <option value="Técnico">Técnico</option>
@@ -84,7 +87,7 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
                 modalBody.innerHTML = `
                     <form id="assignTaskForm">
                         <div class="mb-3">
-                            <label for="taskSelect" class="form-label">Selecciona una tarea</label>
+                            <label for="taskSelect" class="form-label modal-label">Selecciona una tarea</label>
                             <select class="form-select" id="taskSelect" name="task_id">
                                 ${options}
                             </select>
@@ -118,15 +121,15 @@ document.querySelectorAll('.dropdown-item').forEach(item => {
                     modalBody.innerHTML = `
                         <form id="modifyUserForm">
                             <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
+                                <label for="username" class="form-label modal-label">Username</label>
                                 <input type="text" class="form-control" id="username" name="username" value="${username}">
                             </div>
                             <div class="mb-3">
-                                <label for="email" class="form-label">Correo</label>
+                                <label for="email" class="form-label modal-label">Correo</label>
                                 <input type="email" class="form-control" id="email" name="email" value="${userEmail}">
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="form-label">Contraseña</label>
+                                <label for="password" class="form-label modal-label">Contraseña</label>
                                 <input type="password" class="form-control" id="password" name="password">
                                 <div class="form-text text-muted">
                                     La contraseña debe contener al menos:

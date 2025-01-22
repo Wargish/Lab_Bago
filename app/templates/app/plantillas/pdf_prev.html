@@ -67,7 +67,7 @@
 
     <table class="info-table">
         <tr>
-            <th>Tipo OP</th>
+            <th>Tipo OT</th>
             <td>{{ informe.tipo_ot }}</td>
             <th>Asignado a</th>
             <td>{{ informe.asignado_a }}</td>
@@ -82,7 +82,7 @@
             <th>Programado para</th>
             <td>{{ informe.programado_para|date:"d/m/Y" }}</td>
             <th>Supervisor</th>
-            <td>{{ informe.supervisor }}</td>
+            <td>{{ informe.supervisor.get_full_name|default:informe.supervisor.username }}</td>
         </tr>
         <tr>
             <th>Turno</th>
@@ -136,7 +136,7 @@
     <div class="footer">
         <p><strong>Nota:</strong> RETIRE TODAS LAS HERRAMIENTAS DE LA ZONA DE TRABAJO</p>
         <p><strong>Realizado por:</strong> {{ informe.realizado_por }}</p>
-        <p><strong>Supervisado por:</strong> {{ informe.supervisor }}</p>
+        <p><strong>Supervisado por:</strong> {{ informe.supervisor.get_full_name|default:informe.supervisor.username }}</p>
         <p><strong>Fecha:</strong> {{ informe.fecha|date:"d/m/Y" }}</p>
     </div>
 </body>

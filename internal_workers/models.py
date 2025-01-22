@@ -40,9 +40,6 @@ class Informe(models.Model):
     def __str__(self):
         return f'Informe: {self.objetivo}'
 
-from django.core.mail import send_mail
-from django.conf import settings
-
 class Notificacion(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     informe = models.ForeignKey(Informe, on_delete=models.CASCADE)
@@ -92,6 +89,11 @@ class ReporteTarea(models.Model):
         self.tarea.estado = Estado.objects.get(nombre='Completada')
         self.tarea.save()
         super().save(*args, **kwargs)
+        Notificacion.objects.create(
+            usuario=self.tarea.informe.usuario,
+            informe=self.tarea.informe,
+            mensaje=f'Se ha creado un reporte para la tarea: {self.tarea.objetivo}'
+        )
 
     def __str__(self):
         return f'Reporte de Tarea: {self.tarea.objetivo} - Fecha: {self.creado_en.strftime("%Y-%m-%d %H:%M")}'

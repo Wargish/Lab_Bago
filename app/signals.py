@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.conf import settings
 from internal_workers.models import Tarea, Notificacion, Estado
-from external_workers.models import SolicitudExterno, PresupuestoExterno
+from external_workers.models import SolicitudExterno, PresupuestoExterno, ExternoFeedback
 import os
 import threading
 import time
@@ -12,6 +12,7 @@ import time
 
 # Signal para crear grupos y estados después de las migraciones
 @receiver(post_migrate)
+
 def create_groups(sender, **kwargs):
     if sender.name == 'app':  # Cambia 'app' por el nombre correcto de tu módulo
         Group.objects.get_or_create(name='Operario')
@@ -89,7 +90,10 @@ def send_correo_solicitud(solicitud):
         print(f"Error al enviar correo: {e}")
         print(f"Detalles adicionales: {str(e)}")
 
-# signal para enviar correo sobre el estado del presupuesto
+
+
+# Correos sobre rechazo de presupuestos y feedbacks
+
 @receiver(post_save, sender=PresupuestoExterno)
 def enviar_correo_presupuesto(sender, instance, created, **kwargs):
     solicitud = instance.tarea_externo.solicitud
@@ -108,6 +112,39 @@ def enviar_correo_presupuesto(sender, instance, created, **kwargs):
         Gracias por tu comprensión.
         Sistema de Servicios Generales
         """
+        
+        # Notificar a los superusuarios
+        superusers = User.objects.filter(is_superuser=True)
+        for admin in superusers:
+            # Crear notificación
+            Notificacion.objects.create(
+                usuario=admin,
+                informe=instance.tarea_externo.informe,
+                mensaje=f'El presupuesto para la solicitud "{solicitud.id}" ha sido rechazado. Por favor, revise los detalles.'
+            )
+
+            # Enviar correo
+            send_mail(
+                'Notificación de Presupuesto Rechazado',
+                f'''Estimado {admin.username},
+
+                Le informamos que un presupuesto ha sido rechazado. A continuación, los detalles:
+
+                - Solicitud ID: {solicitud.id}
+                - Usuario Externo: {solicitud.externo.username}
+                - Fecha de Creación: {instance.fecha_creacion.strftime('%d-%m-%Y %H:%M')}
+                - Razón del Rechazo: {instance.mensaje}
+
+                Por favor, revise el sistema para más detalles.
+
+                Saludos,
+                Sistema de Servicios Generales
+                ''',
+                settings.DEFAULT_FROM_EMAIL,
+                [admin.email],
+                fail_silently=False,
+            )
+
     elif instance.estado == 'aprobado':
         asunto = 'Presupuesto Aprobado'
         mensaje = f"""
@@ -133,12 +170,9 @@ def enviar_correo_presupuesto(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Tarea)
 def tarea_rechazada(sender, instance, **kwargs):
-    # Check if state changed to Rechazada
     if instance.estado and instance.estado.nombre == 'Rechazada':
-        # Get all superusers
         superusers = User.objects.filter(is_superuser=True)
         
-        # Create notification for each superuser
         for admin in superusers:
             Notificacion.objects.create(
                 usuario=admin,
@@ -167,3 +201,39 @@ def tarea_rechazada(sender, instance, **kwargs):
                 [admin.email],
                 fail_silently=False,
             )
+
+
+@receiver(post_save, sender=ExternoFeedback)
+def enviar_correo_feedback_rechazado(sender, instance, created, **kwargs):
+    if instance.estado == 'rechazado':
+        superusers = User.objects.filter(is_superuser=True)
+        
+        for admin in superusers:
+            # Crear notificación
+            Notificacion.objects.create(
+                usuario=admin,
+                informe=instance.informe,
+                mensaje=f'El feedback de "{instance.externo.username}" ha sido rechazado. Por favor, revise los detalles.'
+            )
+
+            # Enviar correo
+            send_mail(
+                'Notificación de Externo Rechazado',
+                f'''Estimado {admin.username},
+
+                Le informamos que un feedback ha sido rechazado. A continuación, los detalles:
+
+                - Usuario Externo: {instance.externo.username}
+                - Fecha de Creación: {instance.fecha_creacion.strftime('%d-%m-%Y %H:%M')}
+                - Comentarios: {instance.comentarios}
+
+                Por favor, revise el sistema para más detalles.
+
+                Saludos,
+                Sistema de Servicios Generales
+                ''',
+                settings.DEFAULT_FROM_EMAIL,
+                [admin.email],
+                fail_silently=False,
+            )
+
