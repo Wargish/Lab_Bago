@@ -12,7 +12,6 @@ import time
 
 # Signal para crear grupos y estados después de las migraciones
 @receiver(post_migrate)
-
 def create_groups(sender, **kwargs):
     if sender.name == 'app':  # Cambia 'app' por el nombre correcto de tu módulo
         Group.objects.get_or_create(name='Operario')

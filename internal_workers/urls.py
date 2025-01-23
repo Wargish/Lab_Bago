@@ -19,5 +19,7 @@ urlpatterns = [
     path('notificaciones/<int:notificaciones_id>/', notificaciones_id , name='notificaciones_id'),
     path('notificacion/marcar_leida/<int:notificacion_id>/', marcar_notificacion_leida, name='marcar_notificacion_leida'),
 
+    path('api/ubicaciones-tecnicas/', ubicaciones_tecnicas_por_zona, name='ubicaciones_tecnicas_por_zona'),
+    path('api/equipos/', equipos_por_ubicacion_tecnica, name='equipos_por_ubicacion_tecnica'),
 
 ]

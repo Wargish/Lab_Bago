@@ -1,11 +1,29 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class Ubicacion(models.Model):
-    nombre = models.CharField(max_length=200)
+class Zona(models.Model):
+    nombre = models.CharField(max_length=255)
 
     def __str__(self):
         return self.nombre
+    
+class UbicacionTecnica(models.Model):
+    zona = models.ForeignKey(Zona, related_name='ubicaciones_tecnicas', on_delete=models.CASCADE)
+    codigo = models.CharField(max_length=255)
+    descripcion = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.codigo} ({self.descripcion})"
+
+class Equipo(models.Model):
+    ubicacion_tecnica = models.ForeignKey(UbicacionTecnica, related_name='equipos', on_delete=models.CASCADE)
+    codigo = models.CharField(max_length=255)
+    descripcion = models.TextField(null=True, blank=True)
+
+
+    def __str__(self):
+        return f"{self.codigo} ({self.descripcion})"
+
 
 class Estado(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
@@ -23,11 +41,13 @@ class Informe(models.Model):
 
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="informes")
     creado_en = models.DateTimeField(auto_now_add=True)
-    ubicacion = models.ForeignKey(Ubicacion, on_delete=models.SET_NULL, null=True)
+    zona = models.ForeignKey(Zona, on_delete=models.SET_NULL, null=True)
     objetivo = models.TextField(null=True, blank=True)
     mensaje = models.TextField(null=True, blank=True)
     imagen = models.ImageField(upload_to='informes/')
     categoría = models.CharField(max_length=3, choices=CATEGORIA_CHOICES, default=INFRAESTRUCTURA)
+    ubicacion_tecnica = models.ForeignKey(UbicacionTecnica, on_delete=models.SET_NULL, null=True, blank=True)
+    equipo = models.ForeignKey(Equipo, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ['-creado_en']

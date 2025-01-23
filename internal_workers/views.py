@@ -2,19 +2,12 @@
 from django.shortcuts import render, redirect, get_object_or_404,HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required, user_passes_test
-from app.signals import *
-import sweetify
-import os
-# Importaciones locales (formularios y modelos)
-from .forms import *
-from .models import *
+from django.http import JsonResponse
 
-# Importaciones para PDF
-from xhtml2pdf import pisa
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from django.core.files.base import ContentFile
-from django.template.loader import render_to_string
+import sweetify
+
+from internal_workers.forms import InformeForm, ReporteForm, FeedbackForm
+from internal_workers.models import Informe, Tarea, Notificacion, ReporteTarea, FeedbackTarea, UbicacionTecnica, Equipo
 
 
 # Filtro Grupos de Usuarios
@@ -24,10 +17,9 @@ def group_required(*group_names):
     return user_passes_test(in_groups)
 
 
-
 # Vistas de CRUD y movimiento de información
 @login_required
-@group_required('Operario','Supervisor')
+@group_required('Operario', 'Supervisor')
 def informe(request):
     if request.method == 'POST':
         form = InformeForm(request.POST, request.FILES)
@@ -169,4 +161,18 @@ def marcar_notificacion_leida(request, notificacion_id):
     else:
         return redirect('home')
 
+@login_required
+def ubicaciones_tecnicas_por_zona(request):
+    zona_id = request.GET.get('zona_id')
+    if zona_id:
+        ubicaciones = UbicacionTecnica.objects.filter(zona_id=zona_id).values('id', 'codigo')
+        return JsonResponse({'status': 'success', 'data': list(ubicaciones)})
+    return JsonResponse({'status': 'error', 'message': 'No zona_id provided'})
 
+@login_required
+def equipos_por_ubicacion_tecnica(request):
+    ubicacion_id = request.GET.get('ubicacion_tecnica_id')
+    if ubicacion_id:
+        equipos = Equipo.objects.filter(ubicacion_tecnica_id=ubicacion_id).values('id', 'codigo')
+        return JsonResponse({'status': 'success', 'data': list(equipos)})
+    return JsonResponse({'status': 'error', 'message': 'No ubicacion_tecnica_id provided'})

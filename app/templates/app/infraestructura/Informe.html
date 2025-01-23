@@ -6,23 +6,44 @@
     <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
 
-        <!-- Campo de ubicación -->
+        <!-- Campo de zona -->
         <div class="md-form">
-            {{ form.ubicacion.label_tag }}
-            {{ form.ubicacion }}
+            {{ form.zona.label_tag }}
+            {{ form.zona }}
             <div class="invalid-feedback">
-                {% for error in form.ubicacion.errors %}
+                {% for error in form.zona.errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
             </div>
         </div>
-
         <!-- Campo de tipo de informe -->
         <div class="md-form">
             {{ form.categoría.label_tag }}
             {{ form.categoría }}
             <div class="invalid-feedback">
                 {% for error in form.categoría.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Campo de ubicación técnica -->
+        <div class="md-form" id="ubicacion_tecnica_field" style="display: none;">
+            {{ form.ubicacion_tecnica.label_tag }}
+            {{ form.ubicacion_tecnica }}
+            <div class="invalid-feedback">
+                {% for error in form.ubicacion_tecnica.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Campo de equipo -->
+        <div class="md-form" id="equipo_field" style="display: none;">
+            {{ form.equipo.label_tag }}
+            {{ form.equipo }}
+            <div class="invalid-feedback">
+                {% for error in form.equipo.errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
             </div>
@@ -69,8 +90,107 @@
     </form>
 </div>
 
-
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const zonaSelect = document.getElementById('id_zona');
+        const categoriaSelect = document.getElementById('id_categoría');
+        const ubicacionTecnicaSelect = document.getElementById('id_ubicacion_tecnica');
+        const equipoSelect = document.getElementById('id_equipo');
+        const ubicacionTecnicaField = document.getElementById('ubicacion_tecnica_field');
+        const equipoField = document.getElementById('equipo_field');
+
+        // Get CSRF token
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        function updateFieldVisibility() {
+            const categoriaValue = categoriaSelect.value;
+            
+            if (zonaSelect.value) {
+                ubicacionTecnicaField.style.display = 'block';
+                
+                if (categoriaValue === 'MAQ') {
+                    equipoField.style.display = 'block';
+                } else {
+                    equipoField.style.display = 'none';
+                }
+            } else {
+                ubicacionTecnicaField.style.display = 'none';
+                equipoField.style.display = 'none';
+            }
+        }
+
+        function fetchUbicacionesTecnicas(zonaId) {
+            console.log("Fetching ubicaciones for zona:", zonaId); // Debug
+            fetch(`/api/ubicaciones-tecnicas/?zona_id=${zonaId}`, {
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(jsonResponse => {
+                if (jsonResponse.status === 'success') {
+                    ubicacionTecnicaSelect.innerHTML = '<option value="">---------</option>';
+                    jsonResponse.data.forEach(item => {
+                        ubicacionTecnicaSelect.innerHTML += `<option value="${item.id}">${item.codigo}</option>`;
+                    });
+                } else {
+                    console.error('Error:', jsonResponse.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchEquipos(ubicacionTecnicaId) {
+            console.log("Fetching equipos for ubicacion:", ubicacionTecnicaId); // Debug
+            fetch(`/api/equipos/?ubicacion_tecnica_id=${ubicacionTecnicaId}`, {
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(jsonResponse => {
+                if (jsonResponse.status === 'success') {
+                    equipoSelect.innerHTML = '<option value="">---------</option>';
+                    jsonResponse.data.forEach(item => {
+                        equipoSelect.innerHTML += `<option value="${item.id}">${item.codigo}</option>`;
+                    });
+                } else {
+                    console.error('Error:', jsonResponse.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        zonaSelect.addEventListener('change', function() {
+            console.log("Zona changed to:", this.value); // Debug
+            updateFieldVisibility();
+            if (this.value) {
+                fetchUbicacionesTecnicas(this.value);
+            }
+        });
+
+        ubicacionTecnicaSelect.addEventListener('change', function() {
+            console.log("Ubicacion changed to:", this.value); // Debug
+            if (this.value) {
+                fetchEquipos(this.value);
+            }
+        });
+
+        categoriaSelect.addEventListener('change', updateFieldVisibility);
+
+        updateFieldVisibility();
+    });
+
     const imageInput = document.getElementById('id_imagen');  // Seleccionamos el input de archivo
     const imagePreview = document.getElementById('imagen-preview');  // Vista previa de la imagen
 
