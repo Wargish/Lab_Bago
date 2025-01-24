@@ -161,18 +161,23 @@ def marcar_notificacion_leida(request, notificacion_id):
     else:
         return redirect('home')
 
-@login_required
+
 def ubicaciones_tecnicas_por_zona(request):
     zona_id = request.GET.get('zona_id')
     if zona_id:
-        ubicaciones = UbicacionTecnica.objects.filter(zona_id=zona_id).values('id', 'codigo')
-        return JsonResponse({'status': 'success', 'data': list(ubicaciones)})
-    return JsonResponse({'status': 'error', 'message': 'No zona_id provided'})
+        ubicaciones_tecnicas = UbicacionTecnica.objects.filter(zona_id=zona_id)
+    else:
+        ubicaciones_tecnicas = UbicacionTecnica.objects.all()
+    
+    data = list(ubicaciones_tecnicas.values('id', 'codigo', 'descripcion'))
+    return JsonResponse(data, safe=False)
 
-@login_required
 def equipos_por_ubicacion_tecnica(request):
-    ubicacion_id = request.GET.get('ubicacion_tecnica_id')
-    if ubicacion_id:
-        equipos = Equipo.objects.filter(ubicacion_tecnica_id=ubicacion_id).values('id', 'codigo')
-        return JsonResponse({'status': 'success', 'data': list(equipos)})
-    return JsonResponse({'status': 'error', 'message': 'No ubicacion_tecnica_id provided'})
+    ubicacion_tecnica_id = request.GET.get('ubicacion_tecnica_id')
+    if ubicacion_tecnica_id:
+        equipos = Equipo.objects.filter(ubicacion_tecnica_id=ubicacion_tecnica_id)
+    else:
+        equipos = Equipo.objects.all()
+    
+    data = list(equipos.values('id', 'codigo', 'descripcion'))
+    return JsonResponse(data, safe=False)

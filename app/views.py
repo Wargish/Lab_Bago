@@ -62,9 +62,12 @@ def roles(request):
                 usuario.set_password(password)
             usuario.save()
         elif action == 'assign_task':
-            tarea_id = request.POST.get('task_id')
-            tarea = get_object_or_404(Tarea, id=tarea_id)
-            tarea.asignar_tecnico(usuario)
+            if usuario.groups.filter(name='Técnico').exists():
+                tarea_id = request.POST.get('task_id')
+                tarea = get_object_or_404(Tarea, id=tarea_id)
+                tarea.asignar_tecnico(usuario)
+            else:
+                return HttpResponse('Solo los usuarios con rol de Técnico pueden recibir tareas.', status=403)
     
     role_filter = request.GET.get('role', 'all')
 
@@ -83,7 +86,7 @@ def roles(request):
         'selected_role': role_filter,
     }
 
-    return render(request, "app/auth/roles.html", {'usuarios': usuarios, 'roles': roles, 'tareas_sin_tecnico': tareas_sin_tecnico})
+    return render(request, "app/auth/roles.html", context)
 
 # Vistas de notificaciones
 @login_required
@@ -136,3 +139,6 @@ def descargar_tareas(request):
 
 def error_404(request):
     return render (request, "app/error/404.html")
+
+def error_403(request):
+    return render(request, "app/error/403.html")

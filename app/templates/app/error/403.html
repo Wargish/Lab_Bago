@@ -1,0 +1,9 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<div class="container mt-5 text-white">
+  <h2 class="mb-4">Error 403 - Prohibido</h2>
+  <p>No tienes permiso para acceder a esta página.</p>
+  <a href="{% url 'home' %}" class="btn btn-primary">Volver al inicio</a>
+</div>
+{% endblock %}

@@ -13,10 +13,10 @@
         <p><strong>Zona:</strong> {{ informe.zona.nombre }}</p>
         <p><strong>Categoría:</strong> {{ informe.get_categoría_display }}</p>
         {% if informe.categoría == 'INF' %}
-            <p><strong>Ubicación Técnica:</strong> {{ informe.ubicacion_tecnica.codigo }}</p>
+            <p><strong>Ubicación Técnica:</strong> {{ informe.ubicacion_tecnica.descripcion }}</p>
         {% elif informe.categoría == 'MAQ' %}
-            <p><strong>Ubicación Técnica:</strong> {{ informe.ubicacion_tecnica.codigo }}</p>
-            <p><strong>Equipo:</strong> {{ informe.equipo.codigo }}</p>
+            <p><strong>Ubicación Técnica:</strong> {{ informe.ubicacion_tecnica.descripcion }}</p>
+            <p><strong>Equipo:</strong> {{ informe.equipo.descripcion }}</p>
         {% endif %}
         <p><strong>Objetivo:</strong> {{ informe.objetivo }}</p>
         <p><strong>Mensaje:</strong> {{ informe.mensaje }}</p>

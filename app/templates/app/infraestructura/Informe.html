@@ -30,7 +30,9 @@
         <!-- Campo de ubicación técnica -->
         <div class="md-form" id="ubicacion_tecnica_field" style="display: none;">
             {{ form.ubicacion_tecnica.label_tag }}
-            {{ form.ubicacion_tecnica }}
+            <select id="id_ubicacion_tecnica" name="ubicacion_tecnica" class="form-control">
+                <option value="">Seleccione una ubicación técnica</option>
+            </select>
             <div class="invalid-feedback">
                 {% for error in form.ubicacion_tecnica.errors %}
                     <p>{{ error }}</p>
@@ -41,7 +43,9 @@
         <!-- Campo de equipo -->
         <div class="md-form" id="equipo_field" style="display: none;">
             {{ form.equipo.label_tag }}
-            {{ form.equipo }}
+            <select id="id_equipo" name="equipo" class="form-control">
+                <option value="">Seleccione un equipo</option>
+            </select>
             <div class="invalid-feedback">
                 {% for error in form.equipo.errors %}
                     <p>{{ error }}</p>
@@ -91,106 +95,6 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const zonaSelect = document.getElementById('id_zona');
-        const categoriaSelect = document.getElementById('id_categoría');
-        const ubicacionTecnicaSelect = document.getElementById('id_ubicacion_tecnica');
-        const equipoSelect = document.getElementById('id_equipo');
-        const ubicacionTecnicaField = document.getElementById('ubicacion_tecnica_field');
-        const equipoField = document.getElementById('equipo_field');
-
-        // Get CSRF token
-        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-        function updateFieldVisibility() {
-            const categoriaValue = categoriaSelect.value;
-            
-            if (zonaSelect.value) {
-                ubicacionTecnicaField.style.display = 'block';
-                
-                if (categoriaValue === 'MAQ') {
-                    equipoField.style.display = 'block';
-                } else {
-                    equipoField.style.display = 'none';
-                }
-            } else {
-                ubicacionTecnicaField.style.display = 'none';
-                equipoField.style.display = 'none';
-            }
-        }
-
-        function fetchUbicacionesTecnicas(zonaId) {
-            console.log("Fetching ubicaciones for zona:", zonaId); // Debug
-            fetch(`/api/ubicaciones-tecnicas/?zona_id=${zonaId}`, {
-                headers: {
-                    'X-CSRFToken': csrftoken
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(jsonResponse => {
-                if (jsonResponse.status === 'success') {
-                    ubicacionTecnicaSelect.innerHTML = '<option value="">---------</option>';
-                    jsonResponse.data.forEach(item => {
-                        ubicacionTecnicaSelect.innerHTML += `<option value="${item.id}">${item.codigo}</option>`;
-                    });
-                } else {
-                    console.error('Error:', jsonResponse.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        function fetchEquipos(ubicacionTecnicaId) {
-            console.log("Fetching equipos for ubicacion:", ubicacionTecnicaId); // Debug
-            fetch(`/api/equipos/?ubicacion_tecnica_id=${ubicacionTecnicaId}`, {
-                headers: {
-                    'X-CSRFToken': csrftoken
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(jsonResponse => {
-                if (jsonResponse.status === 'success') {
-                    equipoSelect.innerHTML = '<option value="">---------</option>';
-                    jsonResponse.data.forEach(item => {
-                        equipoSelect.innerHTML += `<option value="${item.id}">${item.codigo}</option>`;
-                    });
-                } else {
-                    console.error('Error:', jsonResponse.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        zonaSelect.addEventListener('change', function() {
-            console.log("Zona changed to:", this.value); // Debug
-            updateFieldVisibility();
-            if (this.value) {
-                fetchUbicacionesTecnicas(this.value);
-            }
-        });
-
-        ubicacionTecnicaSelect.addEventListener('change', function() {
-            console.log("Ubicacion changed to:", this.value); // Debug
-            if (this.value) {
-                fetchEquipos(this.value);
-            }
-        });
-
-        categoriaSelect.addEventListener('change', updateFieldVisibility);
-
-        updateFieldVisibility();
-    });
-
     const imageInput = document.getElementById('id_imagen');  // Seleccionamos el input de archivo
     const imagePreview = document.getElementById('imagen-preview');  // Vista previa de la imagen
 
@@ -216,5 +120,92 @@
             }
         });
     }
+
+    // Función para cargar ubicaciones técnicas basadas en la zona seleccionada
+    function cargarUbicacionesTecnicas(zonaId) {
+        const ubicacionTecnicaField = document.getElementById('ubicacion_tecnica_field');
+        const ubicacionTecnicaSelect = document.getElementById('id_ubicacion_tecnica');
+        ubicacionTecnicaSelect.innerHTML = '<option value="">Seleccione una ubicación técnica</option>';
+
+        if (zonaId) {
+            fetch(`api/ubicaciones-tecnicas/?zona_id=${zonaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(ubicacion => {
+                        const option = document.createElement('option');
+                        option.value = ubicacion.id;
+                        option.textContent = `${ubicacion.codigo} (${ubicacion.descripcion})`;
+                        ubicacionTecnicaSelect.appendChild(option);
+                    });
+                    ubicacionTecnicaField.style.display = 'block';
+                });
+        } else {
+            ubicacionTecnicaField.style.display = 'none';
+        }
+    }
+
+    // Función para cargar equipos basados en la ubicación técnica seleccionada
+    function cargarEquipos(ubicacionTecnicaId) {
+        const equipoField = document.getElementById('equipo_field');
+        const equipoSelect = document.getElementById('id_equipo');
+        equipoSelect.innerHTML = '<option value="">Seleccione un equipo</option>';
+
+        if (ubicacionTecnicaId) {
+            fetch(`api/equipos/?ubicacion_tecnica_id=${ubicacionTecnicaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(equipo => {
+                        const option = document.createElement('option');
+                        option.value = equipo.id;
+                        option.textContent = `${equipo.codigo} (${equipo.descripcion})`;
+                        equipoSelect.appendChild(option);
+                    });
+                    equipoField.style.display = 'block';
+                });
+        } else {
+            equipoField.style.display = 'none';
+        }
+    }
+
+    // Función para mostrar/ocultar campos basados en la categoría seleccionada
+    function mostrarCamposPorCategoria(categoria) {
+        const ubicacionTecnicaField = document.getElementById('ubicacion_tecnica_field');
+        const equipoField = document.getElementById('equipo_field');
+
+        if (categoria === 'INF') {
+            ubicacionTecnicaField.style.display = 'block';
+            equipoField.style.display = 'none';
+        } else if (categoria === 'MAQ') {
+            ubicacionTecnicaField.style.display = 'block';
+            equipoField.style.display = 'block';
+        } else {
+            ubicacionTecnicaField.style.display = 'none';
+            equipoField.style.display = 'none';
+        }
+    }
+
+    // Event listener para el cambio en el selector de zona
+    document.getElementById('id_zona').addEventListener('change', function() {
+        const zonaId = this.value;
+        cargarUbicacionesTecnicas(zonaId);
+    });
+
+    // Event listener para el cambio en el selector de ubicación técnica
+    document.getElementById('id_ubicacion_tecnica').addEventListener('change', function() {
+        const ubicacionTecnicaId = this.value;
+        cargarEquipos(ubicacionTecnicaId);
+    });
+
+    // Event listener para el cambio en el selector de categoría
+    document.getElementById('id_categoría').addEventListener('change', function() {
+        const categoria = this.value;
+        mostrarCamposPorCategoria(categoria);
+    });
+
+    // Inicializar la visibilidad de los campos basados en la categoría seleccionada al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoria = document.getElementById('id_categoría').value;
+        mostrarCamposPorCategoria(categoria);
+    });
 </script>
 {% endblock %}

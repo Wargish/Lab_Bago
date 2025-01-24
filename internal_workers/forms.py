@@ -15,24 +15,6 @@ class InformeForm(forms.ModelForm):
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Start with empty querysets
-        self.fields['ubicacion_tecnica'].queryset = UbicacionTecnica.objects.none()
-        self.fields['equipo'].queryset = Equipo.objects.none()
-
-        # If editing existing instance, show related data
-        if self.instance and self.instance.pk:
-            if self.instance.zona:
-                self.fields['ubicacion_tecnica'].queryset = UbicacionTecnica.objects.filter(
-                    zona=self.instance.zona
-                )
-            if self.instance.ubicacion_tecnica:
-                self.fields['equipo'].queryset = Equipo.objects.filter(
-                    ubicacion_tecnica=self.instance.ubicacion_tecnica
-                )
-
 
 class TareaForm(forms.ModelForm):
     class Meta:

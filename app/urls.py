@@ -49,6 +49,7 @@ urlpatterns = [
     #path('detalle_externo/feedback_ext/<int:feedback_ex_id>/', detalle_feedbacks_ex, name='detalle_feedback_ext'),
 
     path('app/error/404', error_404, name='error_404'),
+    path('app/error/403', error_403, name='error_403'),
 
 ]
 
@@ -58,3 +59,4 @@ if settings.DEBUG:
 
 
 handler404 = error_404
+handler403 = error_403
